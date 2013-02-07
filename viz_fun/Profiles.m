@@ -5,8 +5,8 @@ clc
 eps = 1e-10;
 
 %%
-b.u    = 20e-9; % T
-% b.u    = 2000e-9; % T
+% b.u    = 20e-9; % T
+b.u    = 2000e-9; % T
 
 set(gcf,'Units','normalize','Color','white')
 gamma  = 5/3;

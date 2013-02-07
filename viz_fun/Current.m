@@ -4,13 +4,15 @@ beep off
 clc
 
 %% Model currents
-tmp = load('Jx.dat');
+folder = '../viz_dir/';
+t = '0000.999';
+tmp = load([folder,'Jx_',t,'.dat']);
 z = tmp(:,1)+100;
-tmp = load('Jx.dat');
+tmp = load([folder,'Jx_',t,'.dat']);
 J.x = tmp(:,2);
-tmp = load('Jy.dat');
+tmp = load([folder,'Jy_',t,'.dat']);
 J.y = tmp(:,2);
-tmp = load('Jz.dat');
+tmp = load([folder,'Jz_',t,'.dat']);
 J.z = tmp(:,2);
 J.o = sqrt(J.x.^2+J.y.^2+J.z.^2);
 
@@ -33,18 +35,18 @@ m.O2p = 5.3135e-26; % kg
 m.CO2 = 7.3079e-26; % kg
 m.e   = 9.3109e-31; % kg
 
-tmp = load('ne.dat');
+tmp = load([folder,'ne.dat']);
 z   = tmp(:,1)+100; %_km
 nz  = length(z);
-tmp = load('ne.dat');
+tmp = load([folder,'ne.dat']);
 n.e = tmp(:,2); %_m^-3
 
-tmp = load('Te.dat');
+tmp = load([folder,'Te.dat']);
 T.e = tmp(:,2); %_K
-tmp = load('TO2p.dat');
+tmp = load([folder,'TO2p.dat']);
 T.i = tmp(:,2); %_K
 
-v     = importdata('../data/MGS/Ls180_LT14_MY24_solarmod.dat');
+v     = importdata('../../../Current Work/Profiles/data/MGS/Ls180_LT14_MY24_solarmod.dat');
 v.data(any(isnan(v.data),2),:) =[];
 s.z   = v.data(:,1);     %_km
 s.n.g = v.data(:,2)*1e6; %_m-3
