@@ -8,7 +8,7 @@
 -blockers
 #-smoothing
 #
--ts_max_steps 100000002
+-ts_max_steps 100000000
 -viz_dstep 250           # plot every dstep 
 -ts_max_time 1e2 
 #-ts_final_time 1e2 
