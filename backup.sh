@@ -24,4 +24,3 @@ else
   tar cvzf "${HOME}/data/BAK/M4_RK_${DATE}_$1.tar.gz" viz_dir/*.*if* viz_dir/*.png viz_dir/M4*
 fi
 
-# random change
