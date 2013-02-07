@@ -3,7 +3,6 @@
 *.tiff
 *.png
 *.o
-*main.in
 X*.general
 X*.dat
-
+.gitignore
