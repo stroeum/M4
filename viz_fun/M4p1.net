@@ -1,5 +1,5 @@
 //
-// time: Thu Feb  7 15:21:38 2013
+// time: Thu Feb  7 16:58:58 2013
 //
 // version: 3.2.0 (format), 4.4.4 (DX)
 //
@@ -16,14 +16,14 @@ include "FieldlineFine.net"
 // page assignment: B	order=9, windowed=0, showing=0
 // page assignment: Camera	order=12, windowed=0, showing=0
 // page assignment: E	order=8, windowed=0, showing=0
-// page assignment: Input	order=2, windowed=0, showing=0
+// page assignment: Input	order=2, windowed=0, showing=1
 // page assignment: J	order=5, windowed=0, showing=0
 // page assignment: Jx Jy Jz	order=6, windowed=0, showing=0
 // page assignment: V	order=7, windowed=0, showing=0
 // page assignment: dB	order=10, windowed=0, showing=0
 // page assignment: ne	order=11, windowed=0, showing=0
-// page assignment: plot	order=4, windowed=0, showing=1
-// workspace: width = 2625, height = 2856
+// page assignment: plot	order=4, windowed=0, showing=0
+// workspace: width = 1048, height = 606
 // layout: snap = 1, width = 50, height = 50, align = CN
 //
 macro main(
@@ -3577,18 +3577,18 @@ main_Collect_28_out_1 =
     // input[3]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.042643923 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_24"
-    // input[7]: defaulting = 1, visible = 1, type = 5, value = 0.1414552
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 0.20004497
+    // input[7]: defaulting = 1, visible = 1, type = 5, value = 0.0014260885
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 0.14183263
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[10]: defaulting = 1, visible = 0, type = 2048, value = NULL
     // input[11]: defaulting = 1, visible = 0, type = 2048, value = NULL
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.1414552 0.20004497 }
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0014260885 0.14183263 }
     // input[13]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[14]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[15]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[16]: defaulting = 0, visible = 0, type = 16777224, value = NULL
-    // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.1414552
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 0.20004497
+    // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.0014260885
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 0.14183263
     // page group: E
     // window: position = (0.0182,0.0231), size = 0.5078x0.5778, screen = 0
     //
@@ -4827,14 +4827,14 @@ main_Slab_59_out_1 =
     // input[3]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.042643923 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_31"
-    // input[7]: defaulting = 1, visible = 1, type = 5, value = 2000.0
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 2000.0
+    // input[7]: defaulting = 1, visible = 1, type = 5, value = 20.0
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 20.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[10]: defaulting = 1, visible = 0, type = 2048, value = NULL
     // input[11]: defaulting = 1, visible = 0, type = 2048, value = NULL
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 2000.0 2000.0 }
-    // input[17]: defaulting = 0, visible = 0, type = 5, value = 2000.0
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 2000.0
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 20.0 20.0 }
+    // input[17]: defaulting = 0, visible = 0, type = 5, value = 20.0
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 20.0
     // page group: B
     // window: position = (0.0182,0.0231), size = 0.5078x0.5778, screen = 0
     //
@@ -5087,7 +5087,7 @@ main_Color_126_out_1 =
     // input[2]: visible = 0
     // page group: plot
     // depth: value = 24
-    // window: position = (  -nan,   inf), size =    infx   inf
+    // window: position = (0.0115,0.3463), size = 0.9958x0.9269, screen = 0
     //
 main_Display_12_out_1[cache: 2] = 
     Display(
@@ -5113,7 +5113,7 @@ main_Display_12_out_1[cache: 2] =
     // input[2]: visible = 0
     // page group: Jx Jy Jz
     // depth: value = 24
-    // window: position = (  -nan,   inf), size =    infx   inf
+    // window: position = (0.0089,0.3611), size = 0.9958x0.4824, screen = 0
     //
 main_Display_13_out_1[cache: 2] = 
     Display(
@@ -6095,7 +6095,7 @@ main_Image_69_out_3 =
     // page group: 3D_plots
     // title: value = B
     // depth: value = 24
-    // window: position = (  -inf,   inf), size =    infx   inf
+    // window: position = (0.0052,0.0278), size = 0.3198x0.5009, screen = 0
     // internal caching: 1
     //
 main_Image_71_out_1,
@@ -7707,13 +7707,13 @@ main_Colormap_24_in_8 = NULL;
 main_Colormap_24_in_9 = NULL;
 main_Colormap_24_in_10 = NULL;
 main_Colormap_24_in_11 = NULL;
-main_Colormap_24_in_12 = { 0.1414552 0.20004497 };
+main_Colormap_24_in_12 = { 0.0014260885 0.14183263 };
 main_Colormap_24_in_13 = NULL;
 main_Colormap_24_in_14 = NULL;
 main_Colormap_24_in_15 = NULL;
 main_Colormap_24_in_16 = NULL;
-main_Colormap_24_in_17 = 0.1414552;
-main_Colormap_24_in_18 = 0.20004497;
+main_Colormap_24_in_17 = 0.0014260885;
+main_Colormap_24_in_18 = 0.14183263;
 main_Colormap_24_in_19 = NULL;
 main_Colormap_24_out_1 = NULL;
 main_Colormap_24_out_2 = NULL;
@@ -8078,13 +8078,13 @@ main_Colormap_31_in_8 = NULL;
 main_Colormap_31_in_9 = NULL;
 main_Colormap_31_in_10 = NULL;
 main_Colormap_31_in_11 = NULL;
-main_Colormap_31_in_12 = { 2000.0 2000.0 };
+main_Colormap_31_in_12 = { 20.0 20.0 };
 main_Colormap_31_in_13 = NULL;
 main_Colormap_31_in_14 = NULL;
 main_Colormap_31_in_15 = NULL;
 main_Colormap_31_in_16 = NULL;
-main_Colormap_31_in_17 = 2000.0;
-main_Colormap_31_in_18 = 2000.0;
+main_Colormap_31_in_17 = 20.0;
+main_Colormap_31_in_18 = 20.0;
 main_Colormap_31_in_19 = NULL;
 main_Colormap_31_out_1 = NULL;
 main_Color_156_in_3 = .5;
