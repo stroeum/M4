@@ -227,7 +227,6 @@ legend('O_2^+','CO_2^+','O^+','e','Location','best')
 legend('boxoff')
 %title(['B = ',num2str(b.u*1e9),' nT i_z'])
 
-
-hgexport(2,'Profiles.eps')
-hgexport(3,'Dynamo.eps')
-hgexport(5,'GradP.eps')
+print(2,'-dps','Profiles.ps')
+print(3,'-dps','Dynamo.ps')
+print(5,'-dps','GradP.ps')
