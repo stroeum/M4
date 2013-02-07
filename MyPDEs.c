@@ -1041,14 +1041,64 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
   PetscReal      mi[3] = {user->mi[0], user->mi[1], user->mi[2]};                // mi[O2+,CO2+,O+]
   PetscReal      un[3] = {user->un[0]/v0, user->un[1]/v0, user->un[2]/v0};       // neutral wind
   PetscReal      gama[4] = {user->gama[O2p],user->gama[CO2p],user->gama[Op],user->gama[e]};
-  PetscReal      vp      = 0.0;                                                  // Alfven speed
-  PetscReal      vCFL[3] = {0.0, 0.0, 0.0};                                      // x-, y-, and z-CFL criterion v
-  PetscReal      tA  =0.0, vA  =0.0;                                             // Alfven speed
-  PetscReal      ts_n=0.0, vs_n=0.0;                                             // speed of sound
-  PetscReal      ts_c=0.0, vs_c=0.0;                                             // speed of sound
-  PetscReal      rhoc=0.0;                                                       // kg/m^3, weighted mass density of charged species (i,e)
+  PetscReal      c=1.0/(PetscSqrtScalar(mu0*eps0)*v0);                           // Normalized speed of light (all points, all directions, all species
+  PetscReal      vA[3] = {                                                       // Alfven speed
+                    0.0,                                                         // * 
+                    0.0,                                                         // * for a GIVEN species l
+                    0.0                                                          // * in ANY direction m
+                 };                                                              // * at the CURRENT point (k,j,i)
+  
+  PetscReal      vA_max[3] = {                                                   // Maximum Alfven speed
+                    0.0,                                                         // * 
+                    0.0,                                                         // * for a GIVEN species l
+                    0.0                                                          // * in ANY direction m
+                 };                                                              // * at the ENTIRE SUBDOMAIN
+  
+  PetscReal      vs[3] = {                                                       // Sonic speed
+                    0.0,                                                         // * 
+                    0.0,                                                         // * for a GIVEN species l
+                    0.0                                                          // * in ANY direction m
+                 };                                                              // * at the CURRENT point (k,j,i)
+
+  PetscReal      vs_max[3] = {                                                   // Maximum Sonic speed
+                    0.0,                                                         // * 
+                    0.0,                                                         // * for a GIVEN species l
+                    0.0                                                          // * in ANY direction m
+                 };                                                              // * at the ENTIRE SUBDOMAIN
+  
+  PetscReal      vf[3] = {                                                       // Fast magnetosonic wave speed
+                    0.0,                                                         // * 
+                    0.0,                                                         // * for a GIVEN species l
+                    0.0                                                          // * in ANY direction m
+                 };                                                              // * at the CURRENT point (k,j,i)
+
+  PetscReal      vf_max[3] = {                                                   // Maximum Fast magnetosonic wave speed
+                    0.0,                                                         // * 
+                    0.0,                                                         // * for a GIVEN species l
+                    0.0                                                          // * in ANY direction m
+                 };                                                              // * at the ENTIRE SUBDOMAIN
+
+  PetscReal      ve_max[3] = {                                                   // Maximum speed of the hydrodynamic electron flow
+                    0.0,                                                         // * 
+                    0.0,                                                         // * 
+                    0.0                                                          // * in ANY direction m
+                 };                                                              // * at the ENTIRE SUBDOMAIN
+
+  PetscReal      vcr[3][3] = {                                                  // Critical speed
+                    {0.0, 0.0, 0.0},                                             // * sum of the hydrodynamic and fast magnetoacoustic wave speeds
+                    {0.0, 0.0, 0.0},                                             // * for a GIVEN species l
+                    {0.0, 0.0, 0.0}                                              // * in the GIVEN direction m
+                 };                                                              // * at the CURRENT point (k,j,i)
+
+  PetscReal      vcr_max[3][3] = {                                              // Critical speed 
+                    {0.0, 0.0, 0.0},                                             // * sum of the hydro-dynamic and fast magnetoacoustic wave speeds
+                    {0.0, 0.0, 0.0},                                             // * for a GIVEN species l
+                    {0.0, 0.0, 0.0}                                              // * in the GIVEN direction m
+                 };                                                              // * in the SUBDOMAIN (at the end of the space scanning of the subdomain)
+
+  PetscReal      T_cr[3] = {0.0,0.0,0.0};
   PetscErrorCode ierr;
-  PetscReal      dt,dtCFL,h[3];
+  PetscReal      dt,dt_CFL,h[3];
   PetscReal      nu[4][2];                                                       // ion-neutral collision frequency
   PetscReal      E[3],B[3];                                                      // E-field, B-field
   PetscReal      ne,ni[3],nn[2];                                                 // [O2+], [CO2+], [O+], ne in m^-3
@@ -1061,12 +1111,10 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
   PetscInt       i,j,k,l,m,n,xs,ys,zs,xm,ym,zm;
   PetscReal      Z;
   PetscReal      ve[3],vi[3][3];                                                 // electron and ion velocities 
-  PetscReal      ve_max[3],vi_max[3][3];
   diff           dE[3],dpe,dve[3],dni[3],dpi[3],dvi[3][3];                       // Other derivatives 
   stencil        id;
   coeff3         D1;
   coeff2         dh;
-  fdv            ff,ff_max,vf,vf_max;            
   PetscBool      flag = PETSC_FALSE;
   
   PetscFunctionBegin;
@@ -1111,36 +1159,11 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
   ierr = DMDAVecGetArrayDOF(db,localV,&v);CHKERRQ(ierr);
   ierr = DMDAVecGetArrayDOF(da,F,&f);CHKERRQ(ierr);
 
-  // Initialize max speed //
-
-  for (m=0; m<3; m++) {
-    ve_max[m] = 0.0;
-    for (l=0; l<3; l++) {
-      vi_max[l][m]    = 0.0;
-    }
-  }
-  for (m=0; m<3; m++) {
-    vf_max.g[m] = 0.0;
-    ff_max.g[m] = 0.0;
-    for (l=0; l<4; l++) {
-      vf_max.dp[l][m]  = 0.0;
-      vf_max.E[l][m]   = 0.0;
-      vf_max.B[l][m]   = 0.0;
-      vf_max.c[l][m]   = 0.0;
-      vf_max.adv[l][m] = 0.0;
-      ff_max.dp[l][m]  = 0.0;
-      ff_max.E[l][m]   = 0.0;
-      ff_max.B[l][m]   = 0.0;
-      ff_max.c[l][m]   = 0.0;
-      ff_max.adv[l][m] = 0.0;
-    }
-  }
-
   // Form F(u,v) = Udot //
   
   // Compute function over the locally owned part of the grid //
-  dtCFL = 1e300;
-  flag = PETSC_FALSE;
+  dt_CFL = 1e300;
+  flag   = PETSC_FALSE;
   for (k=zs; k<zs+zm; k++) {
     Z = Zmin + z[k]*L;
     for (j=ys; j<ys+ym; j++) {
@@ -1266,105 +1289,56 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
           dpi[l].dz = D1.z[0]*u[id.z[0]][j][i][d.pi[l]] + D1.z[1]*u[id.z[1]][j][i][d.pi[l]] + D1.z[2]*u[id.z[2]][j][i][d.pi[l]]; //dpi.dz 
         }
 
-        // Equations //
-        rhoc = ni[O2p]*mi[O2p]/me + ni[CO2p]*mi[CO2p]/me + ni[Op]*mi[Op]/me + ne;
-        vs_n = Profile(16,Z)/v0;
-        vs_c = PetscSqrtScalar((gama[O2p]*pi[O2p]+gama[CO2p]*pi[CO2p]+gama[Op]*pi[Op] + gama[e]*pe)/rhoc);
-        vA   = PetscSqrtScalar(Norm2(B)/rhoc);
-
-        // CFL // 
-        vCFL[0]=0.0; vCFL[1]=0.0; vCFL[2]=0.0;
-
-        // gravity force //
-        ff.g[0] =   0.0;
-        ff.g[1] =   0.0;
-        ff.g[2] = - 1.0/((1+Z/rM)*(1+Z/rM));
-
-        for (l=0; l<3; l++) {
-          // grap-pi force //
-          ff.dp[l][0] = -me/mi[l]*dpi[l].dx/ni[l];
-          ff.dp[l][1] = -me/mi[l]*dpi[l].dy/ni[l];
-          ff.dp[l][2] = -me/mi[l]*dpi[l].dz/ni[l]; 
-          // advection //
-          ff.adv[l][0] = - (vi[l][0]*dvi[l][0].dx +vi[l][1]*dvi[l][0].dy +vi[l][2]*dvi[l][0].dz);
-          ff.adv[l][1] = - (vi[l][0]*dvi[l][1].dx +vi[l][1]*dvi[l][1].dy +vi[l][2]*dvi[l][1].dz);
-          ff.adv[l][2] = - (vi[l][0]*dvi[l][2].dx +vi[l][1]*dvi[l][2].dy +vi[l][2]*dvi[l][2].dz);
-          for (m=0; m<3; m++) {
-            // E-Lorentz force //
-            ff.E[l][m] =  me/mi[l]*E[m];
-            // B-Lorentz force //
-            ff.B[l][m] =  me/mi[l]*CrossP(vi[l],B,m);
-            // collisions //
-            //ff.c[l][m] = tau*(nu[l][CO2]+nu[l][O])*(PetscAbsScalar(un[m])+PetscAbsScalar(vi[l][m]));
-            ff.c[l][m] = tau*(nu[l][CO2]+nu[l][O])*(un[m]-vi[l][m]);
-          }
-        }
-
-        // grad-pe force //
-        ff.dp[e][0] = -dpe.dx/ne;
-        ff.dp[e][1] = -dpe.dy/ne;
-        ff.dp[e][2] = -dpe.dz/ne;  
-        ff.adv[e][0] = - (ve[0]*dve[0].dx +ve[1]*dve[0].dy +ve[2]*dve[0].dz);
-        ff.adv[e][1] = - (ve[0]*dve[1].dx +ve[1]*dve[1].dy +ve[2]*dve[1].dz);
-        ff.adv[e][2] = - (ve[0]*dve[2].dx +ve[1]*dve[2].dy +ve[2]*dve[2].dz);
-
-        for (m=0; m<3; m++) {
-          // E-Lorentz force //
-          ff.E[e][m] = -E[m];
-          // B-Lorentz force //
-          ff.B[e][m] =  -CrossP(ve,B,m);
-          // collisions //
-          //ff.c[e][m] = tau*(nu[e][CO2]+nu[e][O])*(PetscAbsScalar(un[m])+PetscAbsScalar(ve[m]));
-          ff.c[e][m] = tau*(nu[e][CO2]+nu[e][O])*(un[m]-ve[m]);
-        }
-
-        for (m=0; m<3; m++) {
-          vCFL[m] = MaxAbs(vCFL[m],vA  );
-          vCFL[m] = MaxAbs(vCFL[m],vs_n);
-          vCFL[m] = MaxAbs(vCFL[m],vs_c);   
-          vCFL[m] = MaxAbs(vCFL[m],ve[m]); ve_max[m] = MaxAbs(ve_max[m],ve[m]);
-          for (l=0; l<3; l++) {vCFL[m] = MaxAbs(vCFL[m],vi[l][m]); vi_max[l][m] = MaxAbs(vi_max[l][m],vi[l][m]);}
-        }
-
-        for (m=0; m<3; m++) {
-          vf.g[m] = CrossP(ff.g,B,m)/Norm2(B); vf_max.g[m] = MaxAbs(vf_max.g[m],PetscAbsScalar(vf.g[m])); vCFL[m] = MaxAbs(vCFL[m],PetscAbsScalar(vf.g[m])); 
-          ff_max.g[m]  = MaxAbs(ff_max.g[m] ,PetscAbsScalar(ff.g[m]));
-
-          for (l=0; l<4; l++) {
-            vf.adv[l][m] = CrossP(ff.adv[l],B,m)/Norm2(B); vf_max.adv[l][m] = MaxAbs(vf_max.adv[l][m],vf.adv[l][m]); vCFL[m] = MaxAbs(vCFL[m],vf.adv[l][m]); 
-            vf.dp[l][m]  = CrossP(ff.dp[l] ,B,m)/Norm2(B); vf_max.dp[l][m]  = MaxAbs(vf_max.dp[l][m] ,vf.dp[l][m] ); vCFL[m] = MaxAbs(vCFL[m],vf.dp[l][m] ); 
-            vf.E[l][m]   = CrossP(ff.E[l]  ,B,m)/Norm2(B); vf_max.E[l][m]   = MaxAbs(vf_max.E[l][m]  ,vf.E[l][m]  ); vCFL[m] = MaxAbs(vCFL[m],vf.E[l][m]  ); 
-            vf.B[l][m]   = CrossP(ff.B[l]  ,B,m)/Norm2(B); vf_max.B[l][m]   = MaxAbs(vf_max.B[l][m]  ,vf.B[l][m]  ); vCFL[m] = MaxAbs(vCFL[m],vf.B[l][m]  ); 
-            vf.c[l][m]   = CrossP(ff.c[l]  ,B,m)/Norm2(B); vf_max.c[l][m]   = MaxAbs(vf_max.c[l][m]  ,vf.c[l][m]  ); vCFL[m] = MaxAbs(vCFL[m],vf.c[l][m]  ); 
-            ff_max.adv[l][m] = MaxAbs(ff_max.adv[l][m],ff.adv[l][m]);
-            ff_max.dp[l][m]  = MaxAbs(ff_max.dp[l][m] ,ff.dp[l][m] );
-            ff_max.E[l][m]   = MaxAbs(ff_max.E[l][m]  ,ff.E[l][m]  );
-            ff_max.B[l][m]   = MaxAbs(ff_max.B[l][m]  ,ff.B[l][m]  );
-            ff_max.c[l][m]   = MaxAbs(ff_max.c[l][m]  ,ff.c[l][m]  );
-          }
-        }
+        // CFL //
         h[0] = MinAbs(dh.x[0],dh.x[1]);
         h[1] = MinAbs(dh.y[0],dh.y[1]);
         h[2] = MinAbs(dh.z[0],dh.z[1]);
-        if(i==0 && j==0) {
-          tA   += h[2]/vA;
-          ts_n += h[2]/vs_n;
-          ts_c += h[2]/vs_c;
-        } 
 
-        if(dtCFL>1.0/(vCFL[0]/h[0]+vCFL[1]/h[1]+vCFL[2]/h[2]))
-          dtCFL=1.0/(vCFL[0]/h[0]+vCFL[1]/h[1]+vCFL[2]/h[2]);
-        
-        vp = PetscSqrtScalar( MaxAbs( MaxAbs(Norm2(ve),Norm2(vi[O2p])) , MaxAbs(Norm2(vi[CO2p]),Norm2(vi[Op])) ) ); 
+        for (m=0; m<3; m++) {
+          ve_max[m] = MaxAbs(ve_max[m], ve[m]);
+        }
+        for (l=0; l<3; l++) {
+          vs[l] = PetscSqrtScalar( (gama[e]*pe + gama[l]*pi[l]) / (ni[l]*mi[l]/me) );
+          vs_max[l] = MaxAbs( vs_max[l], vs[l] );
+
+          vA[l] = PetscSqrtScalar( Norm2(B) / (ni[l]*mi[l]/me) );
+          vA_max[l] = MaxAbs( vA_max[l], vA[l] );
+
+          vf[l] = c*PetscSqrtScalar( (vs[l]*vs[l]+vA[l]*vA[l]) / (c*c+vA[l]*vA[l]) );
+          vf_max[l] = MaxAbs( vf_max[l], vf[l] );
+
+          for (m=0; m<3; m++) {
+            vcr[l][m] = PetscAbsScalar(vi[l][m]) + vf[l];
+            vcr_max[l][m] = MaxAbs( vcr_max[l][m], vcr[l][m] );
+          }
+          /* T_cr[l]:
+           * critical time
+           * in all the subdomain up to the current point (k,j,i)
+           * for each species l
+           * indepently from all the direction in space (usually denoted m)
+           */
+          T_cr[l] = MinAbs(MinAbs(h[0]/vcr_max[l][0] , h[1]/vcr_max[l][1]),h[2]/vcr_max[l][2]);
+        }
+
+
+        /* dt_CFL:
+         * critical time for CFL condition
+         * in all the subdomain up to the current point (k,j,i)
+         * for ALL species (usually denoted l)
+         * indepently from ANY the direction in space (usually denoted m)
+         */
+        dt_CFL = MinAbs(MinAbs(T_cr[O2p],T_cr[CO2p]),T_cr[Op]);
+
         /*
         if(vp > vA) PetscPrintf(PETSC_COMM_SELF, "SuperAlfvenic speed @ [%d,%d,%d], |vloc|=%2.3e, vA=%2.3e (Z=%f km)\n",i,j,k,vp*v0,vA*v0, Z*1e-3);
-        assert(vp <= vA); // Check sub-Alfvenic speeds
+        assert(vp <= v,,A); // Check sub-Alfvenic speeds
         if(vp > vs_n) PetscPrintf(PETSC_COMM_SELF, "Supersonic (neutral) speed @ [%d,%d,%d], |vloc|=%2.3e, vs_n=%2.3e (Z=%f km)\n",i,j,k,vp*v0,vs_n*v0, Z*1e-3);
         assert(vp <= vs_n); // Check subsonic speeds
         if(vp > vs_c) PetscPrintf(PETSC_COMM_SELF, "Supersonic (charged) speed @ [%d,%d,%d], |vloc|=%2.3e, vs_c=%2.3e (Z=%f km)\n",i,j,k,vp*v0,vs_c*v0, Z*1e-3);
         assert(vp <= vs_c); // Check subsonic speeds
         */
 
+        // Equations //
         // Eq 0-2: Continuity equations for ions //
         for (l=0; l<3; l++)
           f[k][j][i][d.ni[l]] = -ni[l]*(dvi[l][0].dx + dvi[l][1].dy + dvi[l][2].dz) - (vi[l][0]*dni[l].dx + vi[l][1]*dni[l].dy + vi[l][2]*dni[l].dz);
@@ -1388,164 +1362,45 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
         f[k][j][i][d.B[1]] = - (dE[0].dz - dE[2].dx);
         f[k][j][i][d.B[2]] = - (dE[1].dx - dE[0].dy);
 
-        /*
-        if(i==mx-1 && j==my-1 && k==mz-1) { 
-          ierr = PetscPrintf(PETSC_COMM_SELF,"\tCONTRIBUTIONS: v.O2p     =[%+14.7e %+14.7e %+14.7e]; v.CO2p     =[%+14.7e %+14.7e %+14.7e]; v.Op     =[%+14.7e %+14.7e %+14.7e]; v.e     =[%+14.7e %+14.7e %+14.7e]\nff.g      =[%+14.7e %+14.7e %+14.7e]\nff.dp.O2p =[%+14.7e %+14.7e %+14.7e]; ff.dp.CO2p =[%+14.7e %+14.7e %+14.7e]; ff.dp.Op =[%+14.7e %+14.7e %+14.7e]; ff.dp.e =[%+14.7e %+14.7e %+14.7e]\nff.E.O2p  =[%+14.7e %+14.7e %+14.7e]; ff.E.CO2p  =[%+14.7e %+14.7e %+14.7e]; ff.E.Op  =[%+14.7e %+14.7e %+14.7e]; ff.E.e  =[%+14.7e %+14.7e %+14.7e]\nff.B.O2p  =[%+14.7e %+14.7e %+14.7e]; ff.B.CO2p  =[%+14.7e %+14.7e %+14.7e]; ff.B.Op  =[%+14.7e %+14.7e %+14.7e]; ff.B.e  =[%+14.7e %+14.7e %+14.7e]\nff.c.O2p  =[%+14.7e %+14.7e %+14.7e]; ff.c.CO2p  =[%+14.7e %+14.7e %+14.7e]; ff.c.Op  =[%+14.7e %+14.7e %+14.7e]; ff.c.e  =[%+14.7e %+14.7e %+14.7e]\nff.adv.O2p=[%+14.7e %+14.7e %+14.7e]; ff.adv.CO2p=[%+14.7e %+14.7e %+14.7e]; ff.adv.Op=[%+14.7e %+14.7e %+14.7e]; ff.adv.e=[%+14.7e %+14.7e %+14.7e]\nf.O2p     =[%+14.7e %+14.7e %+14.7e]; f.CO2p     =[%+14.7e %+14.7e %+14.7e]; f.Op     =[%+14.7e %+14.7e %+14.7e];\n", 
-              vi[O2p][0]     *v0    ,vi[O2p][1]     *v0    ,vi[O2p][2]     *v0    ,
-              vi[CO2p][0]    *v0    ,vi[CO2p][1]    *v0    ,vi[CO2p][2]    *v0    ,
-              vi[Op][0]      *v0    ,vi[Op][1]      *v0    ,vi[Op][2]      *v0    ,
-              ve[0]          *v0    ,ve[1]          *v0    ,ve[2]          *v0    ,
-              ff.g[0]        *v0/tau,ff.g[1]        *v0/tau,ff.g[2]        *v0/tau,
-              ff.dp[O2p][0]  *v0/tau,ff.dp[O2p][1]  *v0/tau,ff.dp[O2p][2]  *v0/tau,
-              ff.dp[CO2p][0] *v0/tau,ff.dp[CO2p][1] *v0/tau,ff.dp[CO2p][2] *v0/tau,
-              ff.dp[Op][0]   *v0/tau,ff.dp[Op][1]   *v0/tau,ff.dp[Op][2]   *v0/tau,
-              ff.dp[e][0]    *v0/tau,ff.dp[e][1]    *v0/tau,ff.dp[e][2]    *v0/tau,
-              ff.E[O2p][0]   *v0/tau,ff.E[O2p][1]   *v0/tau,ff.E[O2p][2]   *v0/tau,
-              ff.E[CO2p][0]  *v0/tau,ff.E[CO2p][1]  *v0/tau,ff.E[CO2p][2]  *v0/tau,
-              ff.E[Op][0]    *v0/tau,ff.E[Op][1]    *v0/tau,ff.E[Op][2]    *v0/tau,
-              ff.E[e][0]     *v0/tau,ff.E[e][1]     *v0/tau,ff.E[e][2]     *v0/tau,
-              ff.B[O2p][0]   *v0/tau,ff.B[O2p][1]   *v0/tau,ff.B[O2p][2]   *v0/tau,
-              ff.B[CO2p][0]  *v0/tau,ff.B[CO2p][1]  *v0/tau,ff.B[CO2p][2]  *v0/tau,
-              ff.B[Op][0]    *v0/tau,ff.B[Op][1]    *v0/tau,ff.B[Op][2]    *v0/tau,
-              ff.B[e][0]     *v0/tau,ff.B[e][1]     *v0/tau,ff.B[e][2]     *v0/tau,
-              ff.c[O2p][0]   *v0/tau,ff.c[O2p][1]   *v0/tau,ff.c[O2p][2]   *v0/tau,
-              ff.c[CO2p][0]  *v0/tau,ff.c[CO2p][1]  *v0/tau,ff.c[CO2p][2]  *v0/tau,
-              ff.c[Op][0]    *v0/tau,ff.c[Op][1]    *v0/tau,ff.c[Op][2]    *v0/tau,
-              ff.c[e][0]     *v0/tau,ff.c[e][1]     *v0/tau,ff.c[e][2]     *v0/tau,
-              ff.adv[O2p][0] *v0/tau,ff.adv[O2p][1] *v0/tau,ff.adv[O2p][2] *v0/tau,
-              ff.adv[CO2p][0]*v0/tau,ff.adv[CO2p][1]*v0/tau,ff.adv[CO2p][2]*v0/tau,
-              ff.adv[Op][0]  *v0/tau,ff.adv[Op][1]  *v0/tau,ff.adv[Op][2]  *v0/tau,
-              ff.adv[e][0]   *v0/tau,ff.adv[e][1]   *v0/tau,ff.adv[e][2]   *v0/tau,
-              f[k][j][i][d.vi[O2p][0]] *v0/tau,f[k][j][i][d.vi[O2p][1]] *v0/tau,f[k][j][i][d.vi[O2p][2]] *v0/tau,
-              f[k][j][i][d.vi[CO2p][0]]*v0/tau,f[k][j][i][d.vi[CO2p][1]]*v0/tau,f[k][j][i][d.vi[CO2p][2]]*v0/tau,
-              f[k][j][i][d.vi[Op][0]]  *v0/tau,f[k][j][i][d.vi[Op][1]]  *v0/tau,f[k][j][i][d.vi[Op][2]]  *v0/tau
-                ); CHKERRQ(ierr);
-        }
-        */
-        /*
-        for (l=0; l<19; l++) 
-          if (isnan(u[k][j][i][l])) 
-            flag = PETSC_TRUE;
-        if (flag) {
-          PetscPrintf(PETSC_COMM_SELF,"@[%3d][%3d][%3d] nO2p=%+9.3e; nCO2p=%+9.3e; nOp=%+9.3e; vO2p=[%+9.3e %+9.3e %+9.3e]; vCO2p=[%+9.3e %+9.3e %+9.3e]; vOp=[%+9.3e %+9.3e %+9.3e]; pO2p=%+9.3e; pCO2p=%+9.3e; pOp=%+9.3e; pe=%+9.3e; B=[%+9.3e %+9.3e %+9.3e]\n",i,j,k,u[k][j][i][0]*user->n0,u[k][j][i][1]*user->n0,u[k][j][i][2]*user->n0,u[k][j][i][3]*user->v0,u[k][j][i][4]*user->v0,u[k][j][i][5]*user->v0,u[k][j][i][6]*user->v0,u[k][j][i][7]*user->v0,u[k][j][i][8]*user->v0,u[k][j][i][9]*user->v0,u[k][j][i][10]*user->v0,u[k][j][i][11]*user->v0,u[k][j][i][12]*user->p0,u[k][j][i][13]*user->p0,u[k][j][i][14]*user->p0,u[k][j][i][15]*user->p0,u[k][j][i][16]*user->B0,u[k][j][i][17]*user->B0,u[k][j][i][18]*user->B0);
-          PetscPrintf(PETSC_COMM_SELF,"@[%3d][%3d][%3d] ve=[%+9.3e %+9.3e %+9.3e]; J=[%+9.3e %+9.3e %+9.3e]; E=[%+9.3e %+9.3e %+9.3e]\n",i,j,k,v[k][j][i][0]*user->v0,v[k][j][i][1]*user->v0,v[k][j][i][2]*user->v0,v[k][j][i][3]*qe*user->n0*user->v0,v[k][j][i][4]*qe*user->n0*user->v0,v[k][j][i][5]*qe*user->n0*user->v0,v[k][j][i][6]*user->v0*user->B0,v[k][j][i][7]*user->v0*user->B0,v[k][j][i][8]*user->v0*user->B0);
-          exit(1);
-        }
-        */
       }
     }
   }
 
-  m = MPI_Allreduce(MPI_IN_PLACE,&ve_max[0]   ,3 ,MPIU_REAL,MPIU_MAX,PETSC_COMM_WORLD);
-  m = MPI_Allreduce(MPI_IN_PLACE,&vi_max[0][0],9 ,MPIU_REAL,MPIU_MAX,PETSC_COMM_WORLD);
-  m = MPI_Allreduce(MPI_IN_PLACE,&vf_max.g[0] ,51,MPIU_REAL,MPIU_MAX,PETSC_COMM_WORLD);
-  m = MPI_Allreduce(MPI_IN_PLACE,&dtCFL       ,1 ,MPIU_REAL,MPIU_MIN,PETSC_COMM_WORLD);
-  //ierr = PetscPrintf(PETSC_COMM_SELF,"@%d ta = %+14.7e ts_n = %+14.7e ts_c = %+14.7e \n",rank, tA*tau,ts_n*tau,ts_c*tau);CHKERRQ(ierr);
-  m = MPI_Allreduce(MPI_IN_PLACE,&tA          ,1 ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
-  m = MPI_Allreduce(MPI_IN_PLACE,&ts_n        ,1 ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
-  m = MPI_Allreduce(MPI_IN_PLACE,&ts_c        ,1 ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
-  //ierr = PetscPrintf(PETSC_COMM_WORLD,"ta = %+14.7e ts_n = %+14.7e ts_c = %+14.7e \n",tA*tau,ts_n*tau,ts_c*tau);CHKERRQ(ierr);
-  //exit(12);
+  m = MPI_Allreduce(MPI_IN_PLACE,&vs_max[0]  ,3 ,MPIU_REAL,MPIU_MAX,PETSC_COMM_WORLD);
+  m = MPI_Allreduce(MPI_IN_PLACE,&vA_max[0]  ,3 ,MPIU_REAL,MPIU_MAX,PETSC_COMM_WORLD);
+  m = MPI_Allreduce(MPI_IN_PLACE,&vf_max[0]  ,3 ,MPIU_REAL,MPIU_MAX,PETSC_COMM_WORLD);
+  m = MPI_Allreduce(MPI_IN_PLACE,&ve_max[0]  ,3 ,MPIU_REAL,MPIU_MAX,PETSC_COMM_WORLD);
+  m = MPI_Allreduce(MPI_IN_PLACE,&vcr_max[0] ,9 ,MPIU_REAL,MPIU_MAX,PETSC_COMM_WORLD);
 
-  //ierr = PetscPrintf(PETSC_COMM_WORLD,"\t==> t=%12.5e: dt.CFL=%12.5e:\nv_max[O2p]    =[%+12.3e %+12.3e %+12.3e] v_max[CO2p]    =[%+12.3e %+12.3e %+12.3e] v_max[Op]    =[%+12.3e %+12.3e %+12.3e] v_max[e]    =[%+12.3e %+12.3e %+12.3e]\nff_max.g      =[%+12.3e %+12.3e %+12.3e]\nff_max.dp[O2p]=[%+12.3e %+12.3e %+12.3e] ff_max.dp[CO2p]=[%+12.3e %+12.3e %+12.3e] ff_max.dp[Op]=[%+12.3e %+12.3e %+12.3e] ff_max.dp[e]=[%+12.3e %+12.3e %+12.3e]\nff_max.E[O2p] =[%+12.3e %+12.3e %+12.3e] ff_max.E[CO2p] =[%+12.3e %+12.3e %+12.3e] ff_max.E[Op] =[%+12.3e %+12.3e %+12.3e] ff_max.E[e] =[%+12.3e %+12.3e %+12.3e]\nff_max.B[O2p] =[%+12.3e %+12.3e %+12.3e] ff_max.B[CO2p] =[%+12.3e %+12.3e %+12.3e] ff_max.B[Op] =[%+12.3e %+12.3e %+12.3e] ff_max.B[e] =[%+12.3e %+12.3e %+12.3e]\nff_max.c[O2p] =[%+12.3e %+12.3e %+12.3e] ff_max.c[CO2p] =[%+12.3e %+12.3e %+12.3e] ff_max.c[Op] =[%+12.3e %+12.3e %+12.3e] ff_max.c[e] =[%+12.3e %+12.3e %+12.3e]\n",ftime*tau,dt*user->tau,vi_max[O2p][0]*v0,vi_max[O2p][1]*v0,vi_max[O2p][2]*v0,vi_max[CO2p][0]*v0,vi_max[CO2p][1]*v0,vi_max[CO2p][2]*v0,vi_max[Op][0]*v0,vi_max[Op][1]*v0,vi_max[Op][2]*v0,ve_max[0]*v0,ve_max[1]*v0,ve_max[2]*v0,ff_max.g[0]*v0*user->B0,ff_max.g[1]*v0*user->B0,ff_max.g[2]*v0*user->B0,ff_max.dp[O2p][0]*v0*user->B0,ff_max.dp[O2p][1]*v0*user->B0,ff_max.dp[O2p][2]*v0*user->B0,ff_max.dp[CO2p][0]*v0*user->B0,ff_max.dp[CO2p][1]*v0*user->B0,ff_max.dp[CO2p][2]*v0*user->B0,ff_max.dp[Op][0]*v0*user->B0,ff_max.dp[Op][1]*v0*user->B0,ff_max.dp[Op][2]*v0*user->B0,ff_max.dp[e][0]*v0*user->B0,ff_max.dp[e][1]*v0*user->B0,ff_max.dp[e][2]*v0*user->B0,ff_max.E[O2p][0]*v0*user->B0,ff_max.E[O2p][1]*v0*user->B0,ff_max.E[O2p][2]*v0*user->B0,ff_max.E[CO2p][0]*v0*user->B0,ff_max.E[CO2p][1]*v0*user->B0,ff_max.E[CO2p][2]*v0*user->B0,ff_max.E[Op][0]*v0*user->B0,ff_max.E[Op][1]*v0*user->B0,ff_max.E[Op][2]*v0*user->B0,ff_max.E[e][0]*v0*user->B0,ff_max.E[e][1]*v0*user->B0,ff_max.E[e][2]*v0*user->B0,ff_max.B[O2p][0]*v0*user->B0,ff_max.B[O2p][1]*v0*user->B0,ff_max.B[O2p][2]*v0*user->B0,ff_max.B[CO2p][0]*v0*user->B0,ff_max.B[CO2p][1]*v0*user->B0,ff_max.B[CO2p][2]*v0*user->B0,ff_max.B[Op][0]*v0*user->B0,ff_max.B[Op][1]*v0*user->B0,ff_max.B[Op][2]*v0*user->B0,ff_max.B[e][0]*v0*user->B0,ff_max.B[e][1]*v0*user->B0,ff_max.B[e][2]*v0*user->B0,ff_max.c[O2p][0]*v0*user->B0,ff_max.c[O2p][1]*v0*user->B0,ff_max.c[O2p][2]*v0*user->B0,ff_max.c[CO2p][0]*v0*user->B0,ff_max.c[CO2p][1]*v0*user->B0,ff_max.c[CO2p][2]*v0*user->B0,ff_max.c[Op][0]*v0*user->B0,ff_max.c[Op][1]*v0*user->B0,ff_max.c[Op][2]*v0*user->B0,ff_max.c[e][0]*v0*user->B0,ff_max.c[e][1]*v0*user->B0,ff_max.c[e][2]*v0*user->B0); CHKERRQ(ierr);
-  
+  for (m=0; m<3; m++)
+    for (l=0; l<3; l++)
+      if (ve_max[m] > vcr_max[l][m])
+      {
+        PetscPrintf(PETSC_COMM_WORLD,"The CFL criterion is not stringent enough!\n");
+        exit(12);
+      }
+
+
+  /* dt_CFL:
+   * critical time for CFL condition
+   * in the ENTIRE domain (i.e., for all point (k,j,i))
+   * for ALL species (usually denoted l)
+   * indepently from ANY direction in space (usually denoted m)
+   */
+  m = MPI_Allreduce(MPI_IN_PLACE,&dt_CFL     ,1 ,MPIU_REAL,MPIU_MIN,PETSC_COMM_WORLD);
+
+  // Adapt timestep to satisfy CFL //
+//user->dt = 0.1*dt_CFL;
+
   /*
    * BELOW IS THE LIST OF DIAGNOSTIC TO ACTIVATE
    */
-  /*
-  ierr = PetscPrintf(PETSC_COMM_WORLD,"\t==> t=%12.5e: dt.CFL=%12.5e MAX VALUES: \ntA = %+14.7e ts_n = %+14.7e ts_c = %+14.7e\nv.O2p    =[%+14.7e %+14.7e %+14.7e]; v.CO2p    =[%+14.7e %+14.7e %+14.7e]; v.Op    =[%+14.7e %+14.7e %+14.7e]; v.e    =[%+14.7e %+14.7e %+14.7e]\n", 
-              ftime*tau,dt*tau,
-              tA                 *tau   ,ts_n               *tau   ,ts_c               *tau   ,
-              vi_max[O2p][0]     *v0    ,vi_max[O2p][1]     *v0    ,vi_max[O2p][2]     *v0    ,
-              vi_max[CO2p][0]    *v0    ,vi_max[CO2p][1]    *v0    ,vi_max[CO2p][2]    *v0    ,
-              vi_max[Op][0]      *v0    ,vi_max[Op][1]      *v0    ,vi_max[Op][2]      *v0    ,
-              ve_max[0]          *v0    ,ve_max[1]          *v0    ,ve_max[2]          *v0    );CHKERRQ(ierr);
-   */
-  /*
-  ierr = PetscPrintf(PETSC_COMM_WORLD,"\t==> t=%12.5e: dt.CFL=%12.5e MAX VALUES: \nv.O2p    =[%+14.7e %+14.7e %+14.7e]; v.CO2p    =[%+14.7e %+14.7e %+14.7e]; v.Op    =[%+14.7e %+14.7e %+14.7e]; v.e    =[%+14.7e %+14.7e %+14.7e]\na.g      =[%+14.7e %+14.7e %+14.7e]\na.dp.O2p =[%+14.7e %+14.7e %+14.7e]; a.dp.CO2p =[%+14.7e %+14.7e %+14.7e]; a.dp.Op =[%+14.7e %+14.7e %+14.7e]; a.dp.e =[%+14.7e %+14.7e %+14.7e]\na.E.O2p  =[%+14.7e %+14.7e %+14.7e]; a.E.CO2p  =[%+14.7e %+14.7e %+14.7e]; a.E.Op  =[%+14.7e %+14.7e %+14.7e]; a.E.e  =[%+14.7e %+14.7e %+14.7e]\na.B.O2p  =[%+14.7e %+14.7e %+14.7e]; a.B.CO2p  =[%+14.7e %+14.7e %+14.7e]; a.B.Op  =[%+14.7e %+14.7e %+14.7e]; a.B.e  =[%+14.7e %+14.7e %+14.7e]\na.c.O2p  =[%+14.7e %+14.7e %+14.7e]; a.c.CO2p  =[%+14.7e %+14.7e %+14.7e]; a.c.Op  =[%+14.7e %+14.7e %+14.7e]; a.c.e  =[%+14.7e %+14.7e %+14.7e]\na.adv.O2p=[%+14.7e %+14.7e %+14.7e]; a.adv.CO2p=[%+14.7e %+14.7e %+14.7e]; a.adv.Op=[%+14.7e %+14.7e %+14.7e]; a.adv.e=[%+14.7e %+14.7e %+14.7e]\n", 
-              ftime              *tau   ,dt                 *tau   ,
-              vi_max[O2p][0]     *v0    ,vi_max[O2p][1]     *v0    ,vi_max[O2p][2]     *v0    ,
-              vi_max[CO2p][0]    *v0    ,vi_max[CO2p][1]    *v0    ,vi_max[CO2p][2]    *v0    ,
-              vi_max[Op][0]      *v0    ,vi_max[Op][1]      *v0    ,vi_max[Op][2]      *v0    ,
-              ve_max[0]          *v0    ,ve_max[1]          *v0    ,ve_max[2]          *v0    ,
-              ff_max.g[0]        *v0/tau,ff_max.g[1]        *v0/tau,ff_max.g[2]        *v0/tau,
-              ff_max.dp[O2p][0]  *v0/tau,ff_max.dp[O2p][1]  *v0/tau,ff_max.dp[O2p][2]  *v0/tau,
-              ff_max.dp[CO2p][0] *v0/tau,ff_max.dp[CO2p][1] *v0/tau,ff_max.dp[CO2p][2] *v0/tau,
-              ff_max.dp[Op][0]   *v0/tau,ff_max.dp[Op][1]   *v0/tau,ff_max.dp[Op][2]   *v0/tau,
-              ff_max.dp[e][0]    *v0/tau,ff_max.dp[e][1]    *v0/tau,ff_max.dp[e][2]    *v0/tau,
-              ff_max.E[O2p][0]   *v0/tau,ff_max.E[O2p][1]   *v0/tau,ff_max.E[O2p][2]   *v0/tau,
-              ff_max.E[CO2p][0]  *v0/tau,ff_max.E[CO2p][1]  *v0/tau,ff_max.E[CO2p][2]  *v0/tau,
-              ff_max.E[Op][0]    *v0/tau,ff_max.E[Op][1]    *v0/tau,ff_max.E[Op][2]    *v0/tau,
-              ff_max.E[e][0]     *v0/tau,ff_max.E[e][1]     *v0/tau,ff_max.E[e][2]     *v0/tau,
-              ff_max.B[O2p][0]   *v0/tau,ff_max.B[O2p][1]   *v0/tau,ff_max.B[O2p][2]   *v0/tau,
-              ff_max.B[CO2p][0]  *v0/tau,ff_max.B[CO2p][1]  *v0/tau,ff_max.B[CO2p][2]  *v0/tau,
-              ff_max.B[Op][0]    *v0/tau,ff_max.B[Op][1]    *v0/tau,ff_max.B[Op][2]    *v0/tau,
-              ff_max.c[O2p][0]   *v0/tau,ff_max.c[O2p][1]   *v0/tau,ff_max.c[O2p][2]   *v0/tau,
-              ff_max.c[CO2p][0]  *v0/tau,ff_max.c[CO2p][1]  *v0/tau,ff_max.c[CO2p][2]  *v0/tau,
-              ff_max.c[Op][0]    *v0/tau,ff_max.c[Op][1]    *v0/tau,ff_max.c[Op][2]    *v0/tau,
-              ff_max.c[e][0]     *v0/tau,ff_max.c[e][1]     *v0/tau,ff_max.c[e][2]     *v0/tau,
-              ff_max.adv[O2p][0] *v0/tau,ff_max.adv[O2p][1] *v0/tau,ff_max.adv[O2p][2] *v0/tau,
-              ff_max.adv[CO2p][0]*v0/tau,ff_max.adv[CO2p][1]*v0/tau,ff_max.adv[CO2p][2]*v0/tau,
-              ff_max.adv[Op][0]  *v0/tau,ff_max.adv[Op][1]  *v0/tau,ff_max.adv[Op][2]  *v0/tau,
-              ff_max.adv[e][0]   *v0/tau,ff_max.adv[e][1]   *v0/tau,ff_max.adv[e][2]   *v0/tau
-                ); CHKERRQ(ierr);
-    */
-  /*
-  ierr = PetscPrintf(PETSC_COMM_WORLD,"\t==> MAX DRIFT VALUES: \nv.O2p    =[%+14.7e %+14.7e %+14.7e]; v.CO2p    =[%+14.7e %+14.7e %+14.7e]; v.Op    =[%+14.7e %+14.7e %+14.7e]; v.e    =[%+14.7e %+14.7e %+14.7e]\nv.g      =[%+14.7e %+14.7e %+14.7e]\nv.dp.O2p =[%+14.7e %+14.7e %+14.7e]; v.dp.CO2p =[%+14.7e %+14.7e %+14.7e]; v.dp.Op =[%+14.7e %+14.7e %+14.7e]; v.dp.e =[%+14.7e %+14.7e %+14.7e]\nv.E.O2p  =[%+14.7e %+14.7e %+14.7e]; v.E.CO2p  =[%+14.7e %+14.7e %+14.7e]; v.E.Op  =[%+14.7e %+14.7e %+14.7e]; v.E.e  =[%+14.7e %+14.7e %+14.7e]\nv.B.O2p  =[%+14.7e %+14.7e %+14.7e]; v.B.CO2p  =[%+14.7e %+14.7e %+14.7e]; v.B.Op  =[%+14.7e %+14.7e %+14.7e]; v.B.e  =[%+14.7e %+14.7e %+14.7e]\nv.c.O2p  =[%+14.7e %+14.7e %+14.7e]; v.c.CO2p  =[%+14.7e %+14.7e %+14.7e]; v.c.Op  =[%+14.7e %+14.7e %+14.7e]; v.c.e  =[%+14.7e %+14.7e %+14.7e]\nv.adv.O2p=[%+14.7e %+14.7e %+14.7e]; v.adv.CO2p=[%+14.7e %+14.7e %+14.7e]; v.adv.Op=[%+14.7e %+14.7e %+14.7e]; v.adv.e=[%+14.7e %+14.7e %+14.7e]\n", 
-              vi_max[O2p][0]     *v0,vi_max[O2p][1]     *v0,vi_max[O2p][2]     *v0,
-              vi_max[CO2p][0]    *v0,vi_max[CO2p][1]    *v0,vi_max[CO2p][2]    *v0,
-              vi_max[Op][0]      *v0,vi_max[Op][1]      *v0,vi_max[Op][2]      *v0,
-              ve_max[0]          *v0,ve_max[1]          *v0,ve_max[2]          *v0,
-              vf_max.g[0]        *v0,vf_max.g[1]        *v0,vf_max.g[2]        *v0,
-              vf_max.dp[O2p][0]  *v0,vf_max.dp[O2p][1]  *v0,vf_max.dp[O2p][2]  *v0,
-              vf_max.dp[CO2p][0] *v0,vf_max.dp[CO2p][1] *v0,vf_max.dp[CO2p][2] *v0,
-              vf_max.dp[Op][0]   *v0,vf_max.dp[Op][1]   *v0,vf_max.dp[Op][2]   *v0,
-              vf_max.dp[e][0]    *v0,vf_max.dp[e][1]    *v0,vf_max.dp[e][2]    *v0,
-              vf_max.E[O2p][0]   *v0,vf_max.E[O2p][1]   *v0,vf_max.E[O2p][2]   *v0,
-              vf_max.E[CO2p][0]  *v0,vf_max.E[CO2p][1]  *v0,vf_max.E[CO2p][2]  *v0,
-              vf_max.E[Op][0]    *v0,vf_max.E[Op][1]    *v0,vf_max.E[Op][2]    *v0,
-              vf_max.E[e][0]     *v0,vf_max.E[e][1]     *v0,vf_max.E[e][2]     *v0,
-              vf_max.B[O2p][0]   *v0,vf_max.B[O2p][1]   *v0,vf_max.B[O2p][2]   *v0,
-              vf_max.B[CO2p][0]  *v0,vf_max.B[CO2p][1]  *v0,vf_max.B[CO2p][2]  *v0,
-              vf_max.B[Op][0]    *v0,vf_max.B[Op][1]    *v0,vf_max.B[Op][2]    *v0,
-              vf_max.c[O2p][0]   *v0,vf_max.c[O2p][1]   *v0,vf_max.c[O2p][2]   *v0,
-              vf_max.c[CO2p][0]  *v0,vf_max.c[CO2p][1]  *v0,vf_max.c[CO2p][2]  *v0,
-              vf_max.c[Op][0]    *v0,vf_max.c[Op][1]    *v0,vf_max.c[Op][2]    *v0,
-              vf_max.c[e][0]     *v0,vf_max.c[e][1]     *v0,vf_max.c[e][2]     *v0,
-              vf_max.adv[O2p][0] *v0,vf_max.adv[O2p][1] *v0,vf_max.adv[O2p][2] *v0,
-              vf_max.adv[CO2p][0]*v0,vf_max.adv[CO2p][1]*v0,vf_max.adv[CO2p][2]*v0,
-              vf_max.adv[Op][0]  *v0,vf_max.adv[Op][1]  *v0,vf_max.adv[Op][2]  *v0,
-              vf_max.adv[e][0]   *v0,vf_max.adv[e][1]   *v0,vf_max.adv[e][2]   *v0
-                ); CHKERRQ(ierr);
-*/
-  // Adapt timestep to satisfy CFL //
-//user->dt = 0.01*dtCFL;
-
-  /*
-  if(rank==0)
-    PetscPrintf(PETSC_COMM_WORLD,"step = %d\n",user->cnt);
-  if (rank == 7 && user->cnt==20) { 
-    k=mz-1;
-    j=my-1;
-    i=mx-1; 
-    PetscPrintf(PETSC_COMM_SELF,"c.nO2p=%+14.7e; c.nCO2p=%+14.7e; c.nOp=%+14.7e; c.vO2p=[%+14.7e %+14.7e %+14.7e]; c.vCO2p=[%+14.7e %+14.7e %+14.7e]; c.vOp=[%+14.7e %+14.7e %+14.7e]; c.pO2p=%+14.7e; c.pCO2p=%+14.7e; c.pOp=%+14.7e; c.pe=%+14.7e; c.B=[%+14.7e %+14.7e %+14.7e];\n",i,j,k,u[k][j][i][0]*user->n0,u[k][j][i][1]*user->n0,u[k][j][i][2]*user->n0,u[k][j][i][3]*user->v0,u[k][j][i][4]*user->v0,u[k][j][i][5]*user->v0,u[k][j][i][6]*user->v0,u[k][j][i][7]*user->v0,u[k][j][i][8]*user->v0,u[k][j][i][9]*user->v0,u[k][j][i][10]*user->v0,u[k][j][i][11]*user->v0,u[k][j][i][12]*user->p0,u[k][j][i][13]*user->p0,u[k][j][i][14]*user->p0,u[k][j][i][15]*user->p0,u[k][j][i][16]*user->B0,u[k][j][i][17]*user->B0,u[k][j][i][18]*user->B0);
-    PetscPrintf(PETSC_COMM_SELF,"c.ve=[%+14.7e %+14.7e %+14.7e]; c.J=[%+14.7e %+14.7e %+14.7e]; c.E=[%+14.7e %+14.7e %+14.7e];\n",i,j,k,v[k][j][i][0]*user->v0,v[k][j][i][1]*user->v0,v[k][j][i][2]*user->v0,v[k][j][i][3]*qe*user->n0*user->v0,v[k][j][i][4]*qe*user->n0*user->v0,v[k][j][i][5]*qe*user->n0*user->v0,v[k][j][i][6]*user->v0*user->B0,v[k][j][i][7]*user->v0*user->B0,v[k][j][i][8]*user->v0*user->B0);
-    PetscPrintf(PETSC_COMM_SELF,"u.nO2p=%+14.7e; u.nCO2p=%+14.7e; u.nOp=%+14.7e; u.vO2p=[%+14.7e %+14.7e %+14.7e]; u.vCO2p=[%+14.7e %+14.7e %+14.7e]; u.vOp=[%+14.7e %+14.7e %+14.7e]; u.pO2p=%+14.7e; u.pCO2p=%+14.7e; u.pOp=%+14.7e; u.pe=%+14.7e; u.B=[%+14.7e %+14.7e %+14.7e];\n",i,j,k,u[k+1][j][i][0]*user->n0,u[k+1][j][i][1]*user->n0,u[k+1][j][i][2]*user->n0,u[k+1][j][i][3]*user->v0,u[k+1][j][i][4]*user->v0,u[k+1][j][i][5]*user->v0,u[k+1][j][i][6]*user->v0,u[k+1][j][i][7]*user->v0,u[k+1][j][i][8]*user->v0,u[k+1][j][i][9]*user->v0,u[k+1][j][i][10]*user->v0,u[k+1][j][i][11]*user->v0,u[k+1][j][i][12]*user->p0,u[k+1][j][i][13]*user->p0,u[k+1][j][i][14]*user->p0,u[k+1][j][i][15]*user->p0,u[k+1][j][i][16]*user->B0,u[k+1][j][i][17]*user->B0,u[k+1][j][i][18]*user->B0);
-    PetscPrintf(PETSC_COMM_SELF,"u.ve=[%+14.7e %+14.7e %+14.7e]; u.J=[%+14.7e %+14.7e %+14.7e]; u.E=[%+14.7e %+14.7e %+14.7e];\n",i,j,k,v[k+1][j][i][0]*user->v0,v[k+1][j][i][1]*user->v0,v[k+1][j][i][2]*user->v0,v[k+1][j][i][3]*qe*user->n0*user->v0,v[k+1][j][i][4]*qe*user->n0*user->v0,v[k+1][j][i][5]*qe*user->n0*user->v0,v[k+1][j][i][6]*user->v0*user->B0,v[k+1][j][i][7]*user->v0*user->B0,v[k+1][j][i][8]*user->v0*user->B0);
-    PetscPrintf(PETSC_COMM_SELF,"d.nO2p=%+14.7e; d.nCO2p=%+14.7e; d.nOp=%+14.7e; d.vO2p=[%+14.7e %+14.7e %+14.7e]; d.vCO2p=[%+14.7e %+14.7e %+14.7e]; d.vOp=[%+14.7e %+14.7e %+14.7e]; d.pO2p=%+14.7e; d.pCO2p=%+14.7e; d.pOp=%+14.7e; d.pe=%+14.7e; d.B=[%+14.7e %+14.7e %+14.7e];\n",i,j,k,u[k-1][j][i][0]*user->n0,u[k-1][j][i][1]*user->n0,u[k-1][j][i][2]*user->n0,u[k-1][j][i][3]*user->v0,u[k-1][j][i][4]*user->v0,u[k-1][j][i][5]*user->v0,u[k-1][j][i][6]*user->v0,u[k-1][j][i][7]*user->v0,u[k-1][j][i][8]*user->v0,u[k-1][j][i][9]*user->v0,u[k-1][j][i][10]*user->v0,u[k-1][j][i][11]*user->v0,u[k-1][j][i][12]*user->p0,u[k-1][j][i][13]*user->p0,u[k-1][j][i][14]*user->p0,u[k-1][j][i][15]*user->p0,u[k-1][j][i][16]*user->B0,u[k-1][j][i][17]*user->B0,u[k-1][j][i][18]*user->B0);
-    PetscPrintf(PETSC_COMM_SELF,"d.ve=[%+14.7e %+14.7e %+14.7e]; d.J=[%+14.7e %+14.7e %+14.7e]; d.E=[%+14.7e %+14.7e %+14.7e];\n",i,j,k,v[k-1][j][i][0]*user->v0,v[k-1][j][i][1]*user->v0,v[k-1][j][i][2]*user->v0,v[k-1][j][i][3]*qe*user->n0*user->v0,v[k-1][j][i][4]*qe*user->n0*user->v0,v[k-1][j][i][5]*qe*user->n0*user->v0,v[k-1][j][i][6]*user->v0*user->B0,v[k-1][j][i][7]*user->v0*user->B0,v[k-1][j][i][8]*user->v0*user->B0);
-    PetscPrintf(PETSC_COMM_SELF,"f.nO2p=%+14.7e; f.nCO2p=%+14.7e; f.nOp=%+14.7e; f.vO2p=[%+14.7e %+14.7e %+14.7e]; f.vCO2p=[%+14.7e %+14.7e %+14.7e]; f.vOp=[%+14.7e %+14.7e %+14.7e]; f.pO2p=%+14.7e; f.pCO2p=%+14.7e; f.pOp=%+14.7e; f.pe=%+14.7e; f.B=[%+14.7e %+14.7e %+14.7e];\n",i,j,k,u[k][j][i+1][0]*user->n0,u[k][j][i+1][1]*user->n0,u[k][j][i+1][2]*user->n0,u[k][j][i+1][3]*user->v0,u[k][j][i+1][4]*user->v0,u[k][j][i+1][5]*user->v0,u[k][j][i+1][6]*user->v0,u[k][j][i+1][7]*user->v0,u[k][j][i+1][8]*user->v0,u[k][j][i+1][9]*user->v0,u[k][j][i+1][10]*user->v0,u[k][j][i+1][11]*user->v0,u[k][j][i+1][12]*user->p0,u[k][j][i+1][13]*user->p0,u[k][j][i+1][14]*user->p0,u[k][j][i+1][15]*user->p0,u[k][j][i+1][16]*user->B0,u[k][j][i+1][17]*user->B0,u[k][j][i+1][18]*user->B0);
-    PetscPrintf(PETSC_COMM_SELF,"f.ve=[%+14.7e %+14.7e %+14.7e]; f.J=[%+14.7e %+14.7e %+14.7e]; f.E=[%+14.7e %+14.7e %+14.7e];\n",i,j,k,v[k][j][i+1][0]*user->v0,v[k][j][i+1][1]*user->v0,v[k][j][i+1][2]*user->v0,v[k][j][i+1][3]*qe*user->n0*user->v0,v[k][j][i+1][4]*qe*user->n0*user->v0,v[k][j][i+1][5]*qe*user->n0*user->v0,v[k][j][i+1][6]*user->v0*user->B0,v[k][j][i+1][7]*user->v0*user->B0,v[k][j][i+1][8]*user->v0*user->B0);
-    PetscPrintf(PETSC_COMM_SELF,"b.nO2p=%+14.7e; b.nCO2p=%+14.7e; b.nOp=%+14.7e; b.vO2p=[%+14.7e %+14.7e %+14.7e]; b.vCO2p=[%+14.7e %+14.7e %+14.7e]; b.vOp=[%+14.7e %+14.7e %+14.7e]; b.pO2p=%+14.7e; b.pCO2p=%+14.7e; b.pOp=%+14.7e; b.pe=%+14.7e; b.B=[%+14.7e %+14.7e %+14.7e];\n",i,j,k,u[k][j][i-1][0]*user->n0,u[k][j][i-1][1]*user->n0,u[k][j][i-1][2]*user->n0,u[k][j][i-1][3]*user->v0,u[k][j][i-1][4]*user->v0,u[k][j][i-1][5]*user->v0,u[k][j][i-1][6]*user->v0,u[k][j][i-1][7]*user->v0,u[k][j][i-1][8]*user->v0,u[k][j][i-1][9]*user->v0,u[k][j][i-1][10]*user->v0,u[k][j][i-1][11]*user->v0,u[k][j][i-1][12]*user->p0,u[k][j][i-1][13]*user->p0,u[k][j][i-1][14]*user->p0,u[k][j][i-1][15]*user->p0,u[k][j][i-1][16]*user->B0,u[k][j][i-1][17]*user->B0,u[k][j][i-1][18]*user->B0);
-    PetscPrintf(PETSC_COMM_SELF,"b.ve=[%+14.7e %+14.7e %+14.7e]; b.J=[%+14.7e %+14.7e %+14.7e]; b.E=[%+14.7e %+14.7e %+14.7e];\n",i,j,k,v[k][j][i-1][0]*user->v0,v[k][j][i-1][1]*user->v0,v[k][j][i-1][2]*user->v0,v[k][j][i-1][3]*qe*user->n0*user->v0,v[k][j][i-1][4]*qe*user->n0*user->v0,v[k][j][i-1][5]*qe*user->n0*user->v0,v[k][j][i-1][6]*user->v0*user->B0,v[k][j][i-1][7]*user->v0*user->B0,v[k][j][i-1][8]*user->v0*user->B0);
-    PetscPrintf(PETSC_COMM_SELF,"r.nO2p=%+14.7e; r.nCO2p=%+14.7e; r.nOp=%+14.7e; r.vO2p=[%+14.7e %+14.7e %+14.7e]; r.vCO2p=[%+14.7e %+14.7e %+14.7e]; r.vOp=[%+14.7e %+14.7e %+14.7e]; r.pO2p=%+14.7e; r.pCO2p=%+14.7e; r.pOp=%+14.7e; r.pe=%+14.7e; r.B=[%+14.7e %+14.7e %+14.7e];\n",i,j,k,u[k][j+1][i][0]*user->n0,u[k][j+1][i][1]*user->n0,u[k][j+1][i][2]*user->n0,u[k][j+1][i][3]*user->v0,u[k][j+1][i][4]*user->v0,u[k][j+1][i][5]*user->v0,u[k][j+1][i][6]*user->v0,u[k][j+1][i][7]*user->v0,u[k][j+1][i][8]*user->v0,u[k][j+1][i][9]*user->v0,u[k][j+1][i][10]*user->v0,u[k][j+1][i][11]*user->v0,u[k][j+1][i][12]*user->p0,u[k][j+1][i][13]*user->p0,u[k][j+1][i][14]*user->p0,u[k][j+1][i][15]*user->p0,u[k][j+1][i][16]*user->B0,u[k][j+1][i][17]*user->B0,u[k][j+1][i][18]*user->B0);
-    PetscPrintf(PETSC_COMM_SELF,"r.ve=[%+14.7e %+14.7e %+14.7e]; r.J=[%+14.7e %+14.7e %+14.7e]; r.E=[%+14.7e %+14.7e %+14.7e];\n",i,j,k,v[k][j+1][i][0]*user->v0,v[k][j+1][i][1]*user->v0,v[k][j+1][i][2]*user->v0,v[k][j+1][i][3]*qe*user->n0*user->v0,v[k][j+1][i][4]*qe*user->n0*user->v0,v[k][j+1][i][5]*qe*user->n0*user->v0,v[k][j+1][i][6]*user->v0*user->B0,v[k][j+1][i][7]*user->v0*user->B0,v[k][j+1][i][8]*user->v0*user->B0);
-    PetscPrintf(PETSC_COMM_SELF,"l.nO2p=%+14.7e; l.nCO2p=%+14.7e; l.nOp=%+14.7e; l.vO2p=[%+14.7e %+14.7e %+14.7e]; l.vCO2p=[%+14.7e %+14.7e %+14.7e]; l.vOp=[%+14.7e %+14.7e %+14.7e]; l.pO2p=%+14.7e; l.pCO2p=%+14.7e; l.pOp=%+14.7e; l.pe=%+14.7e; l.B=[%+14.7e %+14.7e %+14.7e];\n",i,j,k,u[k][j-1][i][0]*user->n0,u[k][j-1][i][1]*user->n0,u[k][j-1][i][2]*user->n0,u[k][j-1][i][3]*user->v0,u[k][j-1][i][4]*user->v0,u[k][j-1][i][5]*user->v0,u[k][j-1][i][6]*user->v0,u[k][j-1][i][7]*user->v0,u[k][j-1][i][8]*user->v0,u[k][j-1][i][9]*user->v0,u[k][j-1][i][10]*user->v0,u[k][j-1][i][11]*user->v0,u[k][j-1][i][12]*user->p0,u[k][j-1][i][13]*user->p0,u[k][j-1][i][14]*user->p0,u[k][j-1][i][15]*user->p0,u[k][j-1][i][16]*user->B0,u[k][j-1][i][17]*user->B0,u[k][j-1][i][18]*user->B0);
-    PetscPrintf(PETSC_COMM_SELF,"l.ve=[%+14.7e %+14.7e %+14.7e]; l.J=[%+14.7e %+14.7e %+14.7e]; l.E=[%+14.7e %+14.7e %+14.7e];\n",i,j,k,v[k][j-1][i][0]*user->v0,v[k][j-1][i][1]*user->v0,v[k][j-1][i][2]*user->v0,v[k][j-1][i][3]*qe*user->n0*user->v0,v[k][j-1][i][4]*qe*user->n0*user->v0,v[k][j-1][i][5]*qe*user->n0*user->v0,v[k][j-1][i][6]*user->v0*user->B0,v[k][j-1][i][7]*user->v0*user->B0,v[k][j-1][i][8]*user->v0*user->B0);
-    PetscPrintf(PETSC_COMM_SELF,"c.F.nO2p=%+14.7e; c.F.nCO2p=%+14.7e; c.F.nOp=%+14.7e; c.F.vO2p=[%+14.7e %+14.7e %+14.7e]; c.F.vCO2p=[%+14.7e %+14.7e %+14.7e]; c.F.vOp=[%+14.7e %+14.7e %+14.7e]; c.F.pO2p=%+14.7e; c.F.pCO2p=%+14.7e; c.F.pOp=%+14.7e; c.F.pe=%+14.7e; c.F.B=[%+14.7e %+14.7e %+14.7e];\n",i,j,k,f[k][j][i][0]*user->n0/user->tau,f[k][j][i][1]*user->n0/user->tau,f[k][j][i][2]*user->n0/user->tau,f[k][j][i][3]*user->v0/user->tau,f[k][j][i][4]*user->v0/user->tau,f[k][j][i][5]*user->v0/user->tau,f[k][j][i][6]*user->v0/user->tau,f[k][j][i][7]*user->v0/user->tau,f[k][j][i][8]*user->v0/user->tau,f[k][j][i][9]*user->v0/user->tau,f[k][j][i][10]*user->v0/user->tau,f[k][j][i][11]*user->v0/user->tau,f[k][j][i][12]*user->p0/user->tau,f[k][j][i][13]*user->p0/user->tau,f[k][j][i][14]*user->p0/user->tau,f[k][j][i][15]*user->p0/user->tau,f[k][j][i][16]*user->B0/user->tau,f[k][j][i][17]*user->B0/user->tau,f[k][j][i][18]*user->B0);
-    exit(12);
-  }
-  */
+  ierr = PetscPrintf(PETSC_COMM_WORLD,
+    "\t==> t=%12.5e\t new dt=%12.5e\n\t==> O2+  max velocities: vs=%+14.7e, vA=%+14.7e, vf=%+14.7e, vcr=[%+14.7e,%+14.7e,%+14.7e]\n\t==> CO2+ max velocities: vs=%+14.7e, vA=%+14.7e, vf=%+14.7e, vcr=[%+14.7e,%+14.7e,%+14.7e]\n\t==> O+   max velocities: vs=%+14.7e, vA=%+14.7e, vf=%+14.7e, vcr=[%+14.7e,%+14.7e,%+14.7e]\n",
+     ftime*tau,user->dt,
+     vs_max[O2p] *v0, vA_max[O2p] *v0, vf_max[O2p] *v0, vcr_max[O2p][0] *v0 ,vcr_max[O2p][1] *v0 ,vcr_max[O2p][2] *v0,
+     vs_max[CO2p]*v0, vA_max[CO2p]*v0, vf_max[CO2p]*v0, vcr_max[CO2p][0]*v0 ,vcr_max[CO2p][1]*v0 ,vcr_max[CO2p][2]*v0,
+     vs_max[Op]  *v0, vA_max[Op]  *v0, vf_max[Op]  *v0, vcr_max[Op][0]  *v0 ,vcr_max[Op][1]  *v0 ,vcr_max[Op][2]  *v0);
 
   // Restore vectors //
   ierr = DMRestoreGlobalVector(db,&V);CHKERRQ(ierr);

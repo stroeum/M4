@@ -344,7 +344,7 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
   user->B0  = user->me/(qe*user->tau);
   
   /* dt = min(dt,CFL) */
-  user->dt    = 2.e-4/user->tau;
+  user->dt    = 1.e-9/user->tau;
   user->eps.n = 1.0e3/user->n0; // min density allowed in the domain: 10^-3 cm-3 = 1e3 m^-3
   user->eps.p = 1e-15/user->p0; // min pressure allowed in the domain
   user->eps.v = .01*299742458/user->v0; // MAX velocity allowed in the domain: 1% of the speed of light
@@ -691,6 +691,16 @@ PetscReal MaxAbs(PetscReal a,PetscReal b)
 {
   if (PetscAbsScalar(a) > PetscAbsScalar(b)) return PetscAbsScalar(a);
   else return PetscAbsScalar(b);
+}
+
+/* ------------------------------------------------------------------- */
+/* Calculate the sum of absolute values                                */
+/* ------------------------------------------------------------------- */
+#undef __FUNCT__
+#define __FUNCT__ "SumAbs"
+PetscReal SumAbs(PetscReal a,PetscReal b)
+{
+  return PetscAbsScalar(a)+PetscAbsScalar(b);
 }
 
 /* ------------------------------------------------------------------- */

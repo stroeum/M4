@@ -3,13 +3,13 @@
 -visualization_folder viz_dir
 #-input_file X840000.bin
 #
--bc_type 0 # 0: 1st order Neumann, 1: 2nd order Neumann, 2: zero'ed 2nd derivatives, 3: Non-symmetric "exact" solution, 10: combination of df/dn=0 amd d2f/dn2=0
+-bc_type 1 # 0: 1st order Neumann, 1: 2nd order Neumann, 2: zero'ed 2nd derivatives, 3: Non-symmetric "exact" solution, 10: combination of df/dn=0 amd d2f/dn2=0
 -limiters
 -blockers
 #-smoothing
 #
 -ts_max_steps 100000000
--viz_dstep 2500           # plot every dstep 
+-viz_dstep 250           # plot every dstep 
 -ts_max_time 1e2 
 #-ts_final_time 1e2 
 #-mi0 5.3135e-26        #_kg, mass of O2+, only single charged ions allowed!
@@ -23,8 +23,8 @@
 -WindEW 0e2            #_m/_s, y-component of neutral wind
 -WindUD 0e2            #_m/_s, z-component of neutral wind
 -ExtraDiagnostics
--B_field_type 3        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical
--B0 20e-9              #_T, magnitude of the magnetic field
+-B_field_type 1        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical
+-B0 2000e-9              #_T, magnitude of the magnetic field
 -B1 150e3              #_m, geometry parameter a
 -B2 0e3                #_m, geometry parameter b
 -Mmars 6.4185e23       #_kg, Mars' mass

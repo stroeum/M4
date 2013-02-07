@@ -72,7 +72,7 @@ typedef struct{
 } svi;
 
 typedef struct{
-    PetscReal g[3],dp[4][3],E[4][3],B[4][3],c[4][3],adv[4][3];
+    PetscReal g[3],dp[4][3],E[4][3],B[4][3],col[4][3],adv[4][3];
 } fdv; // variables with force dependent terms
 
 /* MonitorCtx: used by MyTSMonitor() */
@@ -131,6 +131,7 @@ extern PetscErrorCode OutputData(void*);
 extern PetscErrorCode CFL(TS);
 
 extern PetscReal      CrossP(PetscReal*,PetscReal*,PetscInt);
+extern PetscReal      SumAbs(PetscReal,PetscReal);
 extern PetscReal      MaxAbs(PetscReal,PetscReal);
 extern PetscReal      MinAbs(PetscReal,PetscReal);
 extern PetscReal      V_Dipole(PetscReal,PetscReal,PetscReal,PetscReal,PetscReal,PetscInt);
