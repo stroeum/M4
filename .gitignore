@@ -2,7 +2,13 @@
 *.miff
 *.tiff
 *.png
+*.jpg
+*.ps
+*.eps
+*.pdf
+*.bin
+*.bin.info
 *.o
-X*.general
-X*.dat
-.gitignore
+*.general
+*.dat
+

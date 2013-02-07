@@ -46,15 +46,17 @@
 #include <math.h>
 #include "petscsys.h"
 #include <assert.h>
+#include "MyCtx.h"
 
 enum chargedspecies {O2p, CO2p, Op, e};
+enum interpolations {lin_lin, lin_exp, lin_flat};
 enum neutrals {CO2, O};
 
-extern PetscReal Profile(int,double);  
-extern PetscReal Partition(int,double);  
-extern PetscReal vin(PetscInt i, PetscInt n, PetscReal h);
+extern PetscInt  ReadTable(PetscReal table[][Nz_REF], PetscInt P, const char *fName);
+extern PetscReal Interpolate(PetscReal table[][Nz_REF], PetscInt i, PetscReal h, PetscInt ItpType);  
+extern PetscReal vin(PetscReal profiles[][Nz_REF],PetscInt i, PetscInt n, PetscReal h);
 extern PetscReal Vin(PetscInt i, PetscInt n, PetscReal nn, PetscReal Ti, PetscReal Tn);
-extern PetscReal ven(PetscInt n, PetscReal h);
+extern PetscReal ven(PetscReal profiles[][Nz_REF],PetscInt n, PetscReal h);
 extern PetscReal Ven(PetscInt n, PetscReal nn, PetscReal Te);
 
 #endif

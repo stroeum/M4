@@ -9,7 +9,11 @@
 #define kB 1.3806503e-23       //_J/_K, Boltzmann constant
 #define qe 1.60217646e-19      //_C, elementary charge
 #define G 6.673e-11            //_m^3/_kg/_s^2, gravitational constant
-#define c_CFL 0.1               //_, CFL coefficient 
+#define c_CFL 0.1              //_, CFL coefficient 
+#define Nz_REF 301             // number of reference altitude points
+#define Np_REF 18              // number of parameters in Profiles.dat
+#define MAX_LINE_LENGTH 1024   // maximum number of characters in a line
+
 #ifndef MYCTX_H
 #define MYCTX_H
 
@@ -105,7 +109,7 @@ typedef struct {
     PetscBool      blockers;                      // use blockers Y/N
     PetscBool      limiters;                      // use smoothing Y/N
     PetscInt       BfieldType;                    // Define the B-field configuration a t=0 
-    PetscReal      B[3];                          // x-, y-, and z-component of the default uniform magnetic field
+    PetscReal      B[4];                          // x-, y-, and z-component of the default uniform magnetic field
     PetscReal      un[3];                         // x-, y-, and z-component of the neutral wind
     PetscReal      n0;                            // no[O2+,CO2+,O+,e], reference particule number densities
     PetscReal      gama[4];                       // Specific heat ratio (O2+,CO2+,O+,e)
@@ -122,6 +126,8 @@ typedef struct {
     DM             da,db;
     PetscInt       jacType;
     PetscInt       bcType;
+    PetscReal      RefProf[Np_REF][Nz_REF];       // Table of reference Profiles
+    PetscReal      RefPart[4][Nz_REF];            // Table of reference Partition
 } AppCtx;
 
 extern PetscErrorCode InitCtx(AppCtx*,MonitorCtx*);
@@ -134,8 +140,9 @@ extern PetscReal      CrossP(PetscReal*,PetscReal*,PetscInt);
 extern PetscReal      SumAbs(PetscReal,PetscReal);
 extern PetscReal      MaxAbs(PetscReal,PetscReal);
 extern PetscReal      MinAbs(PetscReal,PetscReal);
-extern PetscReal      V_Dipole(PetscReal,PetscReal,PetscReal,PetscReal,PetscReal,PetscInt);
-extern PetscReal      H_Dipole(PetscReal,PetscReal,PetscReal,PetscReal,PetscReal,PetscInt);
+extern PetscReal      V_Dipole(PetscReal mu, PetscReal xs, PetscReal ys, PetscReal zs, PetscReal x, PetscReal y, PetscReal z, PetscInt m);
+extern PetscReal      H_Dipole(PetscReal mu, PetscReal xs, PetscReal ys, PetscReal zs, PetscReal x, PetscReal y, PetscReal z, PetscInt m);
+extern PetscReal      Arcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m);
 extern PetscReal      Norm2(PetscReal*); // Norm 2 squared!
 
 extern PetscErrorCode TSSSPStep_RK_2_JAR(TS,PetscReal,PetscReal,Vec);

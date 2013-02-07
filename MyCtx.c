@@ -116,7 +116,7 @@ PetscErrorCode TSSSPStep_LW(TS ts,PetscReal t0,PetscReal dt,Vec sol)
 PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 {
   PetscErrorCode ierr;
-  PetscInt       i=0, j=0, k=0;
+  PetscInt       i=0, j=0, k=0, rank=0;
   PetscInt       mx_lo,my_lo,mz_lo;
   PetscInt       mx_in,my_in,mz_in;
   PetscInt       mx_hi,my_hi,mz_hi;
@@ -157,6 +157,8 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
   user->gama[e]    = 1.0 + 2.0/3.0;
 
   PetscFunctionBegin;
+  MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
+  
   ierr = PetscGetTime(&user->t0);CHKERRQ(ierr);
   user->ldName = sprintf(user->dName,"ouput/");
   ierr = PetscOptionsGetString(PETSC_NULL,"-output_folder",user->dName,PETSC_MAX_PATH_LEN-1,PETSC_NULL);CHKERRQ(ierr);
@@ -202,6 +204,8 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
   ierr = PetscOptionsGetReal(PETSC_NULL,"-B1",&user->B[1],PETSC_NULL);CHKERRQ(ierr);
   user->B[2] = 0.0;
   ierr = PetscOptionsGetReal(PETSC_NULL,"-B2",&user->B[2],PETSC_NULL);CHKERRQ(ierr);
+  user->B[3] = 0.0;
+  ierr = PetscOptionsGetReal(PETSC_NULL,"-B3",&user->B[3],PETSC_NULL);CHKERRQ(ierr);
   
   ierr = PetscOptionsGetReal(PETSC_NULL,"-Rmars",&user->rM,PETSC_NULL);CHKERRQ(ierr);
   ierr = PetscOptionsGetReal(PETSC_NULL,"-Mmars",&user->mM,PETSC_NULL);CHKERRQ(ierr);
@@ -344,7 +348,7 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
   user->B0  = user->me/(qe*user->tau);
   
   /* dt = min(dt,CFL) */
-  user->dt    = 1.e-9/user->tau;
+  user->dt    = 1.0e-6/user->tau;
   user->eps.n = 1.0e3/user->n0; // min density allowed in the domain: 10^-3 cm-3 = 1e3 m^-3
   user->eps.p = 1e-15/user->p0; // min pressure allowed in the domain
   user->eps.v = .01*299742458/user->v0; // MAX velocity allowed in the domain: 1% of the speed of light
@@ -378,7 +382,16 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
     if (user->vizbox[4]<user->outZmin) user->vizbox[4] = user->outZmin;
     if (user->vizbox[5]>user->outZmax) user->vizbox[5] = user->outZmax;
   }
-  
+
+  // Read input files //
+  if(rank==0) {
+    ReadTable(user->RefProf,Np_REF,"input/Profiles.dat");
+    ReadTable(user->RefPart,4,"input/Partition.dat");
+  }
+  MPI_Bcast(&(user->RefProf[0][0]),Np_REF*Nz_REF, MPIU_REAL, 0, PETSC_COMM_WORLD);
+  MPI_Bcast(&(user->RefPart[0][0]),     4*Nz_REF, MPIU_REAL, 0, PETSC_COMM_WORLD);
+
+  // Display diagnostics //
   PetscPrintf(PETSC_COMM_WORLD,"mx = [%i %i %i]:%i\nmy = [%i %i %i]:%i\nmz = [%i %i %i]:%i\n",mx_lo,mx_in,mx_hi,user->mx, my_lo,my_in,my_hi,user->my, mz_lo,mz_in,mz_hi,user->mz); 
   PetscPrintf(PETSC_COMM_WORLD,"      O2+\t\tCO2+\t\tO+\t\te\n");
   PetscPrintf(PETSC_COMM_WORLD,"m   = [%2.3e\t%2.3e\t%2.3e\t%2.3e]\n",user->mi[0],user->mi[1],user->mi[2],user->me);
@@ -401,7 +414,6 @@ PetscErrorCode OutputData(void* ptr)
   PetscInt       istep=user->istep,maxsteps = user->maxsteps,vizdstep = user->viz_dstep;
   PetscBool      xtra_out = user->xtra_out;
   PetscReal      Xmin = user->outXmin, Ymin = user->outYmin, Zmin = user->outZmin;
-  PetscReal      tau = user->tau;
   PetscReal      n0 = user->n0, v0 = user->v0, p0 = user->p0, B0 = user->B0;
   PetscReal      *x = user->x, *y = user->y, *z = user->z;
   PetscInt       mx = user->mx, my = user->my, mz = user->mz;
@@ -418,14 +430,13 @@ PetscErrorCode OutputData(void* ptr)
 
   Vec            U,V;
   PetscReal      ****u,****v;
-  FILE           *pFile,*tFileI,*tFileO;
+  FILE           *pFile;
   char           fName[PETSC_MAX_PATH_LEN];
   PetscViewer    fViewer;
   PetscInt       rank,step,flag;
   PetscInt       i,j,k,l,m,xs,ys,zs,xm,ym,zm;
   PetscInt       imin,imax,jmin,jmax,kmin,kmax; 
   PetscReal      ne,ni[3],ve[3],vi[3][3],pe,pi[3],J[3],E[3],B[3]; 
-  float          ptime;
   PetscReal      X,Y,Z;
 
   PetscFunctionBegin;
@@ -436,17 +447,7 @@ PetscErrorCode OutputData(void* ptr)
   
   // Get local grid boundaries //
   ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
-  
-  sprintf(fName, "%s/t.dat",user->dName);
-  tFileI =fopen(fName,"r");
-  sprintf(fName, "%s/t.dat",user->vName);
-  remove(fName);
-  tFileO = fopen(fName,"w");
-  
   for (step=istep; step<=maxsteps; step++) {
-
-    // Read current simulation time //
-    if(tFileI!=PETSC_NULL) fscanf(tFileI,"%f\n",&ptime);
 
     if(step%vizdstep==0) {
       ierr = PetscPrintf(PETSC_COMM_WORLD,"timestep %D\n",step);CHKERRQ(ierr);
@@ -552,7 +553,6 @@ PetscErrorCode OutputData(void* ptr)
         }
       }
       fclose(pFile);
-      if(tFileO != PETSC_NULL) PetscFPrintf(PETSC_COMM_WORLD,tFileO,"%2.3e\n",ptime*tau);
 
       m = MPI_Allreduce(MPI_IN_PLACE,&imin,1,MPIU_INT,MPIU_MIN,PETSC_COMM_WORLD);
       m = MPI_Allreduce(MPI_IN_PLACE,&imax,1,MPIU_INT,MPIU_MAX,PETSC_COMM_WORLD);
@@ -606,8 +606,6 @@ PetscErrorCode OutputData(void* ptr)
       }
     }
   }
-  fclose(tFileI);
-  fclose(tFileO);
   PetscFunctionReturn(0);
 }
 
@@ -634,6 +632,35 @@ PetscErrorCode CFL(TS ts)
 }
 
 /* ------------------------------------------------------------------- */
+/* Calculate the magnetic field of multiple vertical dipoles           */
+/* ------------------------------------------------------------------- */
+#undef __FUNCT__
+#define __FUNCT__ "ARCADES"
+/*
+ * Arcades
+ */
+PetscReal Arcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m)
+{
+  PetscInt  i,j,k,s;
+  PetscReal B = 0., mu = 1e16;
+  PetscReal xs[3] = {-100e3,0e3,100e3};
+  PetscReal ys[2] = {-50e3,50e3};
+  PetscReal zs[1] = {-20e3};
+  PetscInt Ms=sizeof(xs)/sizeof(xs[0]), Ns=sizeof(ys)/sizeof(ys[0]), Ps=sizeof(zs)/sizeof(zs[0]);
+  B = 0;
+  for (i=0; i<Ms; i++) {
+    for (j=0; j<Ns; j++) {
+      for (k=0; k<Ps; k++) {
+        s = k*Ns*Ms + j*Ms + i;
+        B += pow(-1,s%2) * V_Dipole(mu,xs[i],ys[j],zs[k],x,y,z,m);
+      }
+    }
+  }
+
+  return B;
+}
+
+/* ------------------------------------------------------------------- */
 /* Calculate the magnetic field of a vertical dipole                   */
 /* ------------------------------------------------------------------- */
 #undef __FUNCT__
@@ -641,13 +668,18 @@ PetscErrorCode CFL(TS ts)
 /*
  * Vertical dipole
  */
-PetscReal V_Dipole(PetscReal Bo, PetscReal a, PetscReal x, PetscReal y, PetscReal z, PetscInt m)
+PetscReal V_Dipole(PetscReal mu, PetscReal xs, PetscReal ys, PetscReal zs, PetscReal x, PetscReal y, PetscReal z, PetscInt m)
 {
-  PetscReal r;
-  r = PetscSqrtScalar(x*x+y*y+z*z);
-  if (m==0) return Bo*pow(a/r,3) * x*z/(r*r) ;
-  if (m==1) return Bo*pow(a/r,3) * y*z/(r*r) ;
-  if (m==2) return Bo*pow(a/r,3) *(z*z/(r*r) - 1.0/3.0);
+  PetscReal R;
+  PetscReal X,Y,Z;
+  X = x-xs;
+  Y = y-ys;
+  Z = z-zs;
+  R = PetscSqrtScalar(X*X+Y*Y+Z*Z);
+
+  if (m==0) return mu0/(4*M_PI) * mu * pow(1/R,3) * 3.0*X*Z/(R*R) ;
+  if (m==1) return mu0/(4*M_PI) * mu * pow(1/R,3) * 3.0*Y*Z/(R*R) ;
+  if (m==2) return mu0/(4*M_PI) * mu * pow(1/R,3) *(3.0*Z*Z/(R*R) - 1.0);
   return 0;
 }
 
@@ -659,13 +691,17 @@ PetscReal V_Dipole(PetscReal Bo, PetscReal a, PetscReal x, PetscReal y, PetscRea
 /*
  * Horizontal dipole
  */
-PetscReal H_Dipole(PetscReal Bo, PetscReal a, PetscReal x, PetscReal y, PetscReal z, PetscInt m)
+PetscReal H_Dipole(PetscReal mu, PetscReal xs, PetscReal ys, PetscReal zs, PetscReal x, PetscReal y, PetscReal z, PetscInt m)
 {
-  PetscReal r;
-  r = PetscSqrtScalar(x*x+y*y+z*z);
-  if (m==0) return  Bo*pow(a/r,3) *(z*z/(r*r) - 1.0/3.0);
-  if (m==1) return  Bo*pow(a/r,3) * y*z/(r*r) ;
-  if (m==2) return -Bo*pow(a/r,3) * x*z/(r*r) ;
+  PetscReal R;
+  PetscReal X,Y,Z;
+  X = x-xs;
+  Y = y-ys;
+  Z = z-zs;
+  R = PetscSqrtScalar(X*X+Y*Y+Z*Z);
+  if (m==0) return  mu0/(4*M_PI) * mu * pow(1/R,3) *(3.0*Z*Z/(R*R) - 1.0);
+  if (m==1) return  mu0/(4*M_PI) * mu * pow(1/R,3) * 3.0*Y*Z/(R*R) ;
+  if (m==2) return -mu0/(4*M_PI) * mu * pow(1/R,3) * 3.0*X*Z/(R*R) ;
   return 0;
 }
 

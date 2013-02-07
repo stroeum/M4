@@ -19,7 +19,7 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
   PetscInt       rank;
   PetscInt       istep = user->istep, vizdstep = user->viz_dstep;
   PetscReal      tau = user->tau;
-  PetscReal      dt;/*,ne;*/
+  PetscReal      dt;
   PetscBool      xtra_out = user->xtra_out;
   Vec            V;
   FILE           *fd;
@@ -38,7 +38,7 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
     ierr = TSGetTimeStep(ts,&dt);CHKERRQ(ierr);
     ierr = PetscGetTime(&t1);CHKERRQ(ierr);
     ierr = PetscPrintf(PETSC_COMM_WORLD,"Elapsed_time=%2.1e\ttimestep %D\tt %2.3e\tdt %2.3e\n",t1-t0,istep+step,ptime*tau,user->dt*tau);CHKERRQ(ierr);
-    ierr = PetscFPrintf(PETSC_COMM_WORLD,fd,"%2.3e\n",ptime*tau); CHKERRQ(ierr);
+    ierr = PetscFPrintf(PETSC_COMM_WORLD,fd,"%8.3e\n",ptime*tau); CHKERRQ(ierr);
 
     sprintf(fName, "%s/X%d.bin",user->dName,istep+step);
 

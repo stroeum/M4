@@ -29,7 +29,7 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
   PetscReal      inZmax=user->inZmax;
 //PetscReal      /*me = user->me,*/ mi[3] = {user->mi[O2p], user->mi[CO2p], user->mi[Op]};
   PetscReal      n0=user->n0, v0=user->v0, p0=user->p0, B0=user->B0;
-  PetscReal      Bo=user->B[0], a=user->B[1], b=user->B[2];
+  PetscReal      Bo=user->B[0], a=user->B[1], b=user->B[2], c=user->B[3];
 //PetscReal      un[3]={user->un[0],user->un[1],user->un[2]}; // neutral wind
 
   PetscInt       i,j,k,l,xs,ys,zs,xm,ym,zm;
@@ -76,17 +76,17 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
         for (i=xs; i<xs+xm; i++) {
           X = Xmin + x[i]*L;
 
-          Te = Profile(8,Z);
-          Ti = Profile(9,Z);
+          Te = Interpolate(user->RefProf, 8 ,Z, lin_flat);
+          Ti = Interpolate(user->RefProf, 9 ,Z, lin_flat);
           assert(Te>0);
           assert(Ti>0);
-          neo = Profile(7,Z);
+          neo = Interpolate(user->RefProf, 7 ,Z, lin_exp);
           //if(!(neo>0)) neo = eps.n*n0;
           assert(neo>0);
 
-          nio[O2p]  = Partition(O2p ,Z)*neo;
-          nio[CO2p] = Partition(CO2p,Z)*neo;
-          nio[Op]   = Partition(Op  ,Z)*neo;
+          nio[O2p]  = Interpolate(user->RefPart, O2p ,Z, lin_flat)*neo;
+          nio[CO2p] = Interpolate(user->RefPart, CO2p,Z, lin_flat)*neo;
+          nio[Op]   = Interpolate(user->RefPart, Op  ,Z, lin_flat)*neo;
           for (l=0; l<3; l++) {
             if (!(nio[l] > 0)) nio[l] = eps.n*n0;
             vio[l] = 100.0;
@@ -100,9 +100,9 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
           //peo = Profile(12,Z);
           assert(peo>0);
           if(Btype==0) {
-            u[k][j][i][d.B[0]] = Profile(0,Z)/B0;
-            u[k][j][i][d.B[1]] = Profile(1,Z)/B0;
-            u[k][j][i][d.B[2]] = Profile(2,Z)/B0;
+            u[k][j][i][d.B[0]] = Interpolate(user->RefProf, 0 ,Z, lin_flat)/B0;
+            u[k][j][i][d.B[1]] = Interpolate(user->RefProf, 1 ,Z, lin_flat)/B0;
+            u[k][j][i][d.B[2]] = Interpolate(user->RefProf, 2 ,Z, lin_flat)/B0;
           } else if (Btype==1) {
             u[k][j][i][d.B[0]] = 0.0/B0;
             u[k][j][i][d.B[1]] = 0.0/B0;
@@ -112,13 +112,13 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
             u[k][j][i][d.B[1]] = Bo /B0;
             u[k][j][i][d.B[2]] = 0.0/B0;
           } else if (Btype==3) {
-            u[k][j][i][d.B[0]] = V_Dipole(Bo,a,X,Y,Z,0)/B0;
-            u[k][j][i][d.B[1]] = V_Dipole(Bo,a,X,Y,Z,1)/B0;
-            u[k][j][i][d.B[2]] = V_Dipole(Bo,a,X,Y,Z,2)/B0;
+            u[k][j][i][d.B[0]] = V_Dipole(Bo,0,0,a,X,Y,Z,0)/B0;
+            u[k][j][i][d.B[1]] = V_Dipole(Bo,0,0,a,X,Y,Z,1)/B0;
+            u[k][j][i][d.B[2]] = V_Dipole(Bo,0,0,a,X,Y,Z,2)/B0;
           } else if (Btype==4) {
-            u[k][j][i][d.B[0]] = H_Dipole(Bo,a,X,Y,Z,0)/B0;
-            u[k][j][i][d.B[1]] = H_Dipole(Bo,a,X,Y,Z,1)/B0;
-            u[k][j][i][d.B[2]] = H_Dipole(Bo,a,X,Y,Z,2)/B0;
+            u[k][j][i][d.B[0]] = H_Dipole(Bo,0,0,a,X,Y,Z,0)/B0;
+            u[k][j][i][d.B[1]] = H_Dipole(Bo,0,0,a,X,Y,Z,1)/B0;
+            u[k][j][i][d.B[2]] = H_Dipole(Bo,0,0,a,X,Y,Z,2)/B0;
           } else if (Btype==5) {
             if (Z<=inZmax) {
               u[k][j][i][d.B[0]] = 0.0/B0;
@@ -139,6 +139,10 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
               u[k][j][i][d.B[1]] = 0.0/B0;
               u[k][j][i][d.B[2]] = Bo /B0 * pow(inZmax/Z,3);
             }
+          } else if (Btype==7) {
+            u[k][j][i][d.B[0]] = Arcades(X,Y,Z,0)/B0;
+            u[k][j][i][d.B[1]] = Arcades(X,Y,Z,1)/B0;
+            u[k][j][i][d.B[2]] = Arcades(X,Y,Z,2)/B0;
           }
           for (l=0; l<3; l++) {
             u[k][j][i][d.ni[l]] = nio[l]/n0;
@@ -747,8 +751,8 @@ PetscErrorCode FormIntermediateFunction(Vec U, Vec V,void *ctx)
 
         Te          = pe*p0/(ne*n0*kB);
 
-        nn[CO2]     = Profile(5,Z);
-        nn[O]       = Profile(4,Z);
+        nn[CO2]     = Interpolate(user->RefProf, 5 ,Z, lin_flat);
+        nn[O]       = Interpolate(user->RefProf, 4 ,Z, lin_flat);
 
         // Intermediate calculations //
         dpe.dx = D1.x[0]*u[k][j][id.x[0]][d.pe] + D1.x[1]*u[k][j][id.x[1]][d.pe] + D1.x[2]*u[k][j][id.x[2]][d.pe]; //dpe.dx 
@@ -774,6 +778,9 @@ PetscErrorCode FormIntermediateFunction(Vec U, Vec V,void *ctx)
         ve[0] = ( (ni[O2p]*vi[O2p][0] + ni[CO2p]*vi[CO2p][0] + ni[Op]*vi[Op][0]) - J[0] )/ ne;
         ve[1] = ( (ni[O2p]*vi[O2p][1] + ni[CO2p]*vi[CO2p][1] + ni[Op]*vi[Op][1]) - J[1] )/ ne;
         ve[2] = ( (ni[O2p]*vi[O2p][2] + ni[CO2p]*vi[CO2p][2] + ni[Op]*vi[Op][2]) - J[2] )/ ne;
+        for (m=0; m<1; m++)
+          if (ne<=user->eps.n)
+            ve[m] = 0.0;
         //if (i==0 && j==0 && k==0) printf("dz=%2.1e km, nu_en=%2.5e ve=[%2.3e %2.3e %2.3e] un=[%2.3e %2.3e %2.3e]\n", dh.z[0],nu_en[CO2]+nu_en[O], ve[0]*v0,ve[1]*v0,ve[2]*v0,un[0]*v0,un[1]*v0,un[2]*v0);
         
         // E-field //
@@ -1244,8 +1251,9 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
         E[1]        = v[k][j][i][s.E[1]];        // Ey
         E[2]        = v[k][j][i][s.E[2]];        // Ez
 
-        nn[CO2] = Profile(5,Z); nn[O] = Profile(4,Z);
-        Tn = Profile(10,Z);
+        nn[CO2] = Interpolate(user->RefProf, 5,Z,lin_exp );
+        nn[O]   = Interpolate(user->RefProf, 4,Z,lin_exp );
+        Tn      = Interpolate(user->RefProf,10,Z,lin_flat);
         
         for (l=0; l<3; l++) {
           Ti[l] = pi[l]*p0/(ni[l]*n0*kB);
@@ -1361,7 +1369,6 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
         f[k][j][i][d.B[0]] = - (dE[2].dy - dE[1].dz); 
         f[k][j][i][d.B[1]] = - (dE[0].dz - dE[2].dx);
         f[k][j][i][d.B[2]] = - (dE[1].dx - dE[0].dy);
-
       }
     }
   }
@@ -1390,17 +1397,17 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
   m = MPI_Allreduce(MPI_IN_PLACE,&dt_CFL     ,1 ,MPIU_REAL,MPIU_MIN,PETSC_COMM_WORLD);
 
   // Adapt timestep to satisfy CFL //
-//user->dt = 0.1*dt_CFL;
+  user->dt = 0.1*dt_CFL;
 
   /*
    * BELOW IS THE LIST OF DIAGNOSTIC TO ACTIVATE
-   */
   ierr = PetscPrintf(PETSC_COMM_WORLD,
     "\t==> t=%12.5e\t new dt=%12.5e\n\t==> O2+  max velocities: vs=%+14.7e, vA=%+14.7e, vf=%+14.7e, vcr=[%+14.7e,%+14.7e,%+14.7e]\n\t==> CO2+ max velocities: vs=%+14.7e, vA=%+14.7e, vf=%+14.7e, vcr=[%+14.7e,%+14.7e,%+14.7e]\n\t==> O+   max velocities: vs=%+14.7e, vA=%+14.7e, vf=%+14.7e, vcr=[%+14.7e,%+14.7e,%+14.7e]\n",
-     ftime*tau,user->dt,
+     ftime*tau,user->dt*tau,
      vs_max[O2p] *v0, vA_max[O2p] *v0, vf_max[O2p] *v0, vcr_max[O2p][0] *v0 ,vcr_max[O2p][1] *v0 ,vcr_max[O2p][2] *v0,
      vs_max[CO2p]*v0, vA_max[CO2p]*v0, vf_max[CO2p]*v0, vcr_max[CO2p][0]*v0 ,vcr_max[CO2p][1]*v0 ,vcr_max[CO2p][2]*v0,
      vs_max[Op]  *v0, vA_max[Op]  *v0, vf_max[Op]  *v0, vcr_max[Op][0]  *v0 ,vcr_max[Op][1]  *v0 ,vcr_max[Op][2]  *v0);
+   */
 
   // Restore vectors //
   ierr = DMRestoreGlobalVector(db,&V);CHKERRQ(ierr);
