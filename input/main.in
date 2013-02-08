@@ -27,6 +27,7 @@
 -B0 1e16              #_T, magnitude of the magnetic field
 -B1 -20e3               #_m, geometry parameter a
 -B2 0e3                #_m, geometry parameter b
+-B3 0e3                #_m, geometry parameter c
 -Mmars 6.4185e23       #_kg, Mars' mass
 -Rmars 3396.2e3        #_m, Mars' equatorial radius
 #
