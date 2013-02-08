@@ -5,7 +5,7 @@ clc
 
 %% Model currents
 folder = '../viz_dir/';
-t = '0000.999';
+t = '0099.990';
 tmp = load([folder,'Jx_',t,'.dat']);
 z = tmp(:,1)+100;
 tmp = load([folder,'Jx_',t,'.dat']);
