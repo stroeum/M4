@@ -26,8 +26,8 @@ legend('boxoff')
 
 %% Theoretical currents
 %%
-b.u    = 20e-9; % T
-%b.u    = 2000e-9; % T
+%b.u    = 20e-9; % T
+b.u    = 2000e-9; % T
 
 set(gcf,'Units','normalize','Color','white')
 q     = 1.60217646e-19; % C
