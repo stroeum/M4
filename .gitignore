@@ -1,4 +1,5 @@
 *.in
+*.out
 *.gif
 *.miff
 *.tiff
@@ -12,4 +13,3 @@
 *.o
 *.general
 *.dat
-input/main.in
