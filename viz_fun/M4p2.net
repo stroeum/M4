@@ -1,5 +1,5 @@
 //
-// time: Fri Feb  8 14:16:13 2013
+// time: Fri Feb  8 17:50:33 2013
 //
 // version: 3.2.0 (format), 4.4.4 (DX)
 //
@@ -1269,13 +1269,13 @@ main_Slab_1_out_1 =
     // input[3]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.042643923 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_9"
-    // input[7]: defaulting = 1, visible = 0, type = 5, value = 1336.0
+    // input[7]: defaulting = 1, visible = 0, type = 5, value = 1771.0
     // input[8]: defaulting = 1, visible = 0, type = 5, value = 116799.99
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[10]: defaulting = 1, visible = 0, type = 2048, value = NULL
     // input[11]: defaulting = 1, visible = 0, type = 2048, value = NULL
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 1336.0 116799.99 }
-    // input[17]: defaulting = 0, visible = 0, type = 5, value = 1336.0
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 1771.0 116799.99 }
+    // input[17]: defaulting = 0, visible = 0, type = 5, value = 1771.0
     // input[18]: defaulting = 0, visible = 0, type = 5, value = 116799.99
     // page group: M4 plots
     // window: position = (   inf,   inf), size =    infx   inf
@@ -1421,17 +1421,17 @@ main_ColorBar_13_out_1 =
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.042643923 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_13"
     // input[7]: defaulting = 1, visible = 1, type = 5, value = 0.0
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 118.96988
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 17.766251
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[10]: defaulting = 1, visible = 0, type = 2048, value = NULL
     // input[11]: defaulting = 1, visible = 0, type = 2048, value = NULL
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 118.96988 }
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 17.766251 }
     // input[13]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[14]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[15]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[16]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.0
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 118.96988
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 17.766251
     // page group: M4 plots
     // window: position = (   inf,   inf), size =    infx   inf
     //
@@ -1661,17 +1661,17 @@ main_Collect_13_out_1 =
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.042643923 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_19"
     // input[7]: defaulting = 1, visible = 1, type = 5, value = 50.0
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 100.95424
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 497.04361
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[10]: defaulting = 1, visible = 0, type = 2048, value = NULL
     // input[11]: defaulting = 1, visible = 0, type = 2048, value = NULL
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 50.0 100.95424 }
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 50.0 497.04361 }
     // input[13]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[14]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[15]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[16]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[17]: defaulting = 0, visible = 0, type = 5, value = 50.0
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 100.95424
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 497.04361
     // page group: M4 plots
     // window: position = (0.0182,0.0231), size = 0.5078x0.5778, screen = 0
     //
@@ -1768,14 +1768,14 @@ main_Collect_17_out_1 =
     // input[3]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.042643923 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_21"
-    // input[7]: defaulting = 1, visible = 1, type = 5, value = 2000.0
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 2000.0048
+    // input[7]: defaulting = 1, visible = 1, type = 5, value = 20.0
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 20.029385
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[10]: defaulting = 1, visible = 0, type = 2048, value = NULL
     // input[11]: defaulting = 1, visible = 0, type = 2048, value = NULL
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 2000.0 2000.0048 }
-    // input[17]: defaulting = 0, visible = 0, type = 5, value = 2000.0
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 2000.0048
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 20.0 20.029385 }
+    // input[17]: defaulting = 0, visible = 0, type = 5, value = 20.0
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 20.029385
     // page group: M4 plots
     // window: position = (0.0182,0.0231), size = 0.5078x0.5778, screen = 0
     //
@@ -1873,17 +1873,17 @@ main_Collect_19_out_1 =
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.042643923 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_22"
     // input[7]: defaulting = 1, visible = 1, type = 5, value = 50.0
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 103.23264
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 625.76001
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[10]: defaulting = 1, visible = 0, type = 2048, value = NULL
     // input[11]: defaulting = 1, visible = 0, type = 2048, value = NULL
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 50.0 103.23264 }
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 50.0 625.76001 }
     // input[13]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[14]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[15]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[16]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[17]: defaulting = 0, visible = 0, type = 5, value = 50.0
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 103.23264
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 625.76001
     // page group: M4 plots
     // window: position = (0.0182,0.0231), size = 0.5078x0.5778, screen = 0
     //
@@ -1981,17 +1981,17 @@ main_Collect_20_out_1 =
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.042643923 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_24"
     // input[7]: defaulting = 1, visible = 1, type = 5, value = 0.0
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 0.020650966
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 0.00031139117
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[10]: defaulting = 1, visible = 0, type = 2048, value = NULL
     // input[11]: defaulting = 1, visible = 0, type = 2048, value = NULL
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 0.020650966 }
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 0.00031139117 }
     // input[13]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[14]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[15]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[16]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.0
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 0.020650966
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 0.00031139117
     // page group: M4 plots
     // window: position = (0.0182,0.0231), size = 0.5078x0.5778, screen = 0
     //
@@ -2175,13 +2175,13 @@ main_Slab_32_out_1 =
     // input[3]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.042643923 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_26"
-    // input[7]: defaulting = 1, visible = 0, type = 5, value = 1336.0
+    // input[7]: defaulting = 1, visible = 0, type = 5, value = 1771.0
     // input[8]: defaulting = 1, visible = 0, type = 5, value = 116799.99
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[10]: defaulting = 1, visible = 0, type = 2048, value = NULL
     // input[11]: defaulting = 1, visible = 0, type = 2048, value = NULL
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 1336.0 116799.99 }
-    // input[17]: defaulting = 0, visible = 0, type = 5, value = 1336.0
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 1771.0 116799.99 }
+    // input[17]: defaulting = 0, visible = 0, type = 5, value = 1771.0
     // input[18]: defaulting = 0, visible = 0, type = 5, value = 116799.99
     // page group: M4 plots
     // window: position = (   inf,   inf), size =    infx   inf
@@ -2343,14 +2343,14 @@ main_Slab_40_out_1 =
     // input[3]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.042643923 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_29"
-    // input[7]: defaulting = 1, visible = 1, type = 5, value = 0.0055003171
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 4.3739905
+    // input[7]: defaulting = 1, visible = 1, type = 5, value = 0.0036692438
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 1.0845568
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[10]: defaulting = 1, visible = 0, type = 2048, value = NULL
     // input[11]: defaulting = 1, visible = 0, type = 2048, value = NULL
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0055003171 4.3739905 }
-    // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.0055003171
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 4.3739905
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0036692438 1.0845568 }
+    // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.0036692438
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 1.0845568
     // page group: M4 plots
     // window: position = (0.0182,0.0231), size = 0.5078x0.5778, screen = 0
     //
@@ -2549,14 +2549,14 @@ main_Slab_50_out_1 =
     // input[3]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.042643923 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_30"
-    // input[7]: defaulting = 1, visible = 1, type = 5, value = 0.0037517471
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 118.96989
+    // input[7]: defaulting = 1, visible = 1, type = 5, value = 0.074780479
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 17.766253
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[10]: defaulting = 1, visible = 0, type = 2048, value = NULL
     // input[11]: defaulting = 1, visible = 0, type = 2048, value = NULL
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0037517471 118.96989 }
-    // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.0037517471
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 118.96989
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.074780479 17.766253 }
+    // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.074780479
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 17.766253
     // page group: M4 plots
     // window: position = (0.0182,0.0231), size = 0.5078x0.5778, screen = 0
     //
@@ -2755,14 +2755,14 @@ main_Slab_53_out_1 =
     // input[3]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.042643923 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_31"
-    // input[7]: defaulting = 1, visible = 1, type = 5, value = 0.010495352
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 0.020650968
+    // input[7]: defaulting = 1, visible = 1, type = 5, value = 0.00018417879
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 0.0003113912
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[10]: defaulting = 1, visible = 0, type = 2048, value = NULL
     // input[11]: defaulting = 1, visible = 0, type = 2048, value = NULL
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.010495352 0.020650968 }
-    // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.010495352
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 0.020650968
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.00018417879 0.0003113912 }
+    // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.00018417879
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 0.0003113912
     // page group: M4 plots
     // window: position = (0.0182,0.0231), size = 0.5078x0.5778, screen = 0
     //
@@ -3863,7 +3863,7 @@ main_Image_63_out_3 =
     // page group: M4 plots
     // title: value = Bdiff_plane
     // depth: value = 24
-    // window: position = (  -nan,   inf), size =    infx   inf
+    // window: position = (0.0672,0.3907), size = 0.6323x0.8241, screen = 0
     // internal caching: 1
     //
 main_Image_66_out_1,
@@ -3962,7 +3962,7 @@ main_Image_66_out_3 =
     // page group: M4 plots
     // title: value = Bfield_line
     // depth: value = 24
-    // window: position = (0.2875,0.2000), size = 0.6323x0.8241, screen = 0
+    // window: position = (0.2875,0.1222), size = 0.6323x0.8241, screen = 0
     // internal caching: 1
     //
 main_Image_67_out_1,
@@ -4061,7 +4061,7 @@ main_Image_67_out_3 =
     // page group: M4 plots
     // title: value = J_plane
     // depth: value = 24
-    // window: position = (0.3781,0.3917), size = 0.6323x0.8241, screen = 0
+    // window: position = (0.3630,0.1222), size = 0.6323x0.8241, screen = 0
     // internal caching: 1
     //
 main_Image_68_out_1,
@@ -5120,12 +5120,12 @@ main_Colormap_9_in_8 = NULL;
 main_Colormap_9_in_9 = NULL;
 main_Colormap_9_in_10 = NULL;
 main_Colormap_9_in_11 = NULL;
-main_Colormap_9_in_12 = { 1336.0 116799.99 };
+main_Colormap_9_in_12 = { 1771.0 116799.99 };
 main_Colormap_9_in_13 = NULL;
 main_Colormap_9_in_14 = NULL;
 main_Colormap_9_in_15 = NULL;
 main_Colormap_9_in_16 = NULL;
-main_Colormap_9_in_17 = 1336.0;
+main_Colormap_9_in_17 = 1771.0;
 main_Colormap_9_in_18 = 116799.99;
 main_Colormap_9_in_19 = NULL;
 main_Colormap_9_out_1 = NULL;
@@ -5180,13 +5180,13 @@ main_Colormap_13_in_8 = NULL;
 main_Colormap_13_in_9 = NULL;
 main_Colormap_13_in_10 = NULL;
 main_Colormap_13_in_11 = NULL;
-main_Colormap_13_in_12 = { 0.0 118.96988 };
+main_Colormap_13_in_12 = { 0.0 17.766251 };
 main_Colormap_13_in_13 = NULL;
 main_Colormap_13_in_14 = NULL;
 main_Colormap_13_in_15 = NULL;
 main_Colormap_13_in_16 = NULL;
 main_Colormap_13_in_17 = 0.0;
-main_Colormap_13_in_18 = 118.96988;
+main_Colormap_13_in_18 = 17.766251;
 main_Colormap_13_in_19 = NULL;
 main_Colormap_13_out_1 = NULL;
 main_Colormap_13_out_2 = NULL;
@@ -5279,13 +5279,13 @@ main_Colormap_19_in_8 = NULL;
 main_Colormap_19_in_9 = NULL;
 main_Colormap_19_in_10 = NULL;
 main_Colormap_19_in_11 = NULL;
-main_Colormap_19_in_12 = { 50.0 100.95424 };
+main_Colormap_19_in_12 = { 50.0 497.04361 };
 main_Colormap_19_in_13 = NULL;
 main_Colormap_19_in_14 = NULL;
 main_Colormap_19_in_15 = NULL;
 main_Colormap_19_in_16 = NULL;
 main_Colormap_19_in_17 = 50.0;
-main_Colormap_19_in_18 = 100.95424;
+main_Colormap_19_in_18 = 497.04361;
 main_Colormap_19_in_19 = NULL;
 main_Colormap_19_out_1 = NULL;
 main_Colormap_19_out_2 = NULL;
@@ -5318,13 +5318,13 @@ main_Colormap_21_in_8 = NULL;
 main_Colormap_21_in_9 = NULL;
 main_Colormap_21_in_10 = NULL;
 main_Colormap_21_in_11 = NULL;
-main_Colormap_21_in_12 = { 2000.0 2000.0048 };
+main_Colormap_21_in_12 = { 20.0 20.029385 };
 main_Colormap_21_in_13 = NULL;
 main_Colormap_21_in_14 = NULL;
 main_Colormap_21_in_15 = NULL;
 main_Colormap_21_in_16 = NULL;
-main_Colormap_21_in_17 = 2000.0;
-main_Colormap_21_in_18 = 2000.0048;
+main_Colormap_21_in_17 = 20.0;
+main_Colormap_21_in_18 = 20.029385;
 main_Colormap_21_in_19 = NULL;
 main_Colormap_21_out_1 = NULL;
 main_Colormap_21_out_2 = NULL;
@@ -5353,13 +5353,13 @@ main_Colormap_22_in_8 = NULL;
 main_Colormap_22_in_9 = NULL;
 main_Colormap_22_in_10 = NULL;
 main_Colormap_22_in_11 = NULL;
-main_Colormap_22_in_12 = { 50.0 103.23264 };
+main_Colormap_22_in_12 = { 50.0 625.76001 };
 main_Colormap_22_in_13 = NULL;
 main_Colormap_22_in_14 = NULL;
 main_Colormap_22_in_15 = NULL;
 main_Colormap_22_in_16 = NULL;
 main_Colormap_22_in_17 = 50.0;
-main_Colormap_22_in_18 = 103.23264;
+main_Colormap_22_in_18 = 625.76001;
 main_Colormap_22_in_19 = NULL;
 main_Colormap_22_out_1 = NULL;
 main_Colormap_22_out_2 = NULL;
@@ -5391,13 +5391,13 @@ main_Colormap_24_in_8 = NULL;
 main_Colormap_24_in_9 = NULL;
 main_Colormap_24_in_10 = NULL;
 main_Colormap_24_in_11 = NULL;
-main_Colormap_24_in_12 = { 0.0 0.020650966 };
+main_Colormap_24_in_12 = { 0.0 0.00031139117 };
 main_Colormap_24_in_13 = NULL;
 main_Colormap_24_in_14 = NULL;
 main_Colormap_24_in_15 = NULL;
 main_Colormap_24_in_16 = NULL;
 main_Colormap_24_in_17 = 0.0;
-main_Colormap_24_in_18 = 0.020650966;
+main_Colormap_24_in_18 = 0.00031139117;
 main_Colormap_24_in_19 = NULL;
 main_Colormap_24_out_1 = NULL;
 main_Colormap_24_out_2 = NULL;
@@ -5452,12 +5452,12 @@ main_Colormap_26_in_8 = NULL;
 main_Colormap_26_in_9 = NULL;
 main_Colormap_26_in_10 = NULL;
 main_Colormap_26_in_11 = NULL;
-main_Colormap_26_in_12 = { 1336.0 116799.99 };
+main_Colormap_26_in_12 = { 1771.0 116799.99 };
 main_Colormap_26_in_13 = NULL;
 main_Colormap_26_in_14 = NULL;
 main_Colormap_26_in_15 = NULL;
 main_Colormap_26_in_16 = NULL;
-main_Colormap_26_in_17 = 1336.0;
+main_Colormap_26_in_17 = 1771.0;
 main_Colormap_26_in_18 = 116799.99;
 main_Colormap_26_in_19 = NULL;
 main_Colormap_26_out_1 = NULL;
@@ -5503,13 +5503,13 @@ main_Colormap_29_in_8 = NULL;
 main_Colormap_29_in_9 = NULL;
 main_Colormap_29_in_10 = NULL;
 main_Colormap_29_in_11 = NULL;
-main_Colormap_29_in_12 = { 0.0055003171 4.3739905 };
+main_Colormap_29_in_12 = { 0.0036692438 1.0845568 };
 main_Colormap_29_in_13 = NULL;
 main_Colormap_29_in_14 = NULL;
 main_Colormap_29_in_15 = NULL;
 main_Colormap_29_in_16 = NULL;
-main_Colormap_29_in_17 = 0.0055003171;
-main_Colormap_29_in_18 = 4.3739905;
+main_Colormap_29_in_17 = 0.0036692438;
+main_Colormap_29_in_18 = 1.0845568;
 main_Colormap_29_in_19 = NULL;
 main_Colormap_29_out_1 = NULL;
 main_Color_128_in_3 = .5;
@@ -5568,13 +5568,13 @@ main_Colormap_30_in_8 = NULL;
 main_Colormap_30_in_9 = NULL;
 main_Colormap_30_in_10 = NULL;
 main_Colormap_30_in_11 = NULL;
-main_Colormap_30_in_12 = { 0.0037517471 118.96989 };
+main_Colormap_30_in_12 = { 0.074780479 17.766253 };
 main_Colormap_30_in_13 = NULL;
 main_Colormap_30_in_14 = NULL;
 main_Colormap_30_in_15 = NULL;
 main_Colormap_30_in_16 = NULL;
-main_Colormap_30_in_17 = 0.0037517471;
-main_Colormap_30_in_18 = 118.96989;
+main_Colormap_30_in_17 = 0.074780479;
+main_Colormap_30_in_18 = 17.766253;
 main_Colormap_30_in_19 = NULL;
 main_Colormap_30_out_1 = NULL;
 main_Color_133_in_3 = .5;
@@ -5633,13 +5633,13 @@ main_Colormap_31_in_8 = NULL;
 main_Colormap_31_in_9 = NULL;
 main_Colormap_31_in_10 = NULL;
 main_Colormap_31_in_11 = NULL;
-main_Colormap_31_in_12 = { 0.010495352 0.020650968 };
+main_Colormap_31_in_12 = { 0.00018417879 0.0003113912 };
 main_Colormap_31_in_13 = NULL;
 main_Colormap_31_in_14 = NULL;
 main_Colormap_31_in_15 = NULL;
 main_Colormap_31_in_16 = NULL;
-main_Colormap_31_in_17 = 0.010495352;
-main_Colormap_31_in_18 = 0.020650968;
+main_Colormap_31_in_17 = 0.00018417879;
+main_Colormap_31_in_18 = 0.0003113912;
 main_Colormap_31_in_19 = NULL;
 main_Colormap_31_out_1 = NULL;
 main_Color_142_in_3 = .5;
