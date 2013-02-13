@@ -1,5 +1,5 @@
 //
-// time: Wed Feb 13 15:10:21 2013
+// time: Wed Feb 13 18:47:23 2013
 //
 // version: 3.2.0 (format), 4.4.4 (DX)
 //
@@ -16,41 +16,41 @@ include "FieldlineFine.net"
 // page assignment: B	order=9, windowed=0, showing=0
 // page assignment: Camera	order=12, windowed=0, showing=0
 // page assignment: E	order=8, windowed=0, showing=0
-// page assignment: Input	order=2, windowed=0, showing=0
+// page assignment: Input	order=2, windowed=0, showing=1
 // page assignment: J	order=5, windowed=0, showing=0
 // page assignment: Jx Jy Jz	order=6, windowed=0, showing=0
 // page assignment: V	order=7, windowed=0, showing=0
 // page assignment: dB	order=10, windowed=0, showing=0
 // page assignment: ne	order=11, windowed=0, showing=0
-// page assignment: plot	order=4, windowed=0, showing=1
-// workspace: width = 2625, height = 2856
+// page assignment: plot	order=4, windowed=0, showing=0
+// workspace: width = 1103, height = 806
 // layout: snap = 1, width = 50, height = 50, align = CN
 //
 macro main(
 ) -> (
 ) {
     // 
-    // node Sequencer[1]: x = 160, y = 44, inputs = 7, label = Sequencer
+    // node Sequencer[1]: x = 29, y = 44, inputs = 7, label = Sequencer
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Sequencer_1"
     // input[4]: defaulting = 1, visible = 0, type = 1, value = 0
     // input[5]: defaulting = 1, visible = 0, type = 1, value = 5000
     // input[6]: defaulting = 1, visible = 0, type = 1, value = 1
-    // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 5000 1 0 5000 1 }
+    // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 5000 1 0 1517 1 }
     // page group: Input
-    // vcr[1]: min = 0, max = 5000, beg = 0, end = 5000, cur = 0, inc = 1, loop = off, step = on, pal = off
-    // window: position = (0.8031,0.8713), size = 0.1458x0.0741, screen = 0
+    // vcr[1]: min = 0, max = 5000, beg = 0, end = 1517, cur = 16, inc = 1, loop = off, step = off, pal = off
+    // window: position = (0.8495,0.8065), size = 0.1458x0.0741, screen = 0
     //
     main_Sequencer_1_out_1 = @frame;
     // 
-    // node Integer[10]: x = 294, y = 44, inputs = 11, label = Integer
+    // node Integer[10]: x = 174, y = 44, inputs = 11, label = Integer
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Integer_10"
     // input[2]: defaulting = 0, visible = 0, type = 67108863, value = NULL
-    // input[3]: defaulting = 0, visible = 0, type = 1, value = 10000 
+    // input[3]: defaulting = 0, visible = 0, type = 1, value = 100000 
     // input[5]: defaulting = 1, visible = 0, type = 1, value = -1000000
     // input[6]: defaulting = 1, visible = 0, type = 1, value = 1000000
     // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 0
-    // output[1]: visible = 1, type = 1, value = 10000 
+    // output[1]: visible = 1, type = 1, value = 100000 
     // page group: Input
     //
 main_Integer_10_out_1[cache: 2] = 
@@ -68,7 +68,7 @@ main_Integer_10_out_1[cache: 2] =
     main_Integer_10_in_11
     ) [instance: 10, cache: 1];
     // 
-    // node Compute[34]: x = 270, y = 144, inputs = 3, label = Compute
+    // node Compute[34]: x = 150, y = 144, inputs = 3, label = Compute
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "$0*$1"
     // page group: Input
     // expression: value = a*b
@@ -82,7 +82,7 @@ main_Compute_34_out_1 =
     main_Integer_10_out_1
     ) [instance: 34, cache: 1];
     // 
-    // node Format[1]: x = 277, y = 244, inputs = 3, label = Format
+    // node Format[1]: x = 157, y = 244, inputs = 3, label = Format
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "../viz_dir/X%d.general"
     // input[3]: visible = 0
     // page group: Input
@@ -94,7 +94,7 @@ main_Format_1_out_1 =
     main_Format_1_in_3
     ) [instance: 1, cache: 1];
     // 
-    // node Import[1]: x = 279, y = 344, inputs = 6, label = Import
+    // node Import[1]: x = 159, y = 344, inputs = 6, label = Import
     // input[1]: defaulting = 1, visible = 1, type = 32, value = "X700.general"
     // input[2]: defaulting = 0, visible = 0, type = 32, value = NULL
     // input[3]: defaulting = 0, visible = 0, type = 32, value = "general"
@@ -113,7 +113,7 @@ main_Import_1_out_1 =
     main_Import_1_in_6
     ) [instance: 1, cache: 1];
     // 
-    // node Transmitter[2]: x = 287, y = 444, inputs = 1, label = data
+    // node Transmitter[2]: x = 167, y = 444, inputs = 1, label = data
     // page group: Input
     //
 data = main_Import_1_out_1;
@@ -227,15 +227,15 @@ main_MakeLine_3_out_2 =
     main_Integer_12_out_1
     ) [instance: 3, cache: 1];
     // 
-    // node ImportSpreadsheet[2]: x = 131, y = 144, inputs = 10, label = ImportSpreadsheet
-    // input[1]: defaulting = 0, visible = 1, type = 32, value = "../output/t.dat"
+    // node ImportSpreadsheet[2]: x = 0, y = 144, inputs = 10, label = ImportSpreadsheet
+    // input[1]: defaulting = 0, visible = 1, type = 32, value = "../viz_dir/t.dat"
     // input[2]: defaulting = 0, visible = 0, type = 32, value = "\n"
     // input[3]: defaulting = 0, visible = 0, type = 16777248, value = NULL
     // input[4]: defaulting = 0, visible = 0, type = 32, value = "1-d"
     // input[5]: defaulting = 1, visible = 0, type = 16777248, value = {"allstring"}
     // input[6]: defaulting = 1, visible = 1, type = 1, value = NULL
     // input[7]: visible = 1
-    // input[8]: defaulting = 1, visible = 0, type = 1, value = NULL
+    // input[8]: defaulting = 0, visible = 0, type = 1, value = 1
     // input[9]: defaulting = 0, visible = 0, type = 1, value = 0
     // input[10]: defaulting = 1, visible = 0, type = 1, value = 0
     // page group: Input
@@ -255,7 +255,7 @@ main_ImportSpreadsheet_2_out_2 =
     main_ImportSpreadsheet_2_in_10
     ) [instance: 2, cache: 1];
     // 
-    // node Mark[2]: x = 153, y = 244, inputs = 2, label = Mark
+    // node Mark[2]: x = 22, y = 244, inputs = 2, label = Mark
     // input[2]: defaulting = 0, visible = 1, type = 32, value = "column0"
     // page group: Input
     //
@@ -265,7 +265,7 @@ main_Mark_2_out_1 =
     main_Mark_2_in_2
     ) [instance: 2, cache: 1];
     // 
-    // node Extract[3]: x = 164, y = 344, inputs = 2, label = Extract
+    // node Extract[3]: x = 33, y = 344, inputs = 2, label = Extract
     // input[2]: defaulting = 0, visible = 1, type = 32, value = "data"
     // page group: Input
     //
@@ -275,7 +275,7 @@ main_Extract_3_out_1 =
     main_Extract_3_in_2
     ) [instance: 3, cache: 1];
     // 
-    // node Format[34]: x = 164, y = 444, inputs = 3, label = Format
+    // node Format[34]: x = 33, y = 444, inputs = 3, label = Format
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Distance along the axe @ t=%08.3e s"
     // input[2]: defaulting = 1, visible = 1, type = 16777245, value = NULL
     // input[3]: visible = 0
@@ -288,7 +288,7 @@ main_Format_34_out_1 =
     main_Format_34_in_3
     ) [instance: 34, cache: 1];
     // 
-    // node Transmitter[45]: x = 159, y = 544, inputs = 1, label = time_title
+    // node Transmitter[45]: x = 28, y = 544, inputs = 1, label = time_title
     // page group: Input
     //
 time_title = main_Format_34_out_1;
@@ -2133,7 +2133,7 @@ main_Sample_14_out_1 =
     ) [instance: 14, cache: 1];
     // 
     // node String[12]: x = 528, y = 44, inputs = 0, label = String
-    // output[1]: visible = 1, type = 32, value = "arrow2d"
+    // output[1]: visible = 1, type = 32, value = "spiffy"
     // page group: Input
     //
     // 
@@ -2150,12 +2150,12 @@ main_Receiver_27_out_1[cache: 0] = Autoglyph_type;
     // node Scalar[17]: x = 639, y = 44, inputs = 11, label = Scalar
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_17"
     // input[2]: defaulting = 0, visible = 0, type = 67108863, value = NULL
-    // input[3]: defaulting = 0, visible = 0, type = 5, value = 5.0 
+    // input[3]: defaulting = 0, visible = 0, type = 5, value = 1.0 
     // input[5]: defaulting = 1, visible = 0, type = 5, value = -1000000.0
     // input[6]: defaulting = 1, visible = 0, type = 5, value = 1000000.0
     // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 5
-    // output[1]: visible = 1, type = 5, value = 5.0 
+    // output[1]: visible = 1, type = 5, value = 1.0 
     // page group: Input
     //
 main_Scalar_17_out_1[cache: 2] = 
@@ -2187,12 +2187,12 @@ main_Receiver_28_out_1[cache: 0] = Autoglyph_shape;
     // node Scalar[15]: x = 754, y = 44, inputs = 11, label = Scalar
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_15"
     // input[2]: defaulting = 0, visible = 0, type = 67108863, value = NULL
-    // input[3]: defaulting = 0, visible = 0, type = 5, value = 1.5 
+    // input[3]: defaulting = 0, visible = 0, type = 5, value = 2.0 
     // input[5]: defaulting = 1, visible = 0, type = 5, value = -1000000.0
     // input[6]: defaulting = 1, visible = 0, type = 5, value = 1000000.0
     // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 5
-    // output[1]: visible = 1, type = 5, value = 1.5 
+    // output[1]: visible = 1, type = 5, value = 2.0 
     // page group: Input
     //
 main_Scalar_15_out_1[cache: 2] = 
@@ -2223,12 +2223,12 @@ main_Receiver_29_out_1[cache: 0] = Autoglyph_scale;
     // node Scalar[16]: x = 864, y = 44, inputs = 11, label = Scalar
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_16"
     // input[2]: defaulting = 0, visible = 0, type = 67108863, value = NULL
-    // input[3]: defaulting = 0, visible = 0, type = 5, value = 0.001 
+    // input[3]: defaulting = 0, visible = 0, type = 5, value = 0.0005 
     // input[5]: defaulting = 1, visible = 0, type = 5, value = -1000000.0
     // input[6]: defaulting = 1, visible = 0, type = 5, value = 1000000.0
     // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 5
-    // output[1]: visible = 1, type = 5, value = 0.001 
+    // output[1]: visible = 1, type = 5, value = 0.0005 
     // page group: Input
     //
 main_Scalar_16_out_1[cache: 2] = 
@@ -2316,12 +2316,12 @@ main_Switch_2_out_1 =
     // node Scalar[18]: x = 1258, y = 344, inputs = 11, label = Scalar
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_18"
     // input[2]: defaulting = 0, visible = 0, type = 67108863, value = NULL
-    // input[3]: defaulting = 0, visible = 0, type = 5, value = 500.0 
+    // input[3]: defaulting = 0, visible = 0, type = 5, value = 2500.0 
     // input[5]: defaulting = 1, visible = 0, type = 5, value = -1000000.0
     // input[6]: defaulting = 1, visible = 0, type = 5, value = 1000000.0
     // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 5
-    // output[1]: visible = 1, type = 5, value = 500.0 
+    // output[1]: visible = 1, type = 5, value = 2500.0 
     // page group: V
     //
 main_Scalar_18_out_1[cache: 2] = 
@@ -2478,24 +2478,24 @@ main_Receiver_15_out_1[cache: 0] = Autoglyph_ratio;
     // 
     // node Toggle[7]: x = 2099, y = 444, inputs = 6, label = Toggle
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Toggle_7"
-    // input[2]: defaulting = 0, visible = 0, type = 29, value = 0
-    // input[3]: defaulting = 0, visible = 0, type = 3, value = 0
+    // input[2]: defaulting = 0, visible = 0, type = 29, value = 1
+    // input[3]: defaulting = 0, visible = 0, type = 3, value = 1
     // input[4]: defaulting = 1, visible = 0, type = 29, value = 1
     // input[5]: defaulting = 1, visible = 0, type = 29, value = 0
-    // output[1]: visible = 1, type = 29, value = 0
+    // output[1]: visible = 1, type = 29, value = 1
     // page group: B
-    // toggle : 0
+    // toggle : 1
     //
     // 
     // node Scalar[23]: x = 2152, y = 444, inputs = 11, label = Scalar
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_23"
     // input[2]: defaulting = 0, visible = 0, type = 67108863, value = NULL
-    // input[3]: defaulting = 0, visible = 0, type = 5, value = 1000.0 
+    // input[3]: defaulting = 0, visible = 0, type = 5, value = 0.0 
     // input[5]: defaulting = 1, visible = 0, type = 5, value = -1000000.0
     // input[6]: defaulting = 1, visible = 0, type = 5, value = 1000000.0
     // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 5
-    // output[1]: visible = 1, type = 5, value = 1000.0 
+    // output[1]: visible = 1, type = 5, value = 0.0 
     // page group: B
     //
 main_Scalar_23_out_1[cache: 2] = 
@@ -2524,24 +2524,24 @@ main_Switch_8_out_1 =
     // 
     // node Toggle[8]: x = 2202, y = 494, inputs = 6, label = Toggle
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Toggle_8"
-    // input[2]: defaulting = 0, visible = 0, type = 29, value = 0
-    // input[3]: defaulting = 0, visible = 0, type = 3, value = 0
+    // input[2]: defaulting = 0, visible = 0, type = 29, value = 1
+    // input[3]: defaulting = 0, visible = 0, type = 3, value = 1
     // input[4]: defaulting = 1, visible = 0, type = 29, value = 1
     // input[5]: defaulting = 1, visible = 0, type = 29, value = 0
-    // output[1]: visible = 1, type = 29, value = 0
+    // output[1]: visible = 1, type = 29, value = 1
     // page group: B
-    // toggle : 0
+    // toggle : 1
     //
     // 
     // node Scalar[22]: x = 2255, y = 494, inputs = 11, label = Scalar
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_22"
     // input[2]: defaulting = 0, visible = 0, type = 67108863, value = NULL
-    // input[3]: defaulting = 0, visible = 0, type = 5, value = 2000.0 
+    // input[3]: defaulting = 0, visible = 0, type = 5, value = 1200.0 
     // input[5]: defaulting = 1, visible = 0, type = 5, value = -1000000.0
     // input[6]: defaulting = 1, visible = 0, type = 5, value = 1000000.0
     // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 5
-    // output[1]: visible = 1, type = 5, value = 2000.0 
+    // output[1]: visible = 1, type = 5, value = 1200.0 
     // page group: B
     //
 main_Scalar_22_out_1[cache: 2] = 
@@ -2794,12 +2794,12 @@ main_Switch_4_out_1 =
     // node Scalar[13]: x = 2225, y = 344, inputs = 11, label = Scalar
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_13"
     // input[2]: defaulting = 0, visible = 0, type = 67108863, value = NULL
-    // input[3]: defaulting = 0, visible = 0, type = 5, value = 5000.0 
+    // input[3]: defaulting = 0, visible = 0, type = 5, value = 13000.0 
     // input[5]: defaulting = 1, visible = 0, type = 5, value = -1000000.0
     // input[6]: defaulting = 1, visible = 0, type = 5, value = 1000000.0
     // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 5
-    // output[1]: visible = 1, type = 5, value = 5000.0 
+    // output[1]: visible = 1, type = 5, value = 13000.0 
     // page group: J
     //
 main_Scalar_13_out_1[cache: 2] = 
@@ -3469,17 +3469,17 @@ main_Camera_1_out_1 =
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.042643923 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_13"
     // input[7]: defaulting = 1, visible = 1, type = 5, value = 0.0
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 5000.0
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 13000.0
     // input[9]: defaulting = 0, visible = 0, type = 1, value = 20
     // input[10]: defaulting = 1, visible = 0, type = 2048, value = NULL
     // input[11]: defaulting = 1, visible = 0, type = 2048, value = NULL
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 5000.0 }
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 13000.0 }
     // input[13]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[14]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[15]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[16]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.0
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 5000.0
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 13000.0
     // page group: J
     // window: position = (0.0047,0.0278), size = 0.3385x0.4167, screen = 0
     //
@@ -3522,7 +3522,7 @@ main_Color_109_out_1 =
     main_Color_109_in_5
     ) [instance: 109, cache: 1];
     // 
-    // node Scalar[4]: x = 527, y = 244, inputs = 11, label = Scalar
+    // node Scalar[4]: x = 563, y = 244, inputs = 11, label = Scalar
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_4"
     // input[2]: defaulting = 0, visible = 0, type = 67108863, value = NULL
     // input[3]: defaulting = 0, visible = 0, type = 5, value = 0.85 
@@ -3548,7 +3548,7 @@ main_Scalar_4_out_1[cache: 2] =
     main_Scalar_4_in_11
     ) [instance: 4, cache: 1];
     // 
-    // node Transmitter[12]: x = 511, y = 344, inputs = 1, label = Label_scale
+    // node Transmitter[12]: x = 547, y = 344, inputs = 1, label = Label_scale
     // page group: Input
     //
 Label_scale = main_Scalar_4_out_1;
@@ -3558,12 +3558,12 @@ Label_scale = main_Scalar_4_out_1;
     //
 main_Receiver_17_out_1[cache: 0] = Label_scale;
     // 
-    // node String[3]: x = 587, y = 244, inputs = 0, label = String
+    // node String[3]: x = 505, y = 244, inputs = 0, label = String
     // output[1]: visible = 1, type = 32, value = "roman_d"
     // page group: Input
     //
     // 
-    // node Transmitter[13]: x = 593, y = 344, inputs = 1, label = Font
+    // node Transmitter[13]: x = 511, y = 344, inputs = 1, label = Font
     // input[1]: defaulting = 1, visible = 1, type = 67108863, value = NULL
     // page group: Input
     //
@@ -3677,17 +3677,17 @@ main_Collect_26_out_1 =
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.042643923 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_22"
     // input[7]: defaulting = 1, visible = 1, type = 5, value = 50.0
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 500.0
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 2500.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[10]: defaulting = 1, visible = 0, type = 2048, value = NULL
     // input[11]: defaulting = 1, visible = 0, type = 2048, value = NULL
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 50.0 500.0 }
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 50.0 2500.0 }
     // input[13]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[14]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[15]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[16]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[17]: defaulting = 0, visible = 0, type = 5, value = 50.0
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 500.0
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 2500.0
     // page group: V
     // window: position = (0.0188,0.0231), size = 0.5083x0.5778, screen = 0
     //
@@ -3786,13 +3786,92 @@ main_ColorBar_27_out_1 =
     main_Receiver_34_out_1
     ) [instance: 27, cache: 1];
     // 
-    // node Collect[27]: x = 176, y = 994, inputs = 2, label = Collect
+    // node Format[40]: x = 112, y = 444, inputs = 3, label = Format
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "t=%08.3e s"
+    // input[2]: defaulting = 1, visible = 1, type = 16777245, value = NULL
+    // input[3]: visible = 0
+    // page group: Input
+    //
+main_Format_40_out_1 = 
+    Format(
+    main_Format_40_in_1,
+    main_Extract_3_out_1,
+    main_Format_40_in_3
+    ) [instance: 40, cache: 1];
+    // 
+    // node Vector[15]: x = 278, y = 244, inputs = 11, label = Vector
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "Vector_15"
+    // input[2]: visible = 0
+    // input[3]: defaulting = 0, visible = 0, type = 8, value = [ 175 0 400 ]
+    // input[5]: defaulting = 1, visible = 0, type = 8, value = [ -1000000.0 -1000000.0 -1000000.0 ]
+    // input[6]: defaulting = 1, visible = 0, type = 8, value = [ 1000000.0 1000000.0 1000000.0 ]
+    // input[7]: defaulting = 1, visible = 0, type = 8, value = [       1        1        1]
+    // input[9]: defaulting = 1, visible = 0, type = 8, value = [ 5.0 5.0 5.0 ]
+    // output[1]: visible = 1, type = 8, value = [ 175 0 400 ]
+    // page group: Input
+    //
+    // 
+    // node Scalar[57]: x = 330, y = 244, inputs = 11, label = Scalar
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_57"
+    // input[2]: visible = 0
+    // input[3]: defaulting = 0, visible = 0, type = 5, value = 12.0 
+    // input[5]: defaulting = 1, visible = 0, type = 5, value = -1000000.0
+    // input[6]: defaulting = 1, visible = 0, type = 5, value = 1000000.0
+    // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
+    // input[9]: defaulting = 1, visible = 0, type = 1, value = 5
+    // output[1]: visible = 1, type = 5, value = 12.0 
+    // page group: Input
+    //
+    // 
+    // node Text[1]: x = 295, y = 544, inputs = 6, label = Text
+    // input[2]: defaulting = 1, visible = 1, type = 8, value = [175 0 400]
+    // input[3]: defaulting = 1, visible = 1, type = 5, value = 12.0
+    // input[5]: defaulting = 0, visible = 0, type = 8, value = [1 0 0]
+    // input[6]: defaulting = 0, visible = 0, type = 8, value = [0 0 1]
+    // page group: Input
+    //
+main_Text_1_out_1 = 
+    Text(
+    main_Format_40_out_1,
+    main_Vector_15_out_1,
+    main_Scalar_57_out_1,
+    main_String_3_out_1,
+    main_Text_1_in_5,
+    main_Text_1_in_6
+    ) [instance: 1, cache: 1];
+    // 
+    // node Color[190]: x = 321, y = 644, inputs = 5, label = Color
+    // input[2]: defaulting = 0, visible = 0, type = 32, value = "black"
+    // input[3]: defaulting = 1, visible = 0, type = 2048, value = NULL
+    // page group: Input
+    //
+main_Color_190_out_1 = 
+    Color(
+    main_Text_1_out_1,
+    main_Color_190_in_2,
+    main_Color_190_in_3,
+    main_Color_190_in_4,
+    main_Color_190_in_5
+    ) [instance: 190, cache: 1];
+    // 
+    // node Transmitter[77]: x = 304, y = 744, inputs = 1, label = time_stamp
+    // page group: Input
+    //
+time_stamp = main_Color_190_out_1;
+    // 
+    // node Receiver[273]: x = 43, y = 894, inputs = 1, label = time_stamp
+    // page group: V
+    //
+main_Receiver_273_out_1[cache: 0] = time_stamp;
+    // 
+    // node Collect[27]: x = 177, y = 994, inputs = 3, label = Collect
     // page group: V
     //
 main_Collect_27_out_1 = 
     Collect(
     main_Color_123_out_1,
-    main_ColorBar_27_out_1
+    main_ColorBar_27_out_1,
+    main_Receiver_273_out_1
     ) [instance: 27, cache: 1];
     // 
     // node Colormap[19]: x = 536, y = 594, inputs = 19, label = Colormap
@@ -3802,17 +3881,17 @@ main_Collect_27_out_1 =
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.042643923 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_19"
     // input[7]: defaulting = 1, visible = 1, type = 5, value = 50.0
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 500.0
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 2500.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[10]: defaulting = 1, visible = 0, type = 2048, value = NULL
     // input[11]: defaulting = 1, visible = 0, type = 2048, value = NULL
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 50.0 500.0 }
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 50.0 2500.0 }
     // input[13]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[14]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[15]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[16]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[17]: defaulting = 0, visible = 0, type = 5, value = 50.0
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 500.0
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 2500.0
     // page group: V
     // window: position = (0.0188,0.0231), size = 0.5083x0.5778, screen = 0
     //
@@ -3891,13 +3970,14 @@ main_ColorBar_24_out_1 =
     main_Receiver_34_out_1
     ) [instance: 24, cache: 1];
     // 
-    // node Collect[28]: x = 459, y = 994, inputs = 2, label = Collect
+    // node Collect[28]: x = 460, y = 994, inputs = 3, label = Collect
     // page group: V
     //
 main_Collect_28_out_1 = 
     Collect(
     main_Color_120_out_1,
-    main_ColorBar_24_out_1
+    main_ColorBar_24_out_1,
+    main_Receiver_273_out_1
     ) [instance: 28, cache: 1];
     // 
     // node Colormap[24]: x = 336, y = 794, inputs = 19, label = Colormap
@@ -4257,13 +4337,13 @@ main_Receiver_246_out_1[cache: 0] = Fieldlines;
     // 
     // node Toggle[12]: x = 441, y = 444, inputs = 6, label = Toggle
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Toggle_12"
-    // input[2]: defaulting = 0, visible = 0, type = 29, value = 1
-    // input[3]: defaulting = 0, visible = 0, type = 3, value = 1
+    // input[2]: defaulting = 0, visible = 0, type = 29, value = 0
+    // input[3]: defaulting = 0, visible = 0, type = 3, value = 0
     // input[4]: defaulting = 1, visible = 0, type = 29, value = 1
     // input[5]: defaulting = 1, visible = 0, type = 29, value = 0
-    // output[1]: visible = 1, type = 29, value = 1
+    // output[1]: visible = 1, type = 29, value = 0
     // page group: Input
-    // toggle : 1
+    // toggle : 0
     //
     // 
     // node Transmitter[52]: x = 442, y = 544, inputs = 1, label = P1_tog
@@ -4618,13 +4698,13 @@ main_Switch_37_out_1 =
     // 
     // node Toggle[14]: x = 890, y = 444, inputs = 6, label = Toggle
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Toggle_14"
-    // input[2]: defaulting = 0, visible = 0, type = 29, value = 1
-    // input[3]: defaulting = 0, visible = 0, type = 3, value = 1
+    // input[2]: defaulting = 0, visible = 0, type = 29, value = 0
+    // input[3]: defaulting = 0, visible = 0, type = 3, value = 0
     // input[4]: defaulting = 1, visible = 0, type = 29, value = 1
     // input[5]: defaulting = 1, visible = 0, type = 29, value = 0
-    // output[1]: visible = 1, type = 29, value = 1
+    // output[1]: visible = 1, type = 29, value = 0
     // page group: Input
-    // toggle : 1
+    // toggle : 0
     //
     // 
     // node Transmitter[60]: x = 891, y = 544, inputs = 1, label = P3_tog
@@ -5256,7 +5336,12 @@ main_ColorBar_13_out_1 =
     main_Receiver_64_out_1
     ) [instance: 13, cache: 1];
     // 
-    // node Collect[32]: x = 328, y = 944, inputs = 8, label = Collect
+    // node Receiver[277]: x = 1360, y = 894, inputs = 1, label = time_stamp
+    // page group: ne
+    //
+main_Receiver_277_out_1[cache: 0] = time_stamp;
+    // 
+    // node Collect[32]: x = 328, y = 994, inputs = 9, label = Collect
     // page group: ne
     //
 main_Collect_32_out_1 = 
@@ -5268,7 +5353,8 @@ main_Collect_32_out_1 =
     main_Switch_39_out_1,
     main_Switch_40_out_1,
     main_Switch_41_out_1,
-    main_ColorBar_13_out_1
+    main_ColorBar_13_out_1,
+    main_Receiver_277_out_1
     ) [instance: 32, cache: 1];
     // 
     // node Color[132]: x = 103, y = 644, inputs = 5, label = Color
@@ -5391,12 +5477,12 @@ main_Switch_10_out_1 =
     // node Scalar[55]: x = 1293, y = 244, inputs = 11, label = Scalar
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_55"
     // input[2]: defaulting = 0, visible = 0, type = 67108863, value = NULL
-    // input[3]: defaulting = 0, visible = 0, type = 5, value = 20.0 
+    // input[3]: defaulting = 0, visible = 0, type = 5, value = 600.0 
     // input[5]: defaulting = 1, visible = 0, type = 5, value = -1000000.0
     // input[6]: defaulting = 1, visible = 0, type = 5, value = 1000000.0
     // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 5
-    // output[1]: visible = 1, type = 5, value = 20.0 
+    // output[1]: visible = 1, type = 5, value = 600.0 
     // page group: dB
     //
 main_Scalar_55_out_1[cache: 2] = 
@@ -5430,13 +5516,13 @@ main_Switch_11_out_1 =
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.042643923 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_29"
     // input[7]: defaulting = 1, visible = 1, type = 5, value = 0.0
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 20.0
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 600.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[10]: defaulting = 1, visible = 0, type = 2048, value = NULL
     // input[11]: defaulting = 1, visible = 0, type = 2048, value = NULL
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 20.0 }
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 600.0 }
     // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.0
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 20.0
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 600.0
     // page group: dB
     // window: position = (0.0188,0.0231), size = 0.5083x0.5778, screen = 0
     //
@@ -5840,7 +5926,12 @@ main_ColorBar_31_out_1 =
     //
 main_Receiver_148_out_1[cache: 0] = Fieldlines;
     // 
-    // node Collect[33]: x = 113, y = 1094, inputs = 9, label = Collect
+    // node Receiver[276]: x = 1292, y = 1044, inputs = 1, label = time_stamp
+    // page group: dB
+    //
+main_Receiver_276_out_1[cache: 0] = time_stamp;
+    // 
+    // node Collect[33]: x = 113, y = 1144, inputs = 10, label = Collect
     // page group: dB
     //
 main_Collect_33_out_1 = 
@@ -5853,7 +5944,8 @@ main_Collect_33_out_1 =
     main_Switch_34_out_1,
     main_Switch_35_out_1,
     main_ColorBar_31_out_1,
-    main_Receiver_148_out_1
+    main_Receiver_148_out_1,
+    main_Receiver_276_out_1
     ) [instance: 33, cache: 1];
     // 
     // node Color[134]: x = 609, y = 844, inputs = 5, label = Color
@@ -6223,7 +6315,12 @@ main_Switch_23_out_1 =
     main_Color_171_out_1
     ) [instance: 23, cache: 1];
     // 
-    // node Collect[34]: x = 595, y = 1044, inputs = 9, label = Collect
+    // node Receiver[272]: x = 1571, y = 944, inputs = 1, label = time_stamp
+    // page group: J
+    //
+main_Receiver_272_out_1[cache: 0] = time_stamp;
+    // 
+    // node Collect[34]: x = 595, y = 1044, inputs = 10, label = Collect
     // page group: J
     //
 main_Collect_34_out_1 = 
@@ -6236,7 +6333,8 @@ main_Collect_34_out_1 =
     main_Switch_20_out_1,
     main_Switch_21_out_1,
     main_Switch_22_out_1,
-    main_Switch_23_out_1
+    main_Switch_23_out_1,
+    main_Receiver_272_out_1
     ) [instance: 34, cache: 1];
     // 
     // node Color[143]: x = 524, y = 794, inputs = 5, label = Color
@@ -6601,7 +6699,12 @@ main_Switch_29_out_1 =
     main_Color_177_out_1
     ) [instance: 29, cache: 1];
     // 
-    // node Collect[35]: x = 510, y = 1094, inputs = 8, label = Collect
+    // node Receiver[274]: x = 1453, y = 994, inputs = 1, label = time_stamp
+    // page group: E
+    //
+main_Receiver_274_out_1[cache: 0] = time_stamp;
+    // 
+    // node Collect[35]: x = 510, y = 1094, inputs = 9, label = Collect
     // page group: E
     //
 main_Collect_35_out_1 = 
@@ -6613,7 +6716,8 @@ main_Collect_35_out_1 =
     main_Switch_26_out_1,
     main_Switch_27_out_1,
     main_Switch_28_out_1,
-    main_Switch_29_out_1
+    main_Switch_29_out_1,
+    main_Receiver_274_out_1
     ) [instance: 35, cache: 1];
     // 
     // node Receiver[124]: x = 1570, y = 194, inputs = 1, label = time_stamp1
@@ -6621,7 +6725,7 @@ main_Collect_35_out_1 =
     //
 main_Receiver_124_out_1[cache: 0] = time_stamp1;
     // 
-    // node Transmitter[24]: x = 670, y = 1144, inputs = 1, label = Planes_J
+    // node Transmitter[24]: x = 682, y = 1144, inputs = 1, label = Planes_J
     // page group: J
     //
 Planes_J = main_Collect_34_out_1;
@@ -6692,14 +6796,14 @@ main_Slab_59_out_1 =
     // input[3]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.042643923 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_31"
-    // input[7]: defaulting = 1, visible = 1, type = 5, value = 33.845135
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 671.35791
+    // input[7]: defaulting = 1, visible = 1, type = 5, value = 0.0
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 1200.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[10]: defaulting = 1, visible = 0, type = 2048, value = NULL
     // input[11]: defaulting = 1, visible = 0, type = 2048, value = NULL
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 33.845135 671.35791 }
-    // input[17]: defaulting = 0, visible = 0, type = 5, value = 33.845135
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 671.35791
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 1200.0 }
+    // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.0
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 1200.0
     // page group: B
     // window: position = (0.0188,0.0231), size = 0.5083x0.5778, screen = 0
     //
@@ -7078,7 +7182,12 @@ main_ColorBar_33_out_1 =
     main_Receiver_54_out_1
     ) [instance: 33, cache: 1];
     // 
-    // node Collect[45]: x = 808, y = 1244, inputs = 8, label = Collect
+    // node Receiver[275]: x = 2102, y = 1144, inputs = 1, label = time_stamp
+    // page group: B
+    //
+main_Receiver_275_out_1[cache: 0] = time_stamp;
+    // 
+    // node Collect[45]: x = 808, y = 1244, inputs = 9, label = Collect
     // page group: B
     //
 main_Collect_45_out_1 = 
@@ -7090,7 +7199,8 @@ main_Collect_45_out_1 =
     main_Switch_15_out_1,
     main_Switch_16_out_1,
     main_Switch_17_out_1,
-    main_ColorBar_33_out_1
+    main_ColorBar_33_out_1,
+    main_Receiver_275_out_1
     ) [instance: 45, cache: 1];
     // 
     // node Receiver[145]: x = 0, y = 194, inputs = 1, label = time_stamp1
@@ -7098,7 +7208,7 @@ main_Collect_45_out_1 =
     //
 main_Receiver_145_out_1[cache: 0] = time_stamp1;
     // 
-    // node Transmitter[44]: x = 871, y = 1344, inputs = 1, label = Planes_B
+    // node Transmitter[44]: x = 883, y = 1344, inputs = 1, label = Planes_B
     // page group: B
     //
 Planes_B = main_Collect_45_out_1;
@@ -7135,7 +7245,7 @@ main_Color_126_out_1 =
     // input[2]: visible = 0
     // page group: plot
     // depth: value = 24
-    // window: position = (  -inf,  -nan), size =    infx   inf
+    // window: position = (  -nan,   inf), size =    infx   inf
     //
 main_Display_12_out_1[cache: 2] = 
     Display(
@@ -7161,7 +7271,7 @@ main_Display_12_out_1[cache: 2] =
     // input[2]: visible = 0
     // page group: Jx Jy Jz
     // depth: value = 24
-    // window: position = (  -nan,   inf), size =    infx   inf
+    // window: position = (0.0104,0.3194), size = 0.9958x0.4824, screen = 0
     //
 main_Display_13_out_1[cache: 2] = 
     Display(
@@ -7183,7 +7293,7 @@ main_Display_13_out_1[cache: 2] =
     main_Display_13_in_16
     ) [instance: 13, cache: 1];
     // 
-    // node Transmitter[43]: x = 219, y = 444, inputs = 1, label = t
+    // node Transmitter[43]: x = 88, y = 444, inputs = 1, label = t
     // page group: Input
     //
 t = main_Extract_3_out_1;
@@ -7463,7 +7573,7 @@ main_Format_39_out_1 =
     main_String_54_out_1
     ) [instance: 39, cache: 1];
     // 
-    // node Transmitter[18]: x = 451, y = 1094, inputs = 1, label = Arrows_vi
+    // node Transmitter[18]: x = 461, y = 1094, inputs = 1, label = Arrows_vi
     // page group: V
     //
 Arrows_vi = main_Collect_28_out_1;
@@ -7489,7 +7599,7 @@ main_Receiver_119_out_1[cache: 0] = Camera;
     //
     // 
     // node Value[17]: x = 1906, y = 144, inputs = 0, label = Value
-    // output[1]: visible = 1, type = 29, value = 0
+    // output[1]: visible = 1, type = 29, value = 1
     // page group: 3D_plots
     //
     // 
@@ -7617,7 +7727,7 @@ main_Receiver_123_out_1[cache: 0] = Font;
     // page group: 3D_plots
     // title: value = J
     // depth: value = 24
-    // window: position = (0.5016,0.2620), size = 0.3198x0.5009, screen = 0
+    // window: position = (0.0052,0.0278), size = 0.3198x0.5009, screen = 0
     // internal caching: 1
     //
 main_Image_70_out_1,
@@ -7716,7 +7826,7 @@ main_Image_70_out_3 =
     // page group: 3D_plots
     // title: value = vi
     // depth: value = 24
-    // window: position = (0.2297,0.3194), size = 0.3198x0.5009, screen = 0
+    // window: position = (0.2271,0.0148), size = 0.3198x0.5009, screen = 0
     // internal caching: 1
     //
 main_Image_59_out_1,
@@ -7774,7 +7884,7 @@ main_Image_59_out_3 =
     main_Image_59_in_49
     ) [instance: 59, cache: 1];
     // 
-    // node Transmitter[17]: x = 166, y = 1094, inputs = 1, label = Arrows_ve
+    // node Transmitter[17]: x = 176, y = 1094, inputs = 1, label = Arrows_ve
     // page group: V
     //
 Arrows_ve = main_Collect_27_out_1;
@@ -7826,7 +7936,7 @@ main_Receiver_115_out_1[cache: 0] = Arrows_ve;
     // page group: 3D_plots
     // title: value = ve
     // depth: value = 24
-    // window: position = (0.3219,0.3407), size = 0.3198x0.5009, screen = 0
+    // window: position = (0.3990,0.1889), size = 0.3198x0.5009, screen = 0
     // internal caching: 1
     //
 main_Image_61_out_1,
@@ -7884,7 +7994,7 @@ main_Image_61_out_3 =
     main_Image_61_in_49
     ) [instance: 61, cache: 1];
     // 
-    // node Transmitter[23]: x = 184, y = 1194, inputs = 1, label = Planes_dB
+    // node Transmitter[23]: x = 196, y = 1244, inputs = 1, label = Planes_dB
     // page group: dB
     //
 Planes_dB = main_Collect_33_out_1;
@@ -7935,7 +8045,7 @@ main_Receiver_111_out_1[cache: 0] = Planes_dB;
     // page group: 3D_plots
     // title: value = dB
     // depth: value = 24
-    // window: position = (0.2443,0.0750), size = 0.3198x0.5009, screen = 0
+    // window: position = (0.0052,0.0278), size = 0.3198x0.5009, screen = 0
     // internal caching: 1
     //
 main_Image_66_out_1,
@@ -8044,7 +8154,7 @@ main_Receiver_112_out_1[cache: 0] = Planes_E;
     // page group: 3D_plots
     // title: value = E
     // depth: value = 24
-    // window: position = (0.1193,0.3528), size = 0.3198x0.5009, screen = 0
+    // window: position = (0.5167,0.0407), size = 0.3198x0.5009, screen = 0
     // internal caching: 1
     //
 main_Image_69_out_1,
@@ -8143,7 +8253,7 @@ main_Image_69_out_3 =
     // page group: 3D_plots
     // title: value = B
     // depth: value = 24
-    // window: position = (0.1474,0.2065), size = 0.3198x0.5009, screen = 0
+    // window: position = (0.0052,0.0278), size = 0.3198x0.5009, screen = 0
     // internal caching: 1
     //
 main_Image_71_out_1,
@@ -8294,7 +8404,7 @@ main_Receiver_141_out_1[cache: 0] = ext;
     // page group: 3D_plots
     //
     // 
-    // node Transmitter[1]: x = 321, y = 444, inputs = 1, label = frame_number
+    // node Transmitter[1]: x = 201, y = 444, inputs = 1, label = frame_number
     // page group: Input
     //
 frame_number = main_Compute_34_out_1;
@@ -8314,7 +8424,7 @@ Arrows_E = main_Collect_29_out_1;
     //
 Arrows_B = main_Collect_30_out_1;
     // 
-    // node Transmitter[22]: x = 395, y = 1044, inputs = 1, label = Lines_B
+    // node Transmitter[22]: x = 407, y = 1094, inputs = 1, label = Lines_B
     // page group: ne
     //
 Lines_B = main_Collect_32_out_1;
@@ -8502,16 +8612,16 @@ main_Sequencer_1_in_3 = NULL;
 main_Sequencer_1_in_4 = NULL;
 main_Sequencer_1_in_5 = NULL;
 main_Sequencer_1_in_6 = NULL;
-main_Sequencer_1_in_7 = { 0 5000 1 0 5000 1 };
+main_Sequencer_1_in_7 = { 0 5000 1 0 1517 1 };
 main_Sequencer_1_out_1 = NULL;
 
 @startframe = 0;
 @nextframe  = @startframe;
-@endframe   = 5000;
+@endframe   = 1517;
 @deltaframe = 1;
 main_Integer_10_in_1 = "Integer_10";
 main_Integer_10_in_2 = NULL;
-main_Integer_10_in_3 = 10000 ;
+main_Integer_10_in_3 = 100000 ;
 main_Integer_10_in_4 = NULL;
 main_Integer_10_in_5 = NULL;
 main_Integer_10_in_6 = NULL;
@@ -8520,7 +8630,7 @@ main_Integer_10_in_8 = NULL;
 main_Integer_10_in_9 = NULL;
 main_Integer_10_in_10 = NULL;
 main_Integer_10_in_11 = NULL;
-main_Integer_10_out_1 = 10000 ;
+main_Integer_10_out_1 = 100000 ;
 main_Compute_34_in_1 = "$0*$1";
 main_Compute_34_out_1 = NULL;
 main_Format_1_in_1 = "../viz_dir/X%d.general";
@@ -8589,12 +8699,12 @@ main_Integer_12_in_11 = NULL;
 main_Integer_12_out_1 = 300 ;
 main_MakeLine_3_out_1 = NULL;
 main_MakeLine_3_out_2 = NULL;
-main_ImportSpreadsheet_2_in_1 = "../output/t.dat";
+main_ImportSpreadsheet_2_in_1 = "../viz_dir/t.dat";
 main_ImportSpreadsheet_2_in_2 = "\n";
 main_ImportSpreadsheet_2_in_3 = NULL;
 main_ImportSpreadsheet_2_in_4 = "1-d";
 main_ImportSpreadsheet_2_in_5 = NULL;
-main_ImportSpreadsheet_2_in_8 = NULL;
+main_ImportSpreadsheet_2_in_8 = 1;
 main_ImportSpreadsheet_2_in_9 = 0;
 main_ImportSpreadsheet_2_in_10 = NULL;
 main_ImportSpreadsheet_2_out_1 = NULL;
@@ -9186,12 +9296,12 @@ main_Integer_7_out_1 = 250 ;
 main_Transmitter_16_out_1 = NULL;
 main_Receiver_35_out_1 = NULL;
 main_Sample_14_out_1 = NULL;
-main_String_12_out_1 = "arrow2d";
+main_String_12_out_1 = "spiffy";
 main_Transmitter_6_out_1 = NULL;
 main_Receiver_27_out_1 = NULL;
 main_Scalar_17_in_1 = "Scalar_17";
 main_Scalar_17_in_2 = NULL;
-main_Scalar_17_in_3 = 5.0 ;
+main_Scalar_17_in_3 = 1.0 ;
 main_Scalar_17_in_4 = NULL;
 main_Scalar_17_in_5 = NULL;
 main_Scalar_17_in_6 = NULL;
@@ -9200,12 +9310,12 @@ main_Scalar_17_in_8 = NULL;
 main_Scalar_17_in_9 = NULL;
 main_Scalar_17_in_10 = NULL;
 main_Scalar_17_in_11 = NULL;
-main_Scalar_17_out_1 = 5.0 ;
+main_Scalar_17_out_1 = 1.0 ;
 main_Transmitter_7_out_1 = NULL;
 main_Receiver_28_out_1 = NULL;
 main_Scalar_15_in_1 = "Scalar_15";
 main_Scalar_15_in_2 = NULL;
-main_Scalar_15_in_3 = 1.5 ;
+main_Scalar_15_in_3 = 2.0 ;
 main_Scalar_15_in_4 = NULL;
 main_Scalar_15_in_5 = NULL;
 main_Scalar_15_in_6 = NULL;
@@ -9214,12 +9324,12 @@ main_Scalar_15_in_8 = NULL;
 main_Scalar_15_in_9 = NULL;
 main_Scalar_15_in_10 = NULL;
 main_Scalar_15_in_11 = NULL;
-main_Scalar_15_out_1 = 1.5 ;
+main_Scalar_15_out_1 = 2.0 ;
 main_Transmitter_8_out_1 = NULL;
 main_Receiver_29_out_1 = NULL;
 main_Scalar_16_in_1 = "Scalar_16";
 main_Scalar_16_in_2 = NULL;
-main_Scalar_16_in_3 = 0.001 ;
+main_Scalar_16_in_3 = 0.0005 ;
 main_Scalar_16_in_4 = NULL;
 main_Scalar_16_in_5 = NULL;
 main_Scalar_16_in_6 = NULL;
@@ -9228,7 +9338,7 @@ main_Scalar_16_in_8 = NULL;
 main_Scalar_16_in_9 = NULL;
 main_Scalar_16_in_10 = NULL;
 main_Scalar_16_in_11 = NULL;
-main_Scalar_16_out_1 = 0.001 ;
+main_Scalar_16_out_1 = 0.0005 ;
 main_Transmitter_9_out_1 = NULL;
 main_Receiver_30_out_1 = NULL;
 main_Toggle_1_in_1 = "Toggle_1";
@@ -9260,7 +9370,7 @@ main_Toggle_2_in_6 = NULL;
 main_Toggle_2_out_1 = 1;
 main_Scalar_18_in_1 = "Scalar_18";
 main_Scalar_18_in_2 = NULL;
-main_Scalar_18_in_3 = 500.0 ;
+main_Scalar_18_in_3 = 2500.0 ;
 main_Scalar_18_in_4 = NULL;
 main_Scalar_18_in_5 = NULL;
 main_Scalar_18_in_6 = NULL;
@@ -9269,7 +9379,7 @@ main_Scalar_18_in_8 = NULL;
 main_Scalar_18_in_9 = NULL;
 main_Scalar_18_in_10 = NULL;
 main_Scalar_18_in_11 = NULL;
-main_Scalar_18_out_1 = 500.0 ;
+main_Scalar_18_out_1 = 2500.0 ;
 main_Switch_3_out_1 = NULL;
 main_AutoGlyph_18_out_1 = NULL;
 main_Receiver_49_out_1 = NULL;
@@ -9302,15 +9412,15 @@ main_Receiver_13_out_1 = NULL;
 main_Receiver_14_out_1 = NULL;
 main_Receiver_15_out_1 = NULL;
 main_Toggle_7_in_1 = "Toggle_7";
-main_Toggle_7_in_2 = 0;
-main_Toggle_7_in_3 = 0;
+main_Toggle_7_in_2 = 1;
+main_Toggle_7_in_3 = 1;
 main_Toggle_7_in_4 = NULL;
 main_Toggle_7_in_5 = NULL;
 main_Toggle_7_in_6 = NULL;
-main_Toggle_7_out_1 = 0;
+main_Toggle_7_out_1 = 1;
 main_Scalar_23_in_1 = "Scalar_23";
 main_Scalar_23_in_2 = NULL;
-main_Scalar_23_in_3 = 1000.0 ;
+main_Scalar_23_in_3 = 0.0 ;
 main_Scalar_23_in_4 = NULL;
 main_Scalar_23_in_5 = NULL;
 main_Scalar_23_in_6 = NULL;
@@ -9319,18 +9429,18 @@ main_Scalar_23_in_8 = NULL;
 main_Scalar_23_in_9 = NULL;
 main_Scalar_23_in_10 = NULL;
 main_Scalar_23_in_11 = NULL;
-main_Scalar_23_out_1 = 1000.0 ;
+main_Scalar_23_out_1 = 0.0 ;
 main_Switch_8_out_1 = NULL;
 main_Toggle_8_in_1 = "Toggle_8";
-main_Toggle_8_in_2 = 0;
-main_Toggle_8_in_3 = 0;
+main_Toggle_8_in_2 = 1;
+main_Toggle_8_in_3 = 1;
 main_Toggle_8_in_4 = NULL;
 main_Toggle_8_in_5 = NULL;
 main_Toggle_8_in_6 = NULL;
-main_Toggle_8_out_1 = 0;
+main_Toggle_8_out_1 = 1;
 main_Scalar_22_in_1 = "Scalar_22";
 main_Scalar_22_in_2 = NULL;
-main_Scalar_22_in_3 = 2000.0 ;
+main_Scalar_22_in_3 = 1200.0 ;
 main_Scalar_22_in_4 = NULL;
 main_Scalar_22_in_5 = NULL;
 main_Scalar_22_in_6 = NULL;
@@ -9339,7 +9449,7 @@ main_Scalar_22_in_8 = NULL;
 main_Scalar_22_in_9 = NULL;
 main_Scalar_22_in_10 = NULL;
 main_Scalar_22_in_11 = NULL;
-main_Scalar_22_out_1 = 2000.0 ;
+main_Scalar_22_out_1 = 1200.0 ;
 main_Switch_9_out_1 = NULL;
 main_AutoGlyph_23_out_1 = NULL;
 main_Select_39_in_2 = "ve";
@@ -9400,7 +9510,7 @@ main_Toggle_4_in_6 = NULL;
 main_Toggle_4_out_1 = 1;
 main_Scalar_13_in_1 = "Scalar_13";
 main_Scalar_13_in_2 = NULL;
-main_Scalar_13_in_3 = 5000.0 ;
+main_Scalar_13_in_3 = 13000.0 ;
 main_Scalar_13_in_4 = NULL;
 main_Scalar_13_in_5 = NULL;
 main_Scalar_13_in_6 = NULL;
@@ -9409,7 +9519,7 @@ main_Scalar_13_in_8 = NULL;
 main_Scalar_13_in_9 = NULL;
 main_Scalar_13_in_10 = NULL;
 main_Scalar_13_in_11 = NULL;
-main_Scalar_13_out_1 = 5000.0 ;
+main_Scalar_13_out_1 = 13000.0 ;
 main_Switch_5_out_1 = NULL;
 main_AutoGlyph_25_out_1 = NULL;
 main_Receiver_38_out_1 = NULL;
@@ -9626,13 +9736,13 @@ main_Colormap_13_in_5 = "Colormap_13";
 main_Colormap_13_in_9 = 20;
 main_Colormap_13_in_10 = NULL;
 main_Colormap_13_in_11 = NULL;
-main_Colormap_13_in_12 = { 0.0 5000.0 };
+main_Colormap_13_in_12 = { 0.0 13000.0 };
 main_Colormap_13_in_13 = NULL;
 main_Colormap_13_in_14 = NULL;
 main_Colormap_13_in_15 = NULL;
 main_Colormap_13_in_16 = NULL;
 main_Colormap_13_in_17 = 0.0;
-main_Colormap_13_in_18 = 5000.0;
+main_Colormap_13_in_18 = 13000.0;
 main_Colormap_13_in_19 = NULL;
 main_Colormap_13_out_1 = NULL;
 main_Colormap_13_out_2 = NULL;
@@ -9694,13 +9804,13 @@ main_Colormap_22_in_5 = "Colormap_22";
 main_Colormap_22_in_9 = NULL;
 main_Colormap_22_in_10 = NULL;
 main_Colormap_22_in_11 = NULL;
-main_Colormap_22_in_12 = { 50.0 500.0 };
+main_Colormap_22_in_12 = { 50.0 2500.0 };
 main_Colormap_22_in_13 = NULL;
 main_Colormap_22_in_14 = NULL;
 main_Colormap_22_in_15 = NULL;
 main_Colormap_22_in_16 = NULL;
 main_Colormap_22_in_17 = 50.0;
-main_Colormap_22_in_18 = 500.0;
+main_Colormap_22_in_18 = 2500.0;
 main_Colormap_22_in_19 = NULL;
 main_Colormap_22_out_1 = NULL;
 main_Colormap_22_out_2 = NULL;
@@ -9723,6 +9833,43 @@ main_ColorBar_27_in_10 = {"all"};
 main_ColorBar_27_in_13 = NULL;
 main_ColorBar_27_in_14 = NULL;
 main_ColorBar_27_out_1 = NULL;
+main_Format_40_in_1 = "t=%08.3e s";
+main_Format_40_in_3 = NULL;
+main_Format_40_out_1 = NULL;
+main_Vector_15_in_1 = "Vector_15";
+main_Vector_15_in_2 = NULL;
+main_Vector_15_in_3 = [ 175 0 400 ];
+main_Vector_15_in_4 = NULL;
+main_Vector_15_in_5 = NULL;
+main_Vector_15_in_6 = NULL;
+main_Vector_15_in_7 = NULL;
+main_Vector_15_in_8 = NULL;
+main_Vector_15_in_9 = NULL;
+main_Vector_15_in_10 = NULL;
+main_Vector_15_in_11 = NULL;
+main_Vector_15_out_1 = [ 175 0 400 ];
+main_Scalar_57_in_1 = "Scalar_57";
+main_Scalar_57_in_2 = NULL;
+main_Scalar_57_in_3 = 12.0 ;
+main_Scalar_57_in_4 = NULL;
+main_Scalar_57_in_5 = NULL;
+main_Scalar_57_in_6 = NULL;
+main_Scalar_57_in_7 = NULL;
+main_Scalar_57_in_8 = NULL;
+main_Scalar_57_in_9 = NULL;
+main_Scalar_57_in_10 = NULL;
+main_Scalar_57_in_11 = NULL;
+main_Scalar_57_out_1 = 12.0 ;
+main_Text_1_in_5 = [1 0 0];
+main_Text_1_in_6 = [0 0 1];
+main_Text_1_out_1 = NULL;
+main_Color_190_in_2 = "black";
+main_Color_190_in_3 = NULL;
+main_Color_190_in_4 = NULL;
+main_Color_190_in_5 = NULL;
+main_Color_190_out_1 = NULL;
+main_Transmitter_77_out_1 = NULL;
+main_Receiver_273_out_1 = NULL;
 main_Collect_27_out_1 = NULL;
 main_Colormap_19_in_1 = { [0.0 0.666667] [1.0 0.0] };
 main_Colormap_19_in_2 = { [0.0 1.0] [1.0 1.0] };
@@ -9732,13 +9879,13 @@ main_Colormap_19_in_5 = "Colormap_19";
 main_Colormap_19_in_9 = NULL;
 main_Colormap_19_in_10 = NULL;
 main_Colormap_19_in_11 = NULL;
-main_Colormap_19_in_12 = { 50.0 500.0 };
+main_Colormap_19_in_12 = { 50.0 2500.0 };
 main_Colormap_19_in_13 = NULL;
 main_Colormap_19_in_14 = NULL;
 main_Colormap_19_in_15 = NULL;
 main_Colormap_19_in_16 = NULL;
 main_Colormap_19_in_17 = 50.0;
-main_Colormap_19_in_18 = 500.0;
+main_Colormap_19_in_18 = 2500.0;
 main_Colormap_19_in_19 = NULL;
 main_Colormap_19_out_1 = NULL;
 main_Colormap_19_out_2 = NULL;
@@ -9869,12 +10016,12 @@ main_FieldlineFine_3_out_1 = NULL;
 main_Transmitter_46_out_1 = NULL;
 main_Receiver_246_out_1 = NULL;
 main_Toggle_12_in_1 = "Toggle_12";
-main_Toggle_12_in_2 = 1;
-main_Toggle_12_in_3 = 1;
+main_Toggle_12_in_2 = 0;
+main_Toggle_12_in_3 = 0;
 main_Toggle_12_in_4 = NULL;
 main_Toggle_12_in_5 = NULL;
 main_Toggle_12_in_6 = NULL;
-main_Toggle_12_out_1 = 1;
+main_Toggle_12_out_1 = 0;
 main_Transmitter_52_out_1 = NULL;
 main_Receiver_265_out_1 = NULL;
 main_Receiver_56_out_1 = NULL;
@@ -9986,12 +10133,12 @@ main_Color_185_in_5 = NULL;
 main_Color_185_out_1 = NULL;
 main_Switch_37_out_1 = NULL;
 main_Toggle_14_in_1 = "Toggle_14";
-main_Toggle_14_in_2 = 1;
-main_Toggle_14_in_3 = 1;
+main_Toggle_14_in_2 = 0;
+main_Toggle_14_in_3 = 0;
 main_Toggle_14_in_4 = NULL;
 main_Toggle_14_in_5 = NULL;
 main_Toggle_14_in_6 = NULL;
-main_Toggle_14_out_1 = 1;
+main_Toggle_14_out_1 = 0;
 main_Transmitter_60_out_1 = NULL;
 main_Receiver_267_out_1 = NULL;
 main_String_64_out_1 = "x";
@@ -10185,6 +10332,7 @@ main_ColorBar_13_in_10 = {"all"};
 main_ColorBar_13_in_13 = NULL;
 main_ColorBar_13_in_14 = NULL;
 main_ColorBar_13_out_1 = NULL;
+main_Receiver_277_out_1 = NULL;
 main_Collect_32_out_1 = NULL;
 main_Color_132_in_2 = "black";
 main_Color_132_in_3 = NULL;
@@ -10227,7 +10375,7 @@ main_Toggle_10_in_6 = NULL;
 main_Toggle_10_out_1 = 1;
 main_Scalar_55_in_1 = "Scalar_55";
 main_Scalar_55_in_2 = NULL;
-main_Scalar_55_in_3 = 20.0 ;
+main_Scalar_55_in_3 = 600.0 ;
 main_Scalar_55_in_4 = NULL;
 main_Scalar_55_in_5 = NULL;
 main_Scalar_55_in_6 = NULL;
@@ -10236,7 +10384,7 @@ main_Scalar_55_in_8 = NULL;
 main_Scalar_55_in_9 = NULL;
 main_Scalar_55_in_10 = NULL;
 main_Scalar_55_in_11 = NULL;
-main_Scalar_55_out_1 = 20.0 ;
+main_Scalar_55_out_1 = 600.0 ;
 main_Switch_11_out_1 = NULL;
 main_Colormap_29_in_1 = { [0.0 0.666667] [1.0 0.0] };
 main_Colormap_29_in_2 = { [0.0 1.0] [1.0 1.0] };
@@ -10246,13 +10394,13 @@ main_Colormap_29_in_5 = "Colormap_29";
 main_Colormap_29_in_9 = NULL;
 main_Colormap_29_in_10 = NULL;
 main_Colormap_29_in_11 = NULL;
-main_Colormap_29_in_12 = { 0.0 20.0 };
+main_Colormap_29_in_12 = { 0.0 600.0 };
 main_Colormap_29_in_13 = NULL;
 main_Colormap_29_in_14 = NULL;
 main_Colormap_29_in_15 = NULL;
 main_Colormap_29_in_16 = NULL;
 main_Colormap_29_in_17 = 0.0;
-main_Colormap_29_in_18 = 20.0;
+main_Colormap_29_in_18 = 600.0;
 main_Colormap_29_in_19 = NULL;
 main_Colormap_29_out_1 = NULL;
 main_Color_178_in_3 = .5;
@@ -10327,6 +10475,7 @@ main_ColorBar_31_in_13 = NULL;
 main_ColorBar_31_in_14 = NULL;
 main_ColorBar_31_out_1 = NULL;
 main_Receiver_148_out_1 = NULL;
+main_Receiver_276_out_1 = NULL;
 main_Collect_33_out_1 = NULL;
 main_Color_134_in_2 = "black";
 main_Color_134_in_3 = NULL;
@@ -10394,6 +10543,7 @@ main_Color_171_in_4 = NULL;
 main_Color_171_in_5 = NULL;
 main_Color_171_out_1 = NULL;
 main_Switch_23_out_1 = NULL;
+main_Receiver_272_out_1 = NULL;
 main_Collect_34_out_1 = NULL;
 main_Color_143_in_2 = "black";
 main_Color_143_in_3 = NULL;
@@ -10460,6 +10610,7 @@ main_Color_177_in_4 = NULL;
 main_Color_177_in_5 = NULL;
 main_Color_177_out_1 = NULL;
 main_Switch_29_out_1 = NULL;
+main_Receiver_274_out_1 = NULL;
 main_Collect_35_out_1 = NULL;
 main_Receiver_124_in_1 = NULL;
 main_Receiver_124_out_1 = NULL;
@@ -10481,13 +10632,13 @@ main_Colormap_31_in_5 = "Colormap_31";
 main_Colormap_31_in_9 = NULL;
 main_Colormap_31_in_10 = NULL;
 main_Colormap_31_in_11 = NULL;
-main_Colormap_31_in_12 = { 33.845135 671.35791 };
+main_Colormap_31_in_12 = { 0.0 1200.0 };
 main_Colormap_31_in_13 = NULL;
 main_Colormap_31_in_14 = NULL;
 main_Colormap_31_in_15 = NULL;
 main_Colormap_31_in_16 = NULL;
-main_Colormap_31_in_17 = 33.845135;
-main_Colormap_31_in_18 = 671.35791;
+main_Colormap_31_in_17 = 0.0;
+main_Colormap_31_in_18 = 1200.0;
 main_Colormap_31_in_19 = NULL;
 main_Colormap_31_out_1 = NULL;
 main_Color_156_in_3 = .5;
@@ -10557,6 +10708,7 @@ main_ColorBar_33_in_10 = {"all"};
 main_ColorBar_33_in_13 = NULL;
 main_ColorBar_33_in_14 = NULL;
 main_ColorBar_33_out_1 = NULL;
+main_Receiver_275_out_1 = NULL;
 main_Collect_45_out_1 = NULL;
 main_Receiver_145_in_1 = NULL;
 main_Receiver_145_out_1 = NULL;
@@ -10650,7 +10802,7 @@ main_Receiver_116_out_1 = NULL;
 main_Transmitter_28_out_1 = NULL;
 main_Receiver_119_out_1 = NULL;
 main_Value_16_out_1 = 1;
-main_Value_17_out_1 = 0;
+main_Value_17_out_1 = 1;
 main_String_33_out_1 = "miff";
 main_Transmitter_29_out_1 = NULL;
 main_Receiver_120_out_1 = NULL;
