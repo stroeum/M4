@@ -1,3 +1,5 @@
+input/main.in
+viz_dir/log.out
 *.in
 *.out
 *.gif
@@ -13,5 +15,3 @@
 *.o
 *.general
 *.dat
-.nfs*
-*.swp
