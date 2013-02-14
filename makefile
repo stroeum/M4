@@ -40,8 +40,8 @@ run_help:
 	./main -options_file input/main.in -help
 
 clr_dat:
-	rm -rfv .nfs* .*.swp input/.*.swp viz_dir/*.dat viz_dir/*.general viz_dir/*.*if* viz_dir/*.png viz_dir/*.pdf viz_dir/*.eps viz_dir/*.ps 
+	rm -rfv .nfs* .*.swp input/.*.swp viz_dir/*.dat viz_dir/*.general viz_fun/*.*if* viz_fun/*.png viz_fun/*.pdf viz_fun/*.eps viz_fun/*.ps 
 clr_img:
-	rm -rfv .nfs* .*.swp input/.*.swp viz_dir/*.*if* viz_dir/*.png viz_dir/*.pdf viz_dir/*.eps viz_dir/*.ps 
+	rm -rfv .nfs* .*.swp input/.*.swp viz_fun/*.*if* viz_fun/*.png viz_fun/*.pdf viz_fun/*.eps viz_fun/*.ps 
 clear:
-	rm -rfv *.o .nfs* .*.swp main convert input/.*.swp output/* viz_dir/*.dat viz_dir/*.general viz_dir/*.*if* viz_dir/*.png viz_dir/log.out ~/${NAME}.sh ~/log${NAME}.*
+	rm -rfv *.o .nfs* .*.swp main convert input/.*.swp output/* viz_dir/*.dat viz_dir/*.general viz_fun/*.*if* viz_fun/*.png viz_dir/log.out ~/${NAME}.sh ~/log${NAME}.*
