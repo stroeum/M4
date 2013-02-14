@@ -13,3 +13,5 @@
 *.o
 *.general
 *.dat
+.nfs*
+*.swp
