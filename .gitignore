@@ -1,3 +1,5 @@
+input/main.in
+viz_dir/log.out
 *.in
 *.out
 *.gif
