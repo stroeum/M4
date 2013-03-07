@@ -15,5 +15,3 @@ viz_dir/log.out
 *.o
 *.general
 *.dat
-.nfs*
-*.swp

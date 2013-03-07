@@ -9,7 +9,7 @@
 #-smoothing
 #
 -ts_max_steps 100000000
--viz_dstep 100000           # plot every dstep 
+-viz_dstep 2500           # plot every dstep 
 -ts_max_time 1e2 
 #-ts_final_time 1e2 
 #-mi0 5.3135e-26        #_kg, mass of O2+, only single charged ions allowed!
@@ -23,8 +23,8 @@
 -WindEW 0e2            #_m/_s, y-component of neutral wind
 -WindUD 0e2            #_m/_s, z-component of neutral wind
 -ExtraDiagnostics
--B_field_type 4        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical
--B0 1e16              #_T, magnitude of the magnetic field
+-B_field_type 1        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical
+-B0 20e-9              #_T, magnitude of the magnetic field
 -B1 -20e3               #_m, geometry parameter a
 -B2 0e3                #_m, geometry parameter b
 -B3 0e3                #_m, geometry parameter c
