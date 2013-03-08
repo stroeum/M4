@@ -1,0 +1,27 @@
+Resuming calculation from
+ * File: X5977500.bin
+ * N = 5977500
+ * l. 2392 in output/t.dat
+ * t = 9.871863e-01 s
+WARNING: Visualization area greater than simulation domain:
+---> the vizualization box is adjusted to fit the maximum dimension of the simulation domain.
+mx = [0 41 0]:41
+my = [0 21 0]:21
+mz = [0 101 0]:101
+      O2+		CO2+		O+		e
+m   = [5.314e-26	7.308e-26	2.657e-26	9.109e-31]
+vo  = [6.094e+01]
+tau = [1.641e+01]
+n0  = [2.824e+07]
+p0  = [9.552e-20]
+B0  = [3.465e-13]
+E0  = [2.111e-11]
+mx = 41 my = 21 mz = 101
+Form Initial Conditions: ...
+Init from output/X5977500.bin: ...
+Init from output/X5977500.bin: DONE
+ARE WE THERE YET?
+Form Initial Conditions: DONE
+Elapsed_time=1.4e+00	timestep 5977500	t 1.620e+01	dt 1.000e-09
+Elapsed_time=5.5e+01	timestep 5980000	t 1.621e+01	dt 2.914e-06
+Elapsed_time=1.1e+02	timestep 5982500	t 1.621e+01	dt 2.914e-06
