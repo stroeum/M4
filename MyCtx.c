@@ -120,7 +120,7 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
   PetscInt       mx_lo,my_lo,mz_lo;
   PetscInt       mx_in,my_in,mz_in;
   PetscInt       mx_hi,my_hi,mz_hi;
-  PetscReal      pct = 1.1;
+  PetscReal      pct=1.1;
   PetscReal      dx=0, dy=0, dz=0;
   PetscReal      X=0, Y=0, Z=0;
   svi            s = {// Index for variables with no d*/dt (svi)
@@ -348,7 +348,7 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
   user->B0  = user->me/(qe*user->tau);
   
   /* dt = min(dt,CFL) */
-  user->dt    = 1.0e-6/user->tau;
+  user->dt    = 1.0e-9/user->tau;
   user->eps.n = 1.0e3/user->n0; // min density allowed in the domain: 10^-3 cm-3 = 1e3 m^-3
   user->eps.p = 1e-15/user->p0; // min pressure allowed in the domain
   user->eps.v = .01*299742458/user->v0; // MAX velocity allowed in the domain: 1% of the speed of light
@@ -356,17 +356,46 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
   // Retrieve information from initial conditions //
   user->istep = 0;
   if (user->isInputFile) {
+    /*
+     * Retrieve step number from the namefile of Xnnnnnnn.dat
+     * 1. Find the position of the "." character
+     * 2. Define the length of nnnnnnn
+     * 3. Create a pointer on char pstep and point it on a string from the second character up to "." character of Xnnnnnn.dat
+     * 4. Add end of string character to the pstep
+     * 5. Convert to integer and store initial step number into user->istep
+     */
     sprintf(InputFile,"%s",user->InputFile);
-    pdot = strchr(InputFile,dot);
+    pdot = strchr(InputFile,dot); // pointer on the "." character
     if(pdot)
     {
-      size_t len = pdot - InputFile -1;
+      size_t len = pdot - InputFile -1; // string length
       pstep = malloc(len);
       memcpy(pstep, &InputFile[1],len);
       pstep[len] = '\0';
       user->istep = atoi(pstep);
       PetscPrintf(PETSC_COMM_WORLD,"Initial timestep %D\n",user->istep);
-      user->ti = user->istep*user->dt;
+
+      /*
+       * Retrieve initial time from step number and file t.dat containing all the time sequence.
+       * 1. Retrieve the line number
+       * 2. Scan the file t.dat until this line
+       * 3. Store the time in the variable t
+       * 4. Store the initial time in user->ti
+       */
+      PetscInt  tg_line;
+      PetscInt  line=1;
+      tg_line = 1 + user->istep/user->viz_dstep;
+      PetscPrintf(PETSC_COMM_WORLD,"target line number %d\n",tg_line);
+      FILE *pFile;
+      float t; 
+      pFile = fopen("output/t.dat","r");
+      while(pFile && line<=tg_line) {
+        fscanf(pFile,"%e",&t);
+        //PetscPrintf(PETSC_COMM_WORLD,"line %d\tti = %e\n",line, t);
+        line++;
+      }
+      fclose(pFile);
+      //user->ti = user->istep*user->dt;
     } else {
       PetscPrintf(PETSC_COMM_WORLD,"Unreadable input file\n");
       exit(1);

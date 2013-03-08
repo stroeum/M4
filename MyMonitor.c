@@ -29,19 +29,19 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
 
   MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
 
-  sprintf(fName, "%s/t.dat",user->dName);
-  flag = access(fName,W_OK);
-  if (flag==0) fd=fopen(fName,"a");
-  else         fd=fopen(fName,"w");
-
   if((istep+step)%vizdstep==0) { // || (step>=9400) ) {
     ierr = TSGetTimeStep(ts,&dt);CHKERRQ(ierr);
     ierr = PetscGetTime(&t1);CHKERRQ(ierr);
     ierr = PetscPrintf(PETSC_COMM_WORLD,"Elapsed_time=%2.1e\ttimestep %D\tt %2.3e\tdt %2.3e\n",t1-t0,istep+step,ptime*tau,user->dt*tau);CHKERRQ(ierr);
-    ierr = PetscFPrintf(PETSC_COMM_WORLD,fd,"%8.3e\n",ptime*tau); CHKERRQ(ierr);
+
+    sprintf(fName, "%s/t.dat",user->dName);
+    flag = access(fName,W_OK);
+    if (flag==0) fd=fopen(fName,"a");
+    else         fd=fopen(fName,"w");
+    ierr = PetscFPrintf(PETSC_COMM_WORLD,fd,"%12.6e\n",ptime*tau); CHKERRQ(ierr);
+    fclose(fd);
 
     sprintf(fName, "%s/X%d.bin",user->dName,istep+step);
-
     ierr = PetscViewerBinaryOpen(PETSC_COMM_WORLD,fName,FILE_MODE_WRITE, &fViewer); CHKERRQ(ierr);
     ierr = VecView(U,fViewer); CHKERRQ(ierr);
     ierr = PetscViewerDestroy(&fViewer); CHKERRQ(ierr);
@@ -58,7 +58,6 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
       ierr = PetscViewerDestroy(&fViewer); CHKERRQ(ierr);
     }
   } 
-  fclose(fd);
   PetscFunctionReturn(0);
 }
 
