@@ -373,7 +373,6 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
       memcpy(pstep, &InputFile[1],len);
       pstep[len] = '\0';
       user->istep = atoi(pstep);
-      PetscPrintf(PETSC_COMM_WORLD,"Initial timestep %D\n",user->istep);
 
       /*
        * Retrieve initial time from step number and file t.dat containing all the time sequence.
@@ -385,16 +384,18 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
       PetscInt  tg_line;
       PetscInt  line=1;
       tg_line = 1 + user->istep/user->viz_dstep;
-      PetscPrintf(PETSC_COMM_WORLD,"target line number %d\n",tg_line);
       FILE *pFile;
       float t; 
       pFile = fopen("output/t.dat","r");
       while(pFile && line<=tg_line) {
         fscanf(pFile,"%e",&t);
-        //PetscPrintf(PETSC_COMM_WORLD,"line %d\tti = %e\n",line, t);
         line++;
       }
+      line--;
       fclose(pFile);
+      user->ti = t/user->tau; 
+
+      PetscPrintf(PETSC_COMM_WORLD,"Resuming simulation from:\n * File: %s\n * Step: %d\n * Time: %e s\n * Line: %d in output/t.dat\n", user->InputFile, user->istep, user->ti, line);
       //user->ti = user->istep*user->dt;
     } else {
       PetscPrintf(PETSC_COMM_WORLD,"Unreadable input file\n");
