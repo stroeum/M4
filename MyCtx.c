@@ -479,6 +479,7 @@ PetscErrorCode OutputData(void* ptr)
   ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
   for (step=istep; step<=maxsteps; step++) {
 
+    //PetscPrintf(PETSC_COMM_WORLD,"istep = %d\tstep = %d\tmaxsteps = %d\tvizdstep = %d\n",istep,step,maxsteps,vizdstep);
     if(step%vizdstep==0) {
       ierr = PetscPrintf(PETSC_COMM_WORLD,"timestep %D\n",step);CHKERRQ(ierr);
 
@@ -681,7 +682,8 @@ PetscReal Arcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m)
   for (i=0; i<Ms; i++) {
     for (j=0; j<Ns; j++) {
       for (k=0; k<Ps; k++) {
-        s = k*Ns*Ms + j*Ms + i;
+        s = j; 
+        //s = k*Ns*Ms + j*Ms + i; // <-This gives 6 dipoles with each dipole having opposite direction compared to its neighbor
         B += pow(-1,s%2) * V_Dipole(mu,xs[i],ys[j],zs[k],x,y,z,m);
       }
     }
