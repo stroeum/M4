@@ -1,5 +1,7 @@
 input/main.in
 viz_dir/log.out
+.nfs*
+*.swp
 *.in
 *.out
 *.gif
