@@ -5,7 +5,7 @@ CFLAGS = $(FLAGS)
 FOLDER = $(CURDIR)
 NAME = $(notdir $(CURDIR))
 MYDIR=/nv/hp5/jriousset6/data/M4/${NAME}
-NODES=1
+NODES=2
 PPN=64
 PROCS= $(shell echo ${NODES}*${PPN} | bc)
 
