@@ -1,0 +1,64 @@
+#Command line options
+-output_folder output
+-visualization_folder viz_dir
+#-input_file X840000.bin
+#
+-bc_type 0 # 0: 1st order Neumann, 1: 2nd order Neumann, 2: zero'ed 2nd derivatives, 3: Non-symmetric "exact" solution, 10: combination of df/dn=0 amd d2f/dn2=0
+-limiters
+-blockers
+#-smoothing
+#
+-ts_max_steps 100000000
+-viz_dstep 100000           # plot every dstep 
+-ts_max_time 1e2 
+#-ts_final_time 1e2 
+#-mi0 5.3135e-26        #_kg, mass of O2+, only single charged ions allowed!
+#-mi1 5.3135e-26        #_kg, mass of O2+, only single charged ions allowed!
+#-mi2 5.3135e-26        #_kg, mass of O2+, only single charged ions allowed!
+-mi0 5.3135e-26        #_kg, mass of O2+, only single charged ions allowed!
+-mi1 7.3079e-26        #_kg, mass of CO2+
+-mi2 2.6567e-26        #_kg, mass of O+
+-me 9.1093e-31         #_kg, electron mass
+-WindNS 1e2            #_m/_s, x-component of neutral wind
+-WindEW 0e2            #_m/_s, y-component of neutral wind
+-WindUD 0e2            #_m/_s, z-component of neutral wind
+-ExtraDiagnostics
+-B_field_type 4        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical
+-B0 1e16              #_T, magnitude of the magnetic field
+-B1 -20e3               #_m, geometry parameter a
+-B2 0e3                #_m, geometry parameter b
+-B3 0e3                #_m, geometry parameter c
+-Mmars 6.4185e23       #_kg, Mars' mass
+-Rmars 3396.2e3        #_m, Mars' equatorial radius
+#
+#-ts_type euler
+-ts_type ssp
+-ts_ssp_type rk2jar
+#-ts_ssp_type lax
+#-ts_ssp_nstages 2
+#
+-da_grid_x 21
+-da_grid_y 11
+-da_grid_z 101
+#
+#Simulation parameters
+-in_x_min -100.0e+3       #_m
+-in_x_max 100.0e+3        #_m
+-in_y_min -50.0e+3        #_m
+-in_y_max 50.0e+3         #_m
+-in_z_min 100.0e+3        #_m
+-in_z_max 400.0e+3        #_m
+-out_x_min -100.0e+3      #_m
+-out_x_max 100.0e+3       #_m
+-out_y_min -50.0e+3       #_m
+-out_y_max 50.0e+3        #_m
+-out_z_min 100.0e+3       #_m
+-out_z_max 400.0e+3       #_m
+
+#Visualization parameters
+-vizbox_x_min -1000.0e+3  #_m
+-vizbox_x_max 1000.0e+3   #_m
+-vizbox_y_min -500.0e+3    #_m
+-vizbox_y_max 500.0e+3     #_m
+-vizbox_z_min 0.0e+3  #_m
+-vizbox_z_max 10000.0e+3   #_m
