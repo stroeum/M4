@@ -668,7 +668,9 @@ PetscErrorCode CFL(TS ts)
 #undef __FUNCT__
 #define __FUNCT__ "ARCADES"
 /*
- * Arcades
+ * Arcades with the following configuration
+ * X X X
+ * 0 0 0
  */
 PetscReal Arcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m)
 {
@@ -688,7 +690,35 @@ PetscReal Arcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m)
       }
     }
   }
+  return B;
+}
 
+/* ------------------------------------------------------------------- */
+/* Calculate the magnetic field of multiple Arcades                    */
+/* ------------------------------------------------------------------- */
+#undef __FUNCT__
+#define __FUNCT__ "MULTIARCADES"
+/*
+ * MultipleArcades
+ */
+PetscReal MultiArcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m)
+{
+  PetscInt  i,j,k,s;
+  PetscReal B = 0., mu = 1e16;
+  PetscReal xs[3] = {-100e3,0e3,100e3};
+  PetscReal ys[3] = {-100e3,0e3,100e3};
+  PetscReal zs[1] = {-20e3};
+  PetscInt Ms=sizeof(xs)/sizeof(xs[0]), Ns=sizeof(ys)/sizeof(ys[0]), Ps=sizeof(zs)/sizeof(zs[0]);
+  B = 0;
+  for (i=0; i<Ms; i++) {
+    for (j=0; j<Ns; j++) {
+      for (k=0; k<Ps; k++) {
+        s = j; 
+        //s = k*Ns*Ms + j*Ms + i; // <-This gives 6 dipoles with each dipole having opposite direction compared to its neighbor
+        B += pow(-1,s%2) * V_Dipole(mu,xs[i],ys[j],zs[k],x,y,z,m);
+      }
+    }
+  }
   return B;
 }
 

@@ -143,6 +143,10 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
             u[k][j][i][d.B[0]] = Arcades(X,Y,Z,0)/B0;
             u[k][j][i][d.B[1]] = Arcades(X,Y,Z,1)/B0;
             u[k][j][i][d.B[2]] = Arcades(X,Y,Z,2)/B0;
+          } else if (Btype==8) {
+            u[k][j][i][d.B[0]] = MultiArcades(X,Y,Z,0)/B0;
+            u[k][j][i][d.B[1]] = MultiArcades(X,Y,Z,1)/B0;
+            u[k][j][i][d.B[2]] = MultiArcades(X,Y,Z,2)/B0;
           }
           for (l=0; l<3; l++) {
             u[k][j][i][d.ni[l]] = nio[l]/n0;

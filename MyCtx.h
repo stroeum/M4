@@ -143,6 +143,7 @@ extern PetscReal      MinAbs(PetscReal,PetscReal);
 extern PetscReal      V_Dipole(PetscReal mu, PetscReal xs, PetscReal ys, PetscReal zs, PetscReal x, PetscReal y, PetscReal z, PetscInt m);
 extern PetscReal      H_Dipole(PetscReal mu, PetscReal xs, PetscReal ys, PetscReal zs, PetscReal x, PetscReal y, PetscReal z, PetscInt m);
 extern PetscReal      Arcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m);
+extern PetscReal      MultiArcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m);
 extern PetscReal      Norm2(PetscReal*); // Norm 2 squared!
 
 extern PetscErrorCode TSSSPStep_RK_2_JAR(TS,PetscReal,PetscReal,Vec);
