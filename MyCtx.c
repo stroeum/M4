@@ -322,7 +322,7 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
     else if (i >= mx_lo && i < mx_lo+mx_in) X = user->inXmin + (i-mx_lo)*dx;
     else X = user->inXmax + pct*dx * (pow(pct,i-mx_lo-mx_in+1)-1) / (pct-1);
     user->x[i] = (X - user->outXmin)/user->L;
-    PetscPrintf(PETSC_COMM_WORLD,"X = %12.3f\n",user->outXmin + user->x[i]*user->L);
+    //PetscPrintf(PETSC_COMM_WORLD,"X = %12.3f\n",user->outXmin + user->x[i]*user->L);
   }
   user->outXmax = X;
 
@@ -332,7 +332,7 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
     else if (j >= my_lo && j < my_lo+my_in) Y = user->inYmin + (j-my_lo)*dy;
     else Y = user->inYmax + pct*dy * (pow(pct,j-my_lo-my_in+1)-1) / (pct-1);
     user->y[j] = (Y - user->outYmin)/user->L;
-    PetscPrintf(PETSC_COMM_WORLD,"Y = %12.3f\n",user->outYmin + user->y[j]*user->L);
+    //PetscPrintf(PETSC_COMM_WORLD,"Y = %12.3f\n",user->outYmin + user->y[j]*user->L);
   }
   user->outYmax = Y;
 
@@ -342,7 +342,7 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
     else if (k >= mz_lo && k < mz_lo+mz_in) Z = user->inZmin + (k-mz_lo)*dz;
     else Z = user->inZmax + pct*dz * (pow(pct,k-mz_lo-mz_in+1)-1) / (pct-1);
     user->z[k] = (Z - user->outZmin)/user->L;
-    PetscPrintf(PETSC_COMM_WORLD,"Z = %12.3f\n",user->outZmin + user->z[k]*user->L);
+    //PetscPrintf(PETSC_COMM_WORLD,"Z = %12.3f\n",user->outZmin + user->z[k]*user->L);
   }
   user->outZmax = Z;
 
@@ -408,8 +408,7 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
     }
   }
 
-  for (i=0; i<6; i++) {
-    PetscPrintf(PETSC_COMM_WORLD,"outer box dim %d = %f\n", i, user->vizbox[i]);}
+  //for (i=0; i<6; i++) PetscPrintf(PETSC_COMM_WORLD,"outer box dim %d = %f\n", i, user->vizbox[i]);
 
   if(user->vizbox[0]<user->outXmin || user->vizbox[1]>user->outXmax || user->vizbox[2]<user->outYmin || user->vizbox[3]>user->outYmax || user->vizbox[4]<user->outZmin || user->vizbox[5]>user->outZmax){
     PetscPrintf(PETSC_COMM_WORLD,"WARNING: Visualization area greater than simulation domain:\n---> the vizualization box is adjusted to fit the maximum dimension of the simulation domain.\n");

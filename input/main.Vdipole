@@ -23,7 +23,7 @@
 -WindEW 0e2            #_m/_s, y-component of neutral wind
 -WindUD 0e2            #_m/_s, z-component of neutral wind
 -ExtraDiagnostics
--B_field_type 4        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical
+-B_field_type 3        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical
 -B0 1e16              #_T, magnitude of the magnetic field
 -B1 -20e3               #_m, geometry parameter a
 -B2 0e3                #_m, geometry parameter b
@@ -37,21 +37,21 @@
 #-ts_ssp_type lax
 #-ts_ssp_nstages 2
 #
--da_grid_x 21
+-da_grid_x 11
 -da_grid_y 11
 -da_grid_z 101
 #
 #Simulation parameters
--in_x_min -100.0e+3       #_m
--in_x_max 100.0e+3        #_m
+-in_x_min -50.0e+3        #_m
+-in_x_max 50.0e+3         #_m
 -in_y_min -50.0e+3        #_m
 -in_y_max 50.0e+3         #_m
 -in_z_min 100.0e+3        #_m
 -in_z_max 400.0e+3        #_m
--out_x_min -100.0e+3      #_m
--out_x_max 100.0e+3       #_m
--out_y_min -50.0e+3       #_m
--out_y_max 50.0e+3        #_m
+-out_x_min -200.0e+3      #_m
+-out_x_max 200.0e+3       #_m
+-out_y_min -200.0e+3       #_m
+-out_y_max 200.0e+3        #_m
 -out_z_min 100.0e+3       #_m
 -out_z_max 400.0e+3       #_m
 
