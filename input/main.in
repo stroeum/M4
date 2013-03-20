@@ -1,7 +1,7 @@
 #Command line options
 -output_folder output
 -visualization_folder viz_dir
-#-input_file X840000.bin
+-input_file X12200000.bin
 #
 -bc_type 0 # 0: 1st order Neumann, 1: 2nd order Neumann, 2: zero'ed 2nd derivatives, 3: Non-symmetric "exact" solution, 10: combination of df/dn=0 amd d2f/dn2=0
 -limiters
