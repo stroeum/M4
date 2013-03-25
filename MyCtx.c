@@ -484,7 +484,7 @@ PetscErrorCode OutputData(void* ptr)
   
   // Get local grid boundaries //
   ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
-  for (step=istep; step<=maxsteps; step++) {
+  for (step=0/*istep*/; step<=maxsteps; step++) {
 
     //PetscPrintf(PETSC_COMM_WORLD,"istep = %d\tstep = %d\tmaxsteps = %d\tvizdstep = %d\n",istep,step,maxsteps,vizdstep);
     if(step%vizdstep==0) {
