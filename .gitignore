@@ -1,5 +1,3 @@
-input/main.in
-viz_dir/log.out
 .nfs*
 *.swp
 *.in
@@ -15,5 +13,7 @@ viz_dir/log.out
 *.bin
 *.bin.info
 *.o
+input/main.in
 viz_dir/*.general
+viz_dir/log.out
 viz_dir/*.dat
