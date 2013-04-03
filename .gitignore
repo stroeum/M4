@@ -15,5 +15,5 @@ viz_dir/log.out
 *.bin
 *.bin.info
 *.o
-*.general
-*.dat
+viz_dir/*.general
+viz_dir/*.dat
