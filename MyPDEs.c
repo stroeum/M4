@@ -205,7 +205,10 @@ PetscErrorCode FormBCu(Vec U, void*ctx)
   dvi            d = user->d;
   DM             da = user->da;
   PetscInt       mx = user->mx, my = user->my, mz = user->mz;
+  PetscReal      n0=user->n0;
   PetscReal      *x=user->x,*y=user->y,*z=user->z;
+  PetscReal      L=user->L;
+  PetscReal      Zmin=user->outZmin,Z;
   PetscInt       bcType = user->bcType;
 
   PetscReal      ****u;
@@ -231,6 +234,7 @@ PetscErrorCode FormBCu(Vec U, void*ctx)
 
 
   for (k=zs; k<zs+zm; k++) {
+    Z = Zmin + z[k]*L;
     for (j=ys; j<ys+ym; j++) {
       if(xs==0) {                     // S-boundary //
         id.x[0] = -1;
@@ -266,6 +270,10 @@ PetscErrorCode FormBCu(Vec U, void*ctx)
             }
             u[k][j][id.x[0]][d.B[m]] = -D1.x[1]/D1.x[0]*u[k][j][id.x[1]][d.B[m]]-D1.x[2]/D1.x[0]*u[k][j][id.x[2]][d.B[m]];
           }
+        }
+        if (bcType==11) { // Combination of DiRichlet and Neumann
+          for (l=0; l< 3; l++) u[k][j][id.x[0]][l] = Interpolate(user->RefPart, l ,Z, lin_flat)*Interpolate(user->RefProf, 7 ,Z, lin_exp)/n0; 
+          for (l=3; l<19; l++) u[k][j][id.x[0]][l] = u[k][j][id.x[1]][l];
         }
       }
       if(xs+xm==mx) {                 // N-boundary //
@@ -303,11 +311,16 @@ PetscErrorCode FormBCu(Vec U, void*ctx)
             u[k][j][id.x[0]][d.B[m]] = -D1.x[1]/D1.x[0]*u[k][j][id.x[1]][d.B[m]]-D1.x[2]/D1.x[0]*u[k][j][id.x[2]][d.B[m]];
           }
         }
+        if (bcType==11) { // Combination of DiRichlet and Neumann
+          for (l=0; l< 3; l++) u[k][j][id.x[0]][l] = Interpolate(user->RefPart, l ,Z, lin_flat)*Interpolate(user->RefProf, 7 ,Z, lin_exp)/n0; 
+          for (l=3; l<19; l++) u[k][j][id.x[0]][l] = u[k][j][id.x[1]][l];
+        }
       }
     }
   }
   for (i=xs; i<xs+xm; i++) {
     for (k=zs; k<zs+zm; k++) {
+      Z = Zmin + z[k]*L;
       if(ys==0) {                     // W-boundary //
         id.y[0] = -1;
         id.y[1] = 0;
@@ -342,6 +355,10 @@ PetscErrorCode FormBCu(Vec U, void*ctx)
             }
             u[k][id.y[0]][i][d.B[m]] = -D1.y[1]/D1.y[0]*u[k][id.y[1]][i][d.B[m]]-D1.y[2]/D1.y[0]*u[k][id.y[2]][i][d.B[m]];
           }
+        }
+        if (bcType==11) { // Combination of DiRichlet and Neumann
+          for (l=0; l< 3; l++) u[k][id.y[0]][i][l] = Interpolate(user->RefPart, l ,Z, lin_flat)*Interpolate(user->RefProf, 7 ,Z, lin_exp)/n0; 
+          for (l=3; l<19; l++) u[k][id.y[0]][i][l] = u[k][id.y[1]][i][l] ;
         }
       }
       if(ys+ym==my) {                 // E-boundary //
@@ -379,12 +396,18 @@ PetscErrorCode FormBCu(Vec U, void*ctx)
             u[k][id.y[0]][i][d.B[m]] = -D1.y[1]/D1.y[0]*u[k][id.y[1]][i][d.B[m]]-D1.y[2]/D1.y[0]*u[k][id.y[2]][i][d.B[m]];
           }
         }
+        if (bcType==11) { // Combination of DiRichlet and Neumann
+          for (l=0; l< 3; l++) u[k][id.y[0]][i][l] = Interpolate(user->RefPart, l ,Z, lin_flat)*Interpolate(user->RefProf, 7 ,Z, lin_exp)/n0; 
+          for (l=3; l<19; l++) u[k][id.y[0]][i][l] = u[k][id.y[1]][i][l] ;
+        }
       }
     }
   }
   for (j=ys; j<ys+ym; j++) {
     for (i=xs; i<xs+xm; i++) {
       if(zs==0) {                     // D-boundary //
+        Z = Zmin + z[zs]*L;
+
         id.z[0] = -1;
         id.z[1] = 0;
         id.z[2] = 1;
@@ -419,8 +442,14 @@ PetscErrorCode FormBCu(Vec U, void*ctx)
             u[id.z[0]][j][i][d.B[m]] = -D1.z[1]/D1.z[0]*u[id.z[1]][j][i][d.B[m]]-D1.z[2]/D1.z[0]*u[id.z[2]][j][i][d.B[m]];
           }
         }
+        if (bcType==11) { // Combination of DiRichlet and Neumann
+          for (l=0; l< 3; l++) u[id.z[0]][j][i][l] = Interpolate(user->RefPart, l ,Z, lin_flat)*Interpolate(user->RefProf, 7 ,Z, lin_exp)/n0; 
+          for (l=3; l<19; l++) u[id.z[0]][j][i][l] = u[id.z[1]][j][i][l] ;
+        }
       }
       if(zs+zm==mz) {                 // U-boundary //
+        Z = Zmin + z[mz-1]*L;
+
         id.z[0] = mz;
         id.z[1] = mz-1;
         id.z[2] = mz-2;
@@ -454,6 +483,10 @@ PetscErrorCode FormBCu(Vec U, void*ctx)
             }
             u[id.z[0]][j][i][d.B[m]] = -D1.z[1]/D1.z[0]*u[id.z[1]][j][i][d.B[m]]-D1.z[2]/D1.z[0]*u[id.z[2]][j][i][d.B[m]];
           }
+        }
+        if (bcType==11) { // Combination of DiRichlet and Neumann
+          for (l=0; l< 3; l++) u[id.z[0]][j][i][l] = Interpolate(user->RefPart, l ,Z, lin_flat)*Interpolate(user->RefProf, 7 ,Z, lin_exp)/n0; 
+          for (l=3; l<19; l++) u[id.z[0]][j][i][l] = u[id.z[1]][j][i][l] ;
         }
       }
     }

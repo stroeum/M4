@@ -3,7 +3,7 @@
 -visualization_folder viz_dir
 -input_file X12900000.bin
 #
--bc_type 0 # 0: 1st order Neumann, 1: 2nd order Neumann, 2: zero'ed 2nd derivatives, 3: Non-symmetric "exact" solution, 10: combination of df/dn=0 amd d2f/dn2=0
+-bc_type 11 # 0: 1st order Neumann, 1: 2nd order Neumann, 2: zero'ed 2nd derivatives, 3: Non-symmetric "exact" solution, 10: combination of df/dn=0 amd d2f/dn2=0, 11: combination of DiRichlet (for densities) and Neumann (for all others) BC.
 -limiters
 -blockers
 #-smoothing
@@ -23,9 +23,9 @@
 -WindEW 0e2            #_m/_s, y-component of neutral wind
 -WindUD 0e2            #_m/_s, z-component of neutral wind
 -ExtraDiagnostics
--B_field_type 7        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical
--B0 1e16               #_A_m2, magnitude of the magnetic dipole moment 
--B1 -20e3              #_m, geometry parameter a
+-B_field_type 1        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical, 7: 6 dipoles forming arcades, 8: 9 dipoles forming parallel arcades.
+-B0 2000e-9            #_A_m2, magnitude of the magnetic dipole moment 
+-B1 0e3                #_m, geometry parameter a
 -B2 0e3                #_m, geometry parameter b
 -B3 0e3                #_m, geometry parameter c
 -Mmars 6.4185e23       #_kg, Mars' mass
@@ -42,10 +42,10 @@
 -da_grid_z 26
 #
 #Simulation parameters
--in_x_min -100.0e+3       #_m
--in_x_max 100.0e+3        #_m
--in_y_min -100.0e+3       #_m
--in_y_max 100.0e+3        #_m
+-in_x_min -50.0e+3        #_m
+-in_x_max 50.0e+3         #_m
+-in_y_min -50.0e+3        #_m
+-in_y_max 50.0e+3         #_m
 -in_z_min 100.0e+3        #_m
 -in_z_max 200.0e+3        #_m
 -out_x_min -400.0e+3      #_m

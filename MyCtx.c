@@ -453,6 +453,7 @@ PetscErrorCode OutputData(void* ptr)
   PetscReal      Xmin = user->outXmin, Ymin = user->outYmin, Zmin = user->outZmin;
   PetscReal      n0 = user->n0, v0 = user->v0, p0 = user->p0, B0 = user->B0;
   PetscReal      *x = user->x, *y = user->y, *z = user->z;
+  PetscReal      DX, DY,DZ,DV;
   PetscInt       mx = user->mx, my = user->my, mz = user->mz;
   DM             da = user->da;
   DM             db = user->db;
@@ -467,13 +468,14 @@ PetscErrorCode OutputData(void* ptr)
 
   Vec            U,V;
   PetscReal      ****u,****v;
-  FILE           *pFile;
+  FILE           *pFile,*nFile;
   char           fName[PETSC_MAX_PATH_LEN];
   PetscViewer    fViewer;
   PetscInt       rank,step,flag;
   PetscInt       i,j,k,l,m,xs,ys,zs,xm,ym,zm;
   PetscInt       imin,imax,jmin,jmax,kmin,kmax; 
   PetscReal      ne,ni[3],ve[3],vi[3][3],pe,pi[3],J[3],E[3],B[3]; 
+  PetscReal      Ne=0.0,Ni[3]={0.0, 0.0, 0.0};
   PetscReal      X,Y,Z;
 
   PetscFunctionBegin;
@@ -482,6 +484,12 @@ PetscErrorCode OutputData(void* ptr)
 
   PetscPrintf(PETSC_COMM_WORLD,"box: [%2.1f,%2.1f,%2.1f] to [%2.1f,%2.1f,%2.1f] (km)\n",vizbox[0]/1e3,vizbox[2]/1e3,vizbox[4]/1e3,vizbox[1]/1e3,vizbox[3]/1e3,vizbox[5]/1e3);
   
+  // Store total number of charge carriers in a file named CarriersCounts.dat //
+  sprintf(fName,"%s/CarriersCounts.dat",user->vName);
+  flag  = access(fName,W_OK);
+  if (flag==0) nFile = fopen(fName,"a");
+  else         nFile = fopen(fName,"w");
+
   // Get local grid boundaries //
   ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
   for (step=0/*istep*/; step<=maxsteps; step++) {
@@ -530,12 +538,28 @@ PetscErrorCode OutputData(void* ptr)
       for (i=xs; i<xs+xm; i++) {
         X = Xmin + x[i]*L;
         if((float)X>=vizbox[0] && (float)X<=vizbox[1]){
+          // Define x-space increment //
+          if (i==0)         DX = (x[   1]-x[   0])*L    ;
+          else if (i==mx-1) DX = (x[mx-1]-x[mx-2])*L    ;
+          else              DX = (x[ i+1]-x[ i-1])*L/2.0;
           for (j=ys; j<ys+ym; j++) {
             Y = Ymin + y[j]*L;
             if((float)Y>=vizbox[2] && (float)Y<=vizbox[3]){
+              // Define y-space increment //
+              if (j==0)         DY = (y[   1]-y[   0])*L    ;
+              else if (j==my-1) DY = (y[my-1]-y[my-2])*L    ;
+              else              DY = (y[ j+1]-y[ j-1])*L/2.0;
               for (k=zs; k<zs+zm; k++) {
                 Z = Zmin + z[k]*L;
                 if((float)Z>=vizbox[4] && (float)Z<=vizbox[5]){
+                  // Define z-space increment //
+                  if (k==0)         DZ = (z[   1]-z[   0])*L    ;
+                  else if (k==mz-1) DZ = (z[mz-1]-z[mz-2])*L    ;
+                  else              DZ = (z[ k+1]-z[ k-1])*L/2.0;
+                  
+                  // Define elementary volume //
+                  DV = DX*DY*DZ;
+
                   if (i<imin) imin = i;
                   if (i>imax) imax = i;
                   if (j<jmin) jmin = j;
@@ -545,10 +569,12 @@ PetscErrorCode OutputData(void* ptr)
                   
                   if(xtra_out) {
                     ne = (u[k][j][i][d.ni[O2p]]+u[k][j][i][d.ni[CO2p]]+u[k][j][i][d.ni[Op]])*n0;
+                    Ne+= ne*DV;
                     ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"%2.3e\t",ne);CHKERRQ(ierr);
                   }
                   for (l=0; l<3; l++) {
                     ni[l] = u[k][j][i][d.ni[l]]*n0;
+                    Ni[l]+= ni[l]*DV;
                     ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"%2.3e\t",ni[l]);CHKERRQ(ierr);
                   }
                   if(xtra_out) {
@@ -591,6 +617,9 @@ PetscErrorCode OutputData(void* ptr)
         }
       }
       fclose(pFile);
+
+      // Write counted charge carriers into the file CarrierCount.dat //
+      ierr = PetscFPrintf(PETSC_COMM_WORLD,nFile,"%12.6e\t%12.6e\t%12.6e\t%12.6e\n",Ne,Ni[O2p],Ni[CO2p],Ni[Op]);CHKERRQ(ierr);
 
       m = MPI_Allreduce(MPI_IN_PLACE,&imin,1,MPIU_INT,MPIU_MIN,PETSC_COMM_WORLD);
       m = MPI_Allreduce(MPI_IN_PLACE,&imax,1,MPIU_INT,MPIU_MAX,PETSC_COMM_WORLD);
@@ -644,6 +673,7 @@ PetscErrorCode OutputData(void* ptr)
       }
     }
   }
+  fclose(nFile);
   PetscFunctionReturn(0);
 }
 
