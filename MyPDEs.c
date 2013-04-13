@@ -232,7 +232,6 @@ PetscErrorCode FormBCu(Vec U, void*ctx)
   ierr = DMGlobalToLocalEnd(da,U,INSERT_VALUES,localU);CHKERRQ(ierr);
   ierr = DMDAVecGetArrayDOF(da,localU,&u);CHKERRQ(ierr);
 
-
   for (k=zs; k<zs+zm; k++) {
     Z = Zmin + z[k]*L;
     for (j=ys; j<ys+ym; j++) {
@@ -711,7 +710,7 @@ PetscErrorCode FormIntermediateFunction(Vec U, Vec V,void *ctx)
     Z = Zmin + z[k]*L;
     for (j=ys; j<ys+ym; j++) {
       for (i=xs; i<xs+xm; i++) {
-        if (bcType == 0 || bcType == 1 || bcType == 2 || bcType == 10) {
+        if (bcType == 0 || bcType == 1 || bcType == 2 || bcType == 10 || bcType == 11) {
           // Defines upper and lower indices for the differenciation //
           id.x[0] = i; id.x[1] = i-1; id.x[2] = i+1; 
           id.y[0] = j; id.y[1] = j-1; id.y[2] = j+1;
@@ -834,7 +833,7 @@ PetscErrorCode FormIntermediateFunction(Vec U, Vec V,void *ctx)
       }
     }
   }
-  // Calculate BC points for V //
+
   for (j=ys; j<ys+ym; j++) {
     for (i=xs; i<xs+xm; i++) {
       if(zs==0) {                     // D-boundary //
@@ -850,7 +849,7 @@ PetscErrorCode FormIntermediateFunction(Vec U, Vec V,void *ctx)
         D2.z[1] =   2.0/(dh.z[0] * (dh.z[0]-dh.z[1])); 
         D2.z[2] =   2.0/(dh.z[1] * (dh.z[1]-dh.z[0]));
         
-        if (bcType==0) { // 1st order Neumann BC
+        if (bcType==0 || bcType==11) { // 1st order Neumann BC
           for (l=0; l<9; l++) v[id.z[0]][j][i][l] = v[id.z[1]][j][i][l];
         }
         if (bcType==1) { // 2nd Order Neumann BC
@@ -880,7 +879,7 @@ PetscErrorCode FormIntermediateFunction(Vec U, Vec V,void *ctx)
         D2.z[1] =   2.0/(dh.z[0] * (dh.z[0]-dh.z[1])); 
         D2.z[2] =   2.0/(dh.z[1] * (dh.z[1]-dh.z[0]));
 
-        if (bcType==0) { // 1st order Neumann BC
+        if (bcType==0 || bcType==11) { // 1st order Neumann BC
           for (l=0; l<9; l++) v[id.z[0]][j][i][l] = v[id.z[1]][j][i][l];
         }
         if (bcType==1) { // 2nd Order Neumann BC
@@ -915,7 +914,7 @@ PetscErrorCode FormIntermediateFunction(Vec U, Vec V,void *ctx)
         D2.x[1] =   2.0/(dh.x[0] * (dh.x[0]-dh.x[1])); 
         D2.x[2] =   2.0/(dh.x[1] * (dh.x[1]-dh.x[0]));
         
-        if (bcType==0) { // 1st order Neumann BC
+        if (bcType==0 || bcType==11) { // 1st order Neumann BC
           for (l=0; l<9; l++) v[k][j][id.x[0]][l] = v[k][j][id.x[1]][l];
         }
         if (bcType==1) { // 2nd Order Neumann BC
@@ -945,7 +944,7 @@ PetscErrorCode FormIntermediateFunction(Vec U, Vec V,void *ctx)
         D2.x[1] =   2.0/(dh.x[0] * (dh.x[0]-dh.x[1])); 
         D2.x[2] =   2.0/(dh.x[1] * (dh.x[1]-dh.x[0]));
 
-        if (bcType==0) { // 1st order Neumann BC
+        if (bcType==0 || bcType==11) { // 1st order Neumann BC
           for (l=0; l<9; l++) v[k][j][id.x[0]][l] = v[k][j][id.x[1]][l];
         }
         if (bcType==1) { // 2nd Order Neumann BC
@@ -979,7 +978,7 @@ PetscErrorCode FormIntermediateFunction(Vec U, Vec V,void *ctx)
         D2.y[1] =   2.0/(dh.y[0] * (dh.y[0]-dh.y[1])); 
         D2.y[2] =   2.0/(dh.y[1] * (dh.y[1]-dh.y[0]));
         
-        if (bcType==0) { // 1st order Neumann BC
+        if (bcType==0 || bcType==11) { // 1st order Neumann BC
           for (l=0; l<9; l++) v[k][id.y[0]][i][l] = v[k][id.y[1]][i][l];
         }
         if (bcType==1) { // 2nd Order Neumann BC
@@ -1009,7 +1008,7 @@ PetscErrorCode FormIntermediateFunction(Vec U, Vec V,void *ctx)
         D2.y[1] =   2.0/(dh.y[0] * (dh.y[0]-dh.y[1])); 
         D2.y[2] =   2.0/(dh.y[1] * (dh.y[1]-dh.y[0]));
         
-        if (bcType==0) { // 1st order Neumann BC
+        if (bcType==0 || bcType==11) { // 1st order Neumann BC
           for (l=0; l<9; l++) v[k][id.y[0]][i][l] = v[k][id.y[1]][i][l];
         }
         if (bcType==1) { // 2nd Order Neumann BC
@@ -1212,7 +1211,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
     Z = Zmin + z[k]*L;
     for (j=ys; j<ys+ym; j++) {
       for (i=xs; i<xs+xm; i++) {
-        if (bcType == 0 || bcType == 1 || bcType == 2 || bcType == 10) {
+        if (bcType == 0 || bcType == 1 || bcType == 2 || bcType == 10 || bcType == 11) {
           // Defines upper and lower indices for the differenciation //
           id.x[0] = i; id.x[1] = i-1; id.x[2] = i+1; 
           id.y[0] = j; id.y[1] = j-1; id.y[2] = j+1;

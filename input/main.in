@@ -1,7 +1,7 @@
 #Command line options
 -output_folder output
 -visualization_folder viz_dir
--input_file X12900000.bin
+#-input_file X12900000.bin
 #
 -bc_type 11 # 0: 1st order Neumann, 1: 2nd order Neumann, 2: zero'ed 2nd derivatives, 3: Non-symmetric "exact" solution, 10: combination of df/dn=0 amd d2f/dn2=0, 11: combination of DiRichlet (for densities) and Neumann (for all others) BC.
 -limiters
@@ -37,8 +37,8 @@
 #-ts_ssp_type lax
 #-ts_ssp_nstages 2
 #
--da_grid_x 21
--da_grid_y 21
+-da_grid_x 11
+-da_grid_y 11
 -da_grid_z 26
 #
 #Simulation parameters

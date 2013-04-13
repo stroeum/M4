@@ -29,7 +29,7 @@ conv_exe: convert.o chkopts ${OBJECTS}
 run:
 	#cp ~/M4_RK.5 ~/${NAME}.sh
 	cp ~/M4_RK.6 ~/${NAME}.sh
-	qsub -N log${NAME} -l nodes=${NODES}:ppn=${PPN} -l walltime=100:00:00 -l pmem=3gb -v MYDIR=${MYDIR},MYPROCS=${PROCS} -z ~/${NAME}.sh 
+	qsub -N log${NAME} -l nodes=${NODES}:ppn=${PPN} -l walltime=40:00:00 -l pmem=3gb -v MYDIR=${MYDIR},MYPROCS=${PROCS} -z ~/${NAME}.sh 
 	#mpirun -n 8 ./main -options_file input/main.in # > viz_dir/log.out
 	
 conv:
