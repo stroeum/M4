@@ -41,4 +41,4 @@ xlim([0 375])
 xlabel('t (s)','FontSize',FS);
 ylabel('\Sigma N_\alpha(t) / \Sigma N_\alpha(0)','FontSize',FS);
 set(gca,'TickDir','Out','FontSize',FS)
-print(2,'-dps','20nTDiR.ps')
+print(2,'-dps','20nTNeu.ps')
