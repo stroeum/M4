@@ -535,6 +535,10 @@ PetscErrorCode OutputData(void* ptr)
       kmin = mz;
       kmax = 0;
 
+      Ne       = 0.0;
+      Ni[O2p]  = 0.0;
+      Ni[CO2p] = 0.0;
+      Ni[Op]   = 0.0;
       for (i=xs; i<xs+xm; i++) {
         X = Xmin + x[i]*L;
         if((float)X>=vizbox[0] && (float)X<=vizbox[1]){
