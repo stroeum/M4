@@ -48,6 +48,18 @@
 #include <assert.h>
 #include "MyCtx.h"
 
+/*
+ * To extend the model to N-ion species, we shall proceed as follows:
+ * 1. remove "e" from the charged species enum list
+ * 2. correct all the errors
+ * 3. rewrite the model to include the equation for electron disctincly from the ion equations
+ * 4. add the new ion(s) to the chargedspecies enum list
+ * 5. modify the input files accordingly
+ *    - Add a line in main.in to enter the number of ion species
+ *    - Add the adequate number of masses in main.in
+ *    - Automatize the creation of the DMDA da to use the appropriate number of equations and variables
+ * 6. Modify the size of the containers ni, pi, vi... in MyCtx.h
+ */
 enum chargedspecies {O2p, CO2p, Op, e};
 enum interpolations {lin_lin, lin_exp, lin_flat};
 enum neutrals {CO2, O};

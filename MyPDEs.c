@@ -1076,6 +1076,8 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
   PetscReal      L=user->L;
   PetscReal      *x=user->x,*y=user->y,*z=user->z;
   PetscInt       bcType = user->bcType;
+  PetscBool      limiters = user->limiters;
+  PetscBool      blockers = user->blockers;
   dvi            d = user->d;
   svi            s = user->s;
   PetscReal      rM = user->rM;
@@ -1139,7 +1141,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
                     {0.0, 0.0, 0.0}                                              // * in the GIVEN direction m
                  };                                                              // * in the SUBDOMAIN (at the end of the space scanning of the subdomain)
 
-  PetscReal      T_cr[3] = {0.0,0.0,0.0};
+  PetscReal      T_cr[4] = {0.0,0.0,0.0,0.0};
   PetscErrorCode ierr;
   PetscReal      dt,dt_CFL,h[3];
   PetscReal      nu[4][2];                                                       // ion-neutral collision frequency
@@ -1338,9 +1340,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
         h[1] = MinAbs(dh.y[0],dh.y[1]);
         h[2] = MinAbs(dh.z[0],dh.z[1]);
 
-        for (m=0; m<3; m++) {
-          ve_max[m] = MaxAbs(ve_max[m], ve[m]);
-        }
+        // Critical speed and time for ions //
         for (l=0; l<3; l++) {
           vs[l] = PetscSqrtScalar( (gama[e]*pe + gama[l]*pi[l]) / (ni[l]*mi[l]/me) );
           vs_max[l] = MaxAbs( vs_max[l], vs[l] );
@@ -1364,6 +1364,24 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
           T_cr[l] = MinAbs(MinAbs(h[0]/vcr_max[l][0] , h[1]/vcr_max[l][1]),h[2]/vcr_max[l][2]);
         }
 
+        // Critical speed and time for electrons //
+        for (m=0; m<3; m++) {
+          ve_max[m] = MaxAbs(ve_max[m], ve[m]);
+          for (l=0; l<3; l++) {
+            if(limiters) {
+              T_cr[e] = MinAbs(MinAbs(h[0]/ve_max[0] , h[1]/ve_max[1]),h[2]/ve_max[2]);
+            }
+            /*
+            if (ve_max[m] > vcr_max[l][m])
+            {
+              if(blockers) {
+                PetscPrintf(PETSC_COMM_WORLD,"The CFL criterion is not stringent enough!\n");
+                exit(12);
+              }
+            }
+            */
+          }
+        }
 
         /* dt_CFL:
          * critical time for CFL condition
@@ -1371,7 +1389,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
          * for ALL species (usually denoted l)
          * indepently from ANY the direction in space (usually denoted m)
          */
-        dt_CFL = MinAbs(MinAbs(T_cr[O2p],T_cr[CO2p]),T_cr[Op]);
+        dt_CFL = MinAbs(MinAbs(MinAbs(T_cr[O2p],T_cr[CO2p]),T_cr[Op]),T_cr[e]);
 
         /*
         if(vp > vA) PetscPrintf(PETSC_COMM_SELF, "SuperAlfvenic speed @ [%d,%d,%d], |vloc|=%2.3e, vA=%2.3e (Z=%f km)\n",i,j,k,vp*v0,vA*v0, Z*1e-3);
@@ -1415,13 +1433,18 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
   m = MPI_Allreduce(MPI_IN_PLACE,&ve_max[0]  ,3 ,MPIU_REAL,MPIU_MAX,PETSC_COMM_WORLD);
   m = MPI_Allreduce(MPI_IN_PLACE,&vcr_max[0] ,9 ,MPIU_REAL,MPIU_MAX,PETSC_COMM_WORLD);
 
-  for (m=0; m<3; m++)
-    for (l=0; l<3; l++)
-      if (ve_max[m] > vcr_max[l][m])
-      {
-        PetscPrintf(PETSC_COMM_WORLD,"The CFL criterion is not stringent enough!\n");
-        exit(12);
+  /*
+  for (m=0; m<3; m++) {
+    for (l=0; l<3; l++) {
+      if (ve_max[m] > vcr_max[l][m]) {
+        if(blockers) {
+          PetscPrintf(PETSC_COMM_WORLD,"The CFL criterion is not stringent enough!\n");
+          exit(12);
+        }
       }
+    }
+  }
+  */
 
 
   /* dt_CFL:
@@ -1433,7 +1456,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
   m = MPI_Allreduce(MPI_IN_PLACE,&dt_CFL     ,1 ,MPIU_REAL,MPIU_MIN,PETSC_COMM_WORLD);
 
   // Adapt timestep to satisfy CFL //
-  user->dt = 0.1*dt_CFL;
+  user->dt = c_CFL*dt_CFL;
 
   /*
    * BELOW IS THE LIST OF DIAGNOSTIC TO ACTIVATE

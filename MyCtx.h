@@ -9,7 +9,7 @@
 #define kB 1.3806503e-23       //_J/_K, Boltzmann constant
 #define qe 1.60217646e-19      //_C, elementary charge
 #define G 6.673e-11            //_m^3/_kg/_s^2, gravitational constant
-#define c_CFL 0.1              //_, CFL coefficient 
+#define c_CFL 0.5              //_, CFL coefficient 
 #define Nz_REF 301             // number of reference altitude points
 #define Np_REF 18              // number of parameters in Profiles.dat
 #define MAX_LINE_LENGTH 1024   // maximum number of characters in a line
@@ -38,7 +38,7 @@ typedef struct {
   PetscInt nstages;
   Vec *work;
   PetscInt nwork;
-  PetscBool  workout;
+  PetscBool workout;
 } TS_SSP;
 
 /*
