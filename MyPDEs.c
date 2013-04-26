@@ -1129,17 +1129,19 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
                     0.0                                                          // * in ANY direction m
                  };                                                              // * at the ENTIRE SUBDOMAIN
 
-  PetscReal      vcr[3][3] = {                                                  // Critical speed
+  PetscReal      vcr[3][3] = {                                                   // Critical speed
                     {0.0, 0.0, 0.0},                                             // * sum of the hydrodynamic and fast magnetoacoustic wave speeds
                     {0.0, 0.0, 0.0},                                             // * for a GIVEN species l
                     {0.0, 0.0, 0.0}                                              // * in the GIVEN direction m
                  };                                                              // * at the CURRENT point (k,j,i)
 
-  PetscReal      vcr_max[3][3] = {                                              // Critical speed 
+  PetscReal      vcr_max[3][3] = {                                               // Critical speed 
                     {0.0, 0.0, 0.0},                                             // * sum of the hydro-dynamic and fast magnetoacoustic wave speeds
                     {0.0, 0.0, 0.0},                                             // * for a GIVEN species l
                     {0.0, 0.0, 0.0}                                              // * in the GIVEN direction m
                  };                                                              // * in the SUBDOMAIN (at the end of the space scanning of the subdomain)
+
+  PetscReal      vth = 0.0;                                                      // Thermal velocity
 
   PetscReal      T_cr[4] = {0.0,0.0,0.0,0.0};
   PetscErrorCode ierr;
@@ -1363,10 +1365,11 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
            */
           T_cr[l] = MinAbs(MinAbs(h[0]/vcr_max[l][0] , h[1]/vcr_max[l][1]),h[2]/vcr_max[l][2]);
         }
-
+        
+        vth = sqrt(3.0/2.0*kB*Te/me)/v0;
         // Critical speed and time for electrons //
         for (m=0; m<3; m++) {
-          ve_max[m] = MaxAbs(ve_max[m], ve[m]);
+          ve_max[m] = MaxAbs(MaxAbs(ve_max[m], ve[m]),vth);
           for (l=0; l<3; l++) {
             if(limiters) {
               T_cr[e] = MinAbs(MinAbs(h[0]/ve_max[0] , h[1]/ve_max[1]),h[2]/ve_max[2]);
