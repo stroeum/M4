@@ -4,3 +4,4 @@
 !.gitignore
 !M4.*
 !*.m
+!*.sh
