@@ -458,6 +458,7 @@ PetscErrorCode OutputData(void* ptr)
   DM             da = user->da;
   DM             db = user->db;
   PetscReal      L = user->L;
+  float          t;
   dvi            d = user->d;
   svi            s = user->s;
   PetscReal      vizbox[6] = {
@@ -468,14 +469,14 @@ PetscErrorCode OutputData(void* ptr)
 
   Vec            U,V;
   PetscReal      ****u,****v;
-  FILE           *pFile,*nFile;
+  FILE           *pFile,*nFile,*tFile;
   char           fName[PETSC_MAX_PATH_LEN];
   PetscViewer    fViewer;
   PetscInt       rank,step,flag;
   PetscInt       i,j,k,l,m,xs,ys,zs,xm,ym,zm;
   PetscInt       imin,imax,jmin,jmax,kmin,kmax; 
   PetscReal      ne,ni[3],ve[3],vi[3][3],pe,pi[3],J[3],E[3],B[3]; 
-  PetscReal      Ne=0.0,Ni[3]={0.0, 0.0, 0.0};
+  PetscReal      Ne,Ni[3],Fe[6],Fi[3][6];
   PetscReal      X,Y,Z;
 
   PetscFunctionBegin;
@@ -484,11 +485,16 @@ PetscErrorCode OutputData(void* ptr)
 
   PetscPrintf(PETSC_COMM_WORLD,"box: [%2.1f,%2.1f,%2.1f] to [%2.1f,%2.1f,%2.1f] (km)\n",vizbox[0]/1e3,vizbox[2]/1e3,vizbox[4]/1e3,vizbox[1]/1e3,vizbox[3]/1e3,vizbox[5]/1e3);
   
-  // Store total number of charge carriers in a file named CarriersCounts.dat //
-  sprintf(fName,"%s/CarriersCounts.dat",user->vName);
+  // Store total number of charge carriers in a file named diagnotics.dat //
+  sprintf(fName,"%s/diagnostics.dat",user->vName);
   flag  = access(fName,W_OK);
   if (flag==0) nFile = fopen(fName,"a");
   else         nFile = fopen(fName,"w");
+  // Create the diagnotics.dat file //
+  ierr = PetscFPrintf(PETSC_COMM_WORLD,nFile,"t           \tN(O2+)      \tF.s(O2+)    \tF.n(O2+)    \tF.w(O2+)    \tF.e(O2+)    \tF.d(O2+)    \tF.u(O2+)    \tN(CO2+)     \tF.s(CO2+)   \tF.n(CO2+)   \tF.w(CO2+)   \tF.e(CO2+)   \tF.d(CO2+)   \tF.u(CO2+)   \tN(O+)       \tF.s(O+)     \tF.n(O+)     \tF.w(O+)     \tF.e(O+)     \tF.d(O+)     \tF.u(O+)     \tN(e)        \tF.s(e)      \tF.n(e)      \tF.w(e)      \tF.e(e)      \tF.d(e)      \tF.u(e)      \n");CHKERRQ(ierr);
+
+  tFile = fopen("output/t.dat","r");
+
 
   // Get local grid boundaries //
   ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
@@ -496,7 +502,11 @@ PetscErrorCode OutputData(void* ptr)
 
     //PetscPrintf(PETSC_COMM_WORLD,"istep = %d\tstep = %d\tmaxsteps = %d\tvizdstep = %d\n",istep,step,maxsteps,vizdstep);
     if(step%vizdstep==0) {
+
       ierr = PetscPrintf(PETSC_COMM_WORLD,"timestep %D\n",step);CHKERRQ(ierr);
+
+      // Retrieve current time //
+      fscanf(tFile,"%e",&t);
 
       // Read binary file containing the solution //
       sprintf(fName,"%s/X%d.bin",user->dName,step);
@@ -535,10 +545,9 @@ PetscErrorCode OutputData(void* ptr)
       kmin = mz;
       kmax = 0;
 
-      Ne       = 0.0;
-      Ni[O2p]  = 0.0;
-      Ni[CO2p] = 0.0;
-      Ni[Op]   = 0.0;
+      Ne = 0.0;
+      for (l=0; l<3; l++) Ni[l] = 0.0;
+
       for (i=xs; i<xs+xm; i++) {
         X = Xmin + x[i]*L;
         if((float)X>=vizbox[0] && (float)X<=vizbox[1]){
@@ -622,9 +631,7 @@ PetscErrorCode OutputData(void* ptr)
       }
       fclose(pFile);
 
-      // Write counted charge carriers into the file CarrierCount.dat //
-      ierr = PetscFPrintf(PETSC_COMM_WORLD,nFile,"%12.6e\t%12.6e\t%12.6e\t%12.6e\n",Ne,Ni[O2p],Ni[CO2p],Ni[Op]);CHKERRQ(ierr);
-
+      // Find the global values of imin, jmin, kmin, imax, jmax, kmax//
       m = MPI_Allreduce(MPI_IN_PLACE,&imin,1,MPIU_INT,MPIU_MIN,PETSC_COMM_WORLD);
       m = MPI_Allreduce(MPI_IN_PLACE,&imax,1,MPIU_INT,MPIU_MAX,PETSC_COMM_WORLD);
       m = MPI_Allreduce(MPI_IN_PLACE,&jmin,1,MPIU_INT,MPIU_MIN,PETSC_COMM_WORLD);
@@ -632,6 +639,140 @@ PetscErrorCode OutputData(void* ptr)
       m = MPI_Allreduce(MPI_IN_PLACE,&kmin,1,MPIU_INT,MPIU_MIN,PETSC_COMM_WORLD);
       m = MPI_Allreduce(MPI_IN_PLACE,&kmax,1,MPIU_INT,MPIU_MAX,PETSC_COMM_WORLD);
 
+      // Calculate the flows through the boundaries of the PLOTTED domain //
+      PetscReal Ve = 0.0;
+      for (m=0; m<6; m++) {
+        Fe[m] = 0.0;
+        for (l=0; l<3; l++) Fi[l][m] = 0.0;
+      }
+
+      // W-E flows //
+      for (j=ys; j<ys+ym; j++) {
+        // Define y-space increment //
+        if (j==0)         DY = (y[   1]-y[   0])*L    ;
+        else if (j==my-1) DY = (y[my-1]-y[my-2])*L    ;
+        else              DY = (y[ j+1]-y[ j-1])*L/2.0;
+
+        for (k=zs; k<zs+zm; k++) {
+          // Define z-space increment //
+          if (k==0)         DZ = (z[   1]-z[   0])*L    ;
+          else if (k==mz-1) DZ = (z[mz-1]-z[mz-2])*L    ;
+          else              DZ = (z[ k+1]-z[ k-1])*L/2.0;
+
+          // W-flow //
+          i = imin;
+          ne = 0.0;
+          for (l=0; l<3; l++) {
+            ne += u[k][j][i][d.ni[l]];
+            Fi[l][0] -= u[k][j][i][d.ni[l]] * u[k][j][i][d.vi[l][0]] * n0*v0 * DY*DZ;
+          }
+          Ve = v[k][j][i][s.ve[0]];
+          Fe[0] -= ne*Ve * n0*v0 * DY*DZ;
+
+          // E-flow //
+          i = imax;
+          ne = 0.0;
+          for (l=0; l<3; l++) {
+            ne += u[k][j][i][d.ni[l]];
+            Fi[l][1] += u[k][j][i][d.ni[l]] * u[k][j][i][d.vi[l][0]] * n0*v0 * DY*DZ;
+          }
+          Ve = v[k][j][i][s.ve[0]];
+          Fe[1] += ne*Ve * n0*v0 * DY*DZ;
+        }
+      }
+
+      // S-N flows //
+      for (k=zs; k<zs+zm; k++) {
+        // Define z-space increment //
+        if (k==0)         DZ = (z[   1]-z[   0])*L    ;
+        else if (k==mz-1) DZ = (z[mz-1]-z[mz-2])*L    ;
+        else              DZ = (z[ k+1]-z[ k-1])*L/2.0;
+
+        for (i=xs; i<xs+xm; i++) {
+
+          // Define x-space increment //
+          if (i==0)         DX = (x[   1]-x[   0])*L    ;
+          else if (i==mx-1) DX = (x[mx-1]-x[mx-2])*L    ;
+          else              DX = (x[ i+1]-x[ i-1])*L/2.0;
+
+          // S-flow //
+          j = jmin;
+          ne = 0.0;
+          for (l=0; l<3; l++) {
+            ne += u[k][j][i][d.ni[l]];
+            Fi[l][2] -= u[k][j][i][d.ni[l]] * u[k][j][i][d.vi[l][1]] * n0*v0 * DZ*DX;
+          }
+          Ve = v[k][j][i][s.ve[1]];
+          Fe[2] -= ne*Ve * n0*v0 * DZ*DX;
+
+          // N-flow //
+          j = jmax;
+          ne = 0.0;
+          for (l=0; l<3; l++) {
+            ne += u[k][j][i][d.ni[l]];
+            Fi[l][3] += u[k][j][i][d.ni[l]] * u[k][j][i][d.vi[l][1]] * n0*v0 * DZ*DX;
+          }
+          Ve = v[k][j][i][s.ve[1]];
+          Fe[3] += ne*Ve * n0*v0 * DZ*DX;
+        }
+      }
+
+      // D-U flows //
+      for (i=xs; i<xs+xm; i++) {
+        // Define x-space increment //
+        if (i==0)         DX = (x[   1]-x[   0])*L    ;
+        else if (i==mx-1) DX = (x[mx-1]-x[mx-2])*L    ;
+        else              DX = (x[ i+1]-x[ i-1])*L/2.0;
+
+        for (j=ys; j<ys+ym; j++) {
+          // Define y-space increment //
+          if (j==0)         DY = (y[   1]-y[   0])*L    ;
+          else if (j==my-1) DY = (y[my-1]-y[my-2])*L    ;
+          else              DY = (y[ j+1]-y[ j-1])*L/2.0;
+
+          // D-flow //
+          k = kmin;
+          ne = 0.0;
+          for (l=0; l<3; l++) {
+            ne += u[k][j][i][d.ni[l]];
+            Fi[l][4] -= u[k][j][i][d.ni[l]] * u[k][j][i][d.vi[l][2]] * n0*v0 * DX*DY;
+          }
+          Ve = v[k][j][i][s.ve[2]];
+          Fe[4] -= ne*Ve * n0*v0 * DX*DY;
+
+          // U-flow //
+          k = kmax;
+          ne = 0.0;
+          for (l=0; l<3; l++) {
+            ne += u[k][j][i][d.ni[l]];
+            Fi[l][5] += u[k][j][i][d.ni[l]] * u[k][j][i][d.vi[l][2]] * n0*v0 * DX*DY;
+          }
+          Ve = v[k][j][i][s.ve[2]];
+          Fe[5] += ne*Ve * n0*v0 * DX*DY;
+        }
+      }
+
+      // Summing subdomain values //
+      m = MPI_Allreduce(MPI_IN_PLACE,&Ni[0]   ,3  ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
+      m = MPI_Allreduce(MPI_IN_PLACE,&Fi[0][0],3*6,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
+      m = MPI_Allreduce(MPI_IN_PLACE,&Ne      ,1  ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
+      m = MPI_Allreduce(MPI_IN_PLACE,&Fe      ,6  ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
+
+      // Fill the diagnotics.dat file //
+      ierr = PetscFPrintf(PETSC_COMM_WORLD,nFile,"%12.6e\t",t);CHKERRQ(ierr);
+      for (l=0; l<3; l++) {
+        ierr = PetscFPrintf(PETSC_COMM_WORLD,nFile,"%12.6e\t",Ni[l]);CHKERRQ(ierr);
+        for (m=0; m<6; m++) {
+          ierr = PetscFPrintf(PETSC_COMM_WORLD,nFile,"%12.6e\t",Fi[l][m]);CHKERRQ(ierr);
+        }
+      }
+      ierr = PetscFPrintf(PETSC_COMM_WORLD,nFile,"%12.6e\t",Ne);CHKERRQ(ierr);
+      for (m=0; m<6; m++) {
+        ierr = PetscFPrintf(PETSC_COMM_WORLD,nFile,"%12.6e\t",Fe[m]);CHKERRQ(ierr);
+      }
+      ierr = PetscFPrintf(PETSC_COMM_WORLD,nFile,"\n");CHKERRQ(ierr);
+
+      // Create the X.general file // 
       sprintf(fName,"%s/X%d.general",user->vName,step);
       flag  = access(fName,W_OK);
       if (flag==0) pFile = fopen(fName,"a");
@@ -677,6 +818,7 @@ PetscErrorCode OutputData(void* ptr)
       }
     }
   }
+  fclose(tFile);
   fclose(nFile);
   PetscFunctionReturn(0);
 }

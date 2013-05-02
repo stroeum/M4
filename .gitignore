@@ -1,19 +1,8 @@
-.nfs*
-*.swp
-*.in
-*.out
-*.gif
-*.miff
-*.tiff
-*.png
-*.jpg
-*.ps
-*.eps
-*.pdf
-*.bin
-*.bin.info
-*.o
-input/main.in
-viz_dir/*.general
-viz_dir/log.out
-viz_dir/*.dat
+#ignore everything in this directory
+*
+#except this file
+!.gitignore
+!*.c
+!*.h
+!*.sh
+!makefile
