@@ -2,6 +2,6 @@
 *
 #except this file
 !.gitignore
-!*.in
+#!*.in #uncomment if one wishes to update main.in
 !*.dat
 !*.m
