@@ -2,7 +2,7 @@ clear all
 close all
 clc
 
-q = 1.60217657e-19; %_C, elementary charge
+q = 1; %1.60217657e-19; %_C, elementary charge
 mi(1) = 5.3135e-26; %_kg, mass of O2+, only single charged ions allowed!
 mi(2) = 7.3079e-26; %_kg, mass of CO2+
 mi(3) = 2.6567e-26; %_kg, mass of O+
@@ -69,7 +69,7 @@ ylim([.99 1])
 %xlim([0 375])
 xlabel('t (s)','FontSize',FS);
 ylabel('\Sigma N_\alpha(t) / \Sigma N_\alpha(0)','FontSize',FS);
-set(gca,'TickDir','Out','FontSize',FS)
+set(gca,'TickDir','Out' )
 
 subplot(4,1,3:4)
 Fi.S = sum(Fi.s,1);
@@ -94,7 +94,7 @@ set(gca,'TickDir','Out','FontSize',FS)
 figure(2)
 set(gcf,'Units','normalized','OuterPosition',[.25 0 .25 1])
 subplot(3,2,1)
-plot(t,abs(q*Fi.s(1,:)),'r--',t,abs(q*Fi.s(2,:)),'r-.',t,abs(q*Fi.s(3,:)),'r:',t,abs(q*Fe.s(1,:)),'b-');
+plot(t,q*Fi.s(1,:),'r--',t,q*Fi.s(2,:),'r-.',t,q*Fi.s(3,:),'r:',t,q*Fe.s(1,:),'b-');
 xlabel('t (s)','FontSize',FS);
 ylabel('F_\alpha^{South} (A)','FontSize',FS);
 legend('O_2^+','CO_2^+','O^+','e','location','best')
@@ -102,7 +102,7 @@ legend('boxoff')
 set(gca,'TickDir','Out','FontSize',FS)
 
 subplot(3,2,2)
-plot(t,abs(q*Fi.n(1,:)),'r--',t,abs(q*Fi.n(2,:)),'r-.',t,abs(q*Fi.n(3,:)),'r:',t,abs(q*Fe.n(1,:)),'b-');
+plot(t,q*Fi.n(1,:),'r--',t,q*Fi.n(2,:),'r-.',t,q*Fi.n(3,:),'r:',t,q*Fe.n(1,:),'b-');
 xlabel('t (s)','FontSize',FS);
 ylabel('F_\alpha^{North} (A)','FontSize',FS);
 legend('O_2^+','CO_2^+','O^+','e','location','best')
@@ -110,7 +110,7 @@ legend('boxoff')
 set(gca,'TickDir','Out','FontSize',FS)
 
 subplot(3,2,3)
-plot(t,abs(q*Fi.w(1,:)),'r--',t,abs(q*Fi.w(2,:)),'r-.',t,abs(q*Fi.w(3,:)),'r:',t,abs(q*Fe.w(1,:)),'b-');
+plot(t,q*Fi.w(1,:),'r--',t,q*Fi.w(2,:),'r-.',t,q*Fi.w(3,:),'r:',t,q*Fe.w(1,:),'b-');
 xlabel('t (s)','FontSize',FS);
 ylabel('F_\alpha^{West} (A)','FontSize',FS);
 legend('O_2^+','CO_2^+','O^+','e','location','best')
@@ -118,7 +118,7 @@ legend('boxoff')
 set(gca,'TickDir','Out','FontSize',FS)
 
 subplot(3,2,4)
-plot(t,abs(q*Fi.e(1,:)),'r--',t,abs(q*Fi.e(2,:)),'r-.',t,abs(q*Fi.e(3,:)),'r:',t,abs(q*Fe.e(1,:)),'b-');
+plot(t,q*Fi.e(1,:),'r--',t,q*Fi.e(2,:),'r-.',t,q*Fi.e(3,:),'r:',t,q*Fe.e(1,:),'b-');
 xlabel('t (s)','FontSize',FS);
 ylabel('F_\alpha^{East} (A)','FontSize',FS);
 legend('O_2^+','CO_2^+','O^+','e','location','best')
@@ -126,7 +126,7 @@ legend('boxoff')
 set(gca,'TickDir','Out','FontSize',FS)
 
 subplot(3,2,5)
-plot(t,abs(q*Fi.d(1,:)),'r--',t,abs(q*Fi.d(2,:)),'r-.',t,abs(q*Fi.d(3,:)),'r:',t,abs(q*Fe.d(1,:)),'b-');
+plot(t,q*Fi.d(1,:),'r--',t,q*Fi.d(2,:),'r-.',t,q*Fi.d(3,:),'r:',t,q*Fe.d(1,:),'b-');
 xlabel('t (s)','FontSize',FS);
 ylabel('F_\alpha^{Down} (A)','FontSize',FS);
 legend('O_2^+','CO_2^+','O^+','e','location','best')
@@ -134,7 +134,7 @@ legend('boxoff')
 set(gca,'TickDir','Out','FontSize',FS)
 
 subplot(3,2,6)
-plot(t,abs(q*Fi.u(1,:)),'r--',t,abs(q*Fi.u(2,:)),'r-.',t,abs(q*Fi.u(3,:)),'r:',t,abs(q*Fe.u(1,:)),'b-');
+plot(t,q*Fi.u(1,:),'r--',t,q*Fi.u(2,:),'r-.',t,q*Fi.u(3,:),'r:',t,q*Fe.u(1,:),'b-');
 xlabel('t (s)','FontSize',FS);
 ylabel('F_\alpha^{Up} (A)','FontSize',FS);
 legend('O_2^+','CO_2^+','O^+','e','location','best')
@@ -144,7 +144,7 @@ set(gca,'TickDir','Out','FontSize',FS)
 figure(3)
 set(gcf,'Units','normalized','OuterPosition',[.5 0 .25 1])
 subplot(3,2,1)
-plot(t,abs(mi(1)*Fi.s(1,:)),'r--',t,abs(mi(2)*Fi.s(2,:)),'r-.',t,abs(mi(3)*Fi.s(3,:)),'r:',t,abs(me*Fe.s(1,:)),'b-');
+plot(t,mi(1)*Fi.s(1,:),'r--',t,mi(2)*Fi.s(2,:),'r-.',t,mi(3)*Fi.s(3,:),'r:',t,me*Fe.s(1,:),'b-');
 xlabel('t (s)','FontSize',FS);
 ylabel('F_\alpha^{South} (kg/s)','FontSize',FS);
 legend('O_2^+','CO_2^+','O^+','e','location','best')
@@ -152,7 +152,7 @@ legend('boxoff')
 set(gca,'TickDir','Out','FontSize',FS)
 
 subplot(3,2,2)
-plot(t,abs(mi(1)*Fi.n(1,:)),'r--',t,abs(mi(2)*Fi.n(2,:)),'r-.',t,abs(mi(3)*Fi.n(3,:)),'r:',t,abs(me*Fe.n(1,:)),'b-');
+plot(t,mi(1)*Fi.n(1,:),'r--',t,mi(2)*Fi.n(2,:),'r-.',t,mi(3)*Fi.n(3,:),'r:',t,me*Fe.n(1,:),'b-');
 xlabel('t (s)','FontSize',FS);
 ylabel('F_\alpha^{North} (kg/s)','FontSize',FS);
 legend('O_2^+','CO_2^+','O^+','e','location','best')
@@ -160,7 +160,7 @@ legend('boxoff')
 set(gca,'TickDir','Out','FontSize',FS)
 
 subplot(3,2,3)
-plot(t,abs(mi(1)*Fi.w(1,:)),'r--',t,abs(mi(2)*Fi.w(2,:)),'r-.',t,abs(mi(3)*Fi.w(3,:)),'r:',t,abs(me*Fe.w(1,:)),'b-');
+plot(t,mi(1)*Fi.w(1,:),'r--',t,mi(2)*Fi.w(2,:),'r-.',t,mi(3)*Fi.w(3,:),'r:',t,me*Fe.w(1,:),'b-');
 xlabel('t (s)','FontSize',FS);
 ylabel('F_\alpha^{West} (kg/s)','FontSize',FS);
 legend('O_2^+','CO_2^+','O^+','e','location','best')
@@ -168,7 +168,7 @@ legend('boxoff')
 set(gca,'TickDir','Out','FontSize',FS)
 
 subplot(3,2,4)
-plot(t,abs(mi(1)*Fi.e(1,:)),'r--',t,abs(mi(2)*Fi.e(2,:)),'r-.',t,abs(mi(3)*Fi.e(3,:)),'r:',t,abs(me*Fe.e(1,:)),'b-');
+plot(t,mi(1)*Fi.e(1,:),'r--',t,mi(2)*Fi.e(2,:),'r-.',t,mi(3)*Fi.e(3,:),'r:',t,me*Fe.e(1,:),'b-');
 xlabel('t (s)','FontSize',FS);
 ylabel('F_\alpha^{East} (kg/s)','FontSize',FS);
 legend('O_2^+','CO_2^+','O^+','e','location','best')
@@ -176,7 +176,7 @@ legend('boxoff')
 set(gca,'TickDir','Out','FontSize',FS)
 
 subplot(3,2,5)
-plot(t,abs(mi(1)*Fi.d(1,:)),'r--',t,abs(mi(2)*Fi.d(2,:)),'r-.',t,abs(mi(3)*Fi.d(3,:)),'r:',t,abs(me*Fe.d(1,:)),'b-');
+plot(t,mi(1)*Fi.d(1,:),'r--',t,mi(2)*Fi.d(2,:),'r-.',t,mi(3)*Fi.d(3,:),'r:',t,me*Fe.d(1,:),'b-');
 xlabel('t (s)','FontSize',FS);
 ylabel('F_\alpha^{Down} (kg/s)','FontSize',FS);
 legend('O_2^+','CO_2^+','O^+','e','location','best')
@@ -184,7 +184,7 @@ legend('boxoff')
 set(gca,'TickDir','Out','FontSize',FS)
 
 subplot(3,2,6)
-plot(t,abs(mi(1)*Fi.u(1,:)),'r--',t,abs(mi(2)*Fi.u(2,:)),'r-.',t,abs(mi(3)*Fi.u(3,:)),'r:',t,abs(me*Fe.u(1,:)),'b-');
+plot(t,mi(1)*Fi.u(1,:),'r--',t,mi(2)*Fi.u(2,:),'r-.',t,mi(3)*Fi.u(3,:),'r:',t,me*Fe.u(1,:),'b-');
 xlabel('t (s)','FontSize',FS);
 ylabel('F_\alpha^{Up} (kg/s)','FontSize',FS);
 legend('O_2^+','CO_2^+','O^+','e','location','best')
