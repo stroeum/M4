@@ -490,7 +490,7 @@ PetscErrorCode OutputData(void* ptr)
   flag  = access(fName,W_OK);
   if (flag==0) nFile = fopen(fName,"a");
   else         nFile = fopen(fName,"w");
-  ierr = PetscFPrintf(PETSC_COMM_WORLD,nFile,"t           \tN(O2+)      \tF.s(O2+)    \tF.n(O2+)    \tF.w(O2+)    \tF.e(O2+)    \tF.d(O2+)    \tF.u(O2+)    \tN(CO2+)     \tF.s(CO2+)   \tF.n(CO2+)   \tF.w(CO2+)   \tF.e(CO2+)   \tF.d(CO2+)   \tF.u(CO2+)   \tN(O+)       \tF.s(O+)     \tF.n(O+)     \tF.w(O+)     \tF.e(O+)     \tF.d(O+)     \tF.u(O+)     \tN(e)        \tF.s(e)      \tF.n(e)      \tF.w(e)      \tF.e(e)      \tF.d(e)      \tF.u(e)      \n");CHKERRQ(ierr);
+  ierr = PetscFPrintf(PETSC_COMM_WORLD,nFile,"t           \tN(O2+)      \tF.w(O2+)    \tF.e(O2+)    \tF.s(O2+)    \tF.n(O2+)    \tF.b(O2+)    \tF.t(O2+)    \tN(CO2+)     \tF.w(CO2+)   \tF.e(CO2+)   \tF.s(CO2+)   \tF.n(CO2+)   \tF.b(CO2+)   \tF.t(CO2+)   \tN(O+)       \tF.w(O+)     \tF.e(O+)     \tF.s(O+)     \tF.n(O+)     \tF.b(O+)     \tF.t(O+)     \tN(e)        \tF.w(e)      \tF.e(e)      \tF.s(e)      \tF.n(e)      \tF.b(e)      \tF.t(e)      \n");CHKERRQ(ierr);
 
   sprintf(fName,"%s/densities.dat",user->vName);
   flag  = access(fName,W_OK);
@@ -721,6 +721,7 @@ PetscErrorCode OutputData(void* ptr)
           }
           Ve = v[k][j][i][s.ve[1]];
           Fe[2] -= ne*Ve * n0*v0 * DZ*DX;
+         // if(i==0) printf("@%d z=%12.6e\tnO2+=%12.6e\tvO2+=%12.6e\tDY=%12.6e\tDZ=%12.6e\n", rank, Zmin + z[k]*L, u[k][j][i][d.ni[0]]*n0,u[k][j][i][d.vi[0][1]]*v0,DY,DZ);
 
           // N-flow //
           j = jmax;
@@ -734,7 +735,7 @@ PetscErrorCode OutputData(void* ptr)
         }
       }
 
-      // D-U flows //
+      // B-T flows //
       for (i=xs; i<xs+xm; i++) {
         // Define x-space increment //
         if (i==0)         DX = (x[   1]-x[   0])*L    ;
@@ -747,7 +748,7 @@ PetscErrorCode OutputData(void* ptr)
           else if (j==my-1) DY = (y[my-1]-y[my-2])*L    ;
           else              DY = (y[ j+1]-y[ j-1])*L/2.0;
 
-          // D-flow //
+          // B-flow //
           k = kmin;
           ne = 0.0;
           for (l=0; l<3; l++) {
@@ -757,7 +758,7 @@ PetscErrorCode OutputData(void* ptr)
           Ve = v[k][j][i][s.ve[2]];
           Fe[4] -= ne*Ve * n0*v0 * DX*DY;
 
-          // U-flow //
+          // T-flow //
           k = kmax;
           ne = 0.0;
           for (l=0; l<3; l++) {
@@ -768,6 +769,7 @@ PetscErrorCode OutputData(void* ptr)
           Fe[5] += ne*Ve * n0*v0 * DX*DY;
         }
       }
+
 
       // Summing subdomain values //
       m = MPI_Allreduce(MPI_IN_PLACE,&Ni[0]   ,3  ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
