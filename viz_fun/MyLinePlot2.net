@@ -1,0 +1,264 @@
+//
+// time: Thu May  9 22:42:41 2013
+//
+// version: 3.2.0 (format), 4.4.4 (DX)
+//
+//
+//
+// macro reference (direct): MakeLine /nv/hp5/jriousset6/data/dx/Macros/MakeLine.net
+include "MakeLine.net"
+//
+// Begin MDF
+// MODULE MyLinePlot2
+// CATEGORY Macros
+// INPUT Variable; scalar or vector or field; (none); Variable to be plotted
+// INPUT P1; value list or field; (none); Starting point of the plotting line
+// INPUT P2; value list or field; (none); Ending point of the plotting line
+// INPUT Density[visible:0]; integer list; (100); Number of points to be evaluated along the line
+// INPUT xlabel[visible:0]; value or value list or string list; ("x"); Horizontal label
+// INPUT ylabel[visible:0]; value or value list or string list; ("y"); Vertical label
+// INPUT PlotType[visible:0]; string list; ("lin"); Type of plot (linear/logarithmic)
+// INPUT Variable2; scalar or vector or field; (none); 2nd variable to be plotted
+// INPUT y2label[visible:0]; string; ("y2"); 2nd Vertical label
+// INPUT PlotType2[visible:0]; string; ("lin"); Type of plot (linear/logarithmic)
+// OPTIONS lin ; log 
+// OUTPUT Plot; image; Scan along a line in the domain
+// OUTPUT table; field;  
+// OUTPUT table2; field;  
+// OUTPUT Line; geometry field; Line along which the scan is done
+// End MDF
+// page assignment: LinePlot2	order=2, windowed=0, showing=1
+// workspace: width = 632, height = 713
+// layout: snap = 1, width = 5, height = 5, align = CN
+//
+macro MyLinePlot2(
+ Variable
+,P1
+,P2
+,Density
+,xlabel
+,ylabel
+,PlotType
+,Variable2
+,y2label
+,PlotType2
+) -> (
+ Plot
+,table
+,table2
+,Line
+) {
+    // 
+    // node Input[5]: x = 176, y = 296, inputs = 0, label = Variable
+    // page group: LinePlot2
+    // parameter: position = 1, name = 'Variable', value = '(none)', descriptive = 1, description = 'Variable to be plotted', required = 1, visible = 1
+    //
+MyLinePlot2_Input_5_out_1 = Variable;
+    // 
+    // node Input[6]: x = 301, y = 171, inputs = 0, label = Point A
+    // page group: LinePlot2
+    // parameter: position = 2, name = 'P1', value = '(none)', descriptive = 1, description = 'Starting point of the plotting line', required = 1, visible = 1
+    //
+MyLinePlot2_Input_6_out_1 = P1;
+    // 
+    // node Input[7]: x = 391, y = 286, inputs = 0, label = Point B
+    // page group: LinePlot2
+    // parameter: position = 3, name = 'P2', value = '(none)', descriptive = 1, description = 'Ending point of the plotting line', required = 1, visible = 1
+    //
+MyLinePlot2_Input_7_out_1 = P2;
+    // 
+    // node Input[8]: x = 489, y = 101, inputs = 0, label = Density of points
+    // page group: LinePlot2
+    // parameter: position = 4, name = 'Density', value = '(100)', descriptive = 1, description = 'Number of points to be evaluated along the line', required = 0, visible = 0
+    //
+MyLinePlot2_Input_8_out_1 = Density;
+    // 
+    // node MakeLine[18]: x = 185, y = 361, inputs = 4, label = MakeLine
+    // page group: LinePlot2
+    //
+MyLinePlot2_MakeLine_18_out_1,
+MyLinePlot2_MakeLine_18_out_2 = 
+    MakeLine(
+    MyLinePlot2_Input_5_out_1,
+    MyLinePlot2_Input_6_out_1,
+    MyLinePlot2_Input_7_out_1,
+    MyLinePlot2_Input_8_out_1
+    ) [instance: 18, cache: 1];
+    // 
+    // node Input[9]: x = 272, y = 276, inputs = 0, label = x-label
+    // page group: LinePlot2
+    // parameter: position = 5, name = 'xlabel', value = '("x")', descriptive = 1, description = 'Horizontal label', required = 0, visible = 0
+    //
+MyLinePlot2_Input_9_out_1 = xlabel;
+    // 
+    // node Input[11]: x = 314, y = 276, inputs = 0, label = y-label
+    // page group: LinePlot2
+    // parameter: position = 6, name = 'ylabel', value = '("y")', descriptive = 1, description = 'Vertical label', required = 0, visible = 0
+    //
+MyLinePlot2_Input_11_out_1 = ylabel;
+    // 
+    // node List[22]: x = 281, y = 361, inputs = 2, label = List
+    // input[1]: defaulting = 1, visible = 1, type = 16777248, value = {"Position along the line (km)"}
+    // input[2]: defaulting = 1, visible = 1, type = 16777248, value = {"Jx (nA/m2)"}
+    // page group: LinePlot2
+    //
+MyLinePlot2_List_22_out_1 = 
+    List(
+    MyLinePlot2_Input_9_out_1,
+    MyLinePlot2_Input_11_out_1
+    ) [instance: 22, cache: 1];
+    // 
+    // node Input[12]: x = 329, y = 361, inputs = 0, label = Plot type
+    // page group: LinePlot2
+    // parameter: position = 7, name = 'PlotType', value = '("lin")', descriptive = 1, description = 'Type of plot (linear/logarithmic)', required = 0, visible = 0
+    //
+MyLinePlot2_Input_12_out_1 = PlotType;
+    // 
+    // node Input[13]: x = 437, y = 286, inputs = 0, label = Variable2
+    // page group: LinePlot2
+    // parameter: position = 8, name = 'Variable2', value = '(none)', descriptive = 1, description = '2nd variable to be plotted', required = 1, visible = 1
+    //
+MyLinePlot2_Input_13_out_1 = Variable2;
+    // 
+    // node MakeLine[19]: x = 446, y = 361, inputs = 4, label = MakeLine
+    // page group: LinePlot2
+    //
+MyLinePlot2_MakeLine_19_out_1,
+MyLinePlot2_MakeLine_19_out_2 = 
+    MakeLine(
+    MyLinePlot2_Input_13_out_1,
+    MyLinePlot2_Input_6_out_1,
+    MyLinePlot2_Input_7_out_1,
+    MyLinePlot2_Input_8_out_1
+    ) [instance: 19, cache: 1];
+    // 
+    // node Input[14]: x = 544, y = 361, inputs = 0, label = y2-label
+    // page group: LinePlot2
+    // parameter: position = 9, name = 'y2label', value = '("y2")', descriptive = 1, description = '2nd Vertical label', required = 0, visible = 0
+    //
+MyLinePlot2_Input_14_out_1 = y2label;
+    // 
+    // node Input[15]: x = 590, y = 361, inputs = 0, label = Plot type 2
+    // page group: LinePlot2
+    // parameter: position = 10, name = 'PlotType2', value = '("lin")', descriptive = 1, description = 'Type of plot (linear/logarithmic)', required = 0, visible = 0
+    //
+MyLinePlot2_Input_15_out_1 = PlotType2;
+    // 
+    // node Plot[19]: x = 290, y = 446, inputs = 26, label = Plot
+    // input[2]: defaulting = 1, visible = 1, type = 16777248, value = {"z-100 (km)", "Jx (nA/m2)"}
+    // input[3]: defaulting = 1, visible = 0, type = 16777217, value = NULL
+    // input[4]: visible = 0
+    // input[5]: defaulting = 0, visible = 0, type = 3, value = 1
+    // input[6]: defaulting = 0, visible = 0, type = 1, value = 0
+    // input[7]: defaulting = 1, visible = 1, type = 16777248, value = {"lin"}
+    // input[8]: defaulting = 1, visible = 0, type = 1, value = 0
+    // input[9]: visible = 0
+    // input[10]: defaulting = 0, visible = 0, type = 16777248, value = {"black", "yellow", "yellow", "white"}
+    // input[11]: defaulting = 0, visible = 0, type = 16777248, value = {"background", "grid", "ticks", "labels"}
+    // input[14]: defaulting = 1, visible = 1, type = 2048, value = NULL
+    // input[15]: defaulting = 1, visible = 1, type = 32, value = NULL
+    // input[16]: defaulting = 1, visible = 0, type = 1, value = -15
+    // input[18]: visible = 1
+    // input[25]: defaulting = 1, visible = 0, type = 3, value = 1
+    // input[26]: defaulting = 1, visible = 0, type = 5, value = 0.05
+    // page group: LinePlot2
+    //
+MyLinePlot2_Plot_19_out_1 = 
+    Plot(
+    MyLinePlot2_MakeLine_18_out_2,
+    MyLinePlot2_List_22_out_1,
+    NULL,
+    NULL,
+    1,
+    0,
+    MyLinePlot2_Input_12_out_1,
+    NULL,
+    NULL,
+    {"black", "yellow", "yellow", "white"},
+    {"background", "grid", "ticks", "labels"},
+    NULL,
+    NULL,
+    MyLinePlot2_MakeLine_19_out_2,
+    MyLinePlot2_Input_14_out_1,
+    NULL,
+    NULL,
+    MyLinePlot2_Input_15_out_1,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+    ) [instance: 19, cache: 1];
+    // 
+    // node AutoCamera[21]: x = 413, y = 516, inputs = 9, label = AutoCamera
+    // input[3]: defaulting = 1, visible = 0, type = 5, value = NULL
+    // page group: LinePlot2
+    //
+MyLinePlot2_AutoCamera_21_out_1 = 
+    AutoCamera(
+    MyLinePlot2_Plot_19_out_1,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+    ) [instance: 21, cache: 1];
+    // 
+    // node Render[29]: x = 396, y = 586, inputs = 3, label = Render
+    // page group: LinePlot2
+    //
+MyLinePlot2_Render_29_out_1 = 
+    Render(
+    MyLinePlot2_Plot_19_out_1,
+    MyLinePlot2_AutoCamera_21_out_1,
+    NULL
+    ) [instance: 29, cache: 1];
+    // 
+    // node Output[4]: x = 397, y = 651, inputs = 1, label = Plot
+    // page group: LinePlot2
+    // parameter: position = 1, name = 'Plot', value = ' ', descriptive = 0, description = 'Scan along a line in the domain', required = 0, visible = 1
+    //
+Plot = MyLinePlot2_Render_29_out_1;
+    // 
+    // node Output[5]: x = 230, y = 446, inputs = 1, label = Table of values
+    // page group: LinePlot2
+    // parameter: position = 2, name = 'table', value = ' ', descriptive = 0, description = ' ', required = 0, visible = 1
+    //
+table = MyLinePlot2_MakeLine_18_out_2;
+    // 
+    // node Output[6]: x = 175, y = 446, inputs = 1, label = Line
+    // page group: LinePlot2
+    // parameter: position = 4, name = 'Line', value = ' ', descriptive = 0, description = 'Line along which the scan is done', required = 0, visible = 1
+    //
+Line = MyLinePlot2_MakeLine_18_out_1;
+    // 
+    // node Output[7]: x = 491, y = 446, inputs = 1, label = Table of values
+    // page group: LinePlot2
+    // parameter: position = 3, name = 'table2', value = ' ', descriptive = 0, description = ' ', required = 0, visible = 1
+    //
+table2 = MyLinePlot2_MakeLine_19_out_2;
+// network: end of macro body
+}
+MyLinePlot2_Input_5_out_1 = NULL;
+MyLinePlot2_Input_6_out_1 = NULL;
+MyLinePlot2_Input_7_out_1 = NULL;
+MyLinePlot2_Input_8_out_1 = NULL;
+MyLinePlot2_MakeLine_18_out_1 = NULL;
+MyLinePlot2_MakeLine_18_out_2 = NULL;
+MyLinePlot2_Input_9_out_1 = NULL;
+MyLinePlot2_Input_11_out_1 = NULL;
+MyLinePlot2_List_22_out_1 = NULL;
+MyLinePlot2_Input_12_out_1 = NULL;
+MyLinePlot2_Input_13_out_1 = NULL;
+MyLinePlot2_MakeLine_19_out_2 = NULL;
+MyLinePlot2_Input_14_out_1 = NULL;
+MyLinePlot2_Input_15_out_1 = NULL;
+MyLinePlot2_Plot_19_out_1 = NULL;
+MyLinePlot2_AutoCamera_21_out_1 = NULL;
+MyLinePlot2_Render_29_out_1 = NULL;

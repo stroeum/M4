@@ -1,0 +1,91 @@
+//
+// time: Thu May  9 11:57:52 2013
+//
+// version: 3.2.0 (format), 4.4.4 (DX)
+//
+//
+// Begin MDF
+// MODULE MyMinMax
+// CATEGORY Macros
+// INPUT ToggleMin; integer; (0); Toggle min value (Y/N)
+// INPUT Min; value list or string list or object; (no default); Value of the min
+// INPUT ToggleMax; integer; (0); Toggle max value (Y/N)
+// INPUT Max; value list or string list or object; (no default); Value of the max
+// OUTPUT Minimum; object;  
+// OUTPUT Maximum; object;  
+// End MDF
+// page assignment: MinMax	order=2, windowed=0, showing=1
+// workspace: width = 401, height = 338
+// layout: snap = 1, width = 5, height = 5, align = CN
+//
+macro MyMinMax(
+ ToggleMin
+,Min
+,ToggleMax
+,Max
+) -> (
+ Minimum
+,Maximum
+) {
+    // 
+    // node Input[3]: x = 210, y = 141, inputs = 0, label = Toggle min
+    // page group: MinMax
+    // parameter: position = 1, name = 'ToggleMin', value = '(0)', descriptive = 1, description = 'Toggle min value (Y/N)', required = 0, visible = 1
+    //
+MyMinMax_Input_3_out_1 = ToggleMin;
+    // 
+    // node Input[4]: x = 261, y = 141, inputs = 0, label = Minimum value
+    // page group: MinMax
+    // parameter: position = 2, name = 'Min', value = '(no default)', descriptive = 1, description = 'Value of the min', required = 0, visible = 1
+    //
+MyMinMax_Input_4_out_1 = Min;
+    // 
+    // node Input[7]: x = 310, y = 141, inputs = 0, label = Toggle max
+    // page group: MinMax
+    // parameter: position = 3, name = 'ToggleMax', value = '(0)', descriptive = 1, description = 'Toggle max value (Y/N)', required = 0, visible = 1
+    //
+MyMinMax_Input_7_out_1 = ToggleMax;
+    // 
+    // node Input[8]: x = 359, y = 141, inputs = 0, label = Maximum value
+    // page group: MinMax
+    // parameter: position = 4, name = 'Max', value = '(no default)', descriptive = 1, description = 'Value of the max', required = 0, visible = 1
+    //
+MyMinMax_Input_8_out_1 = Max;
+    // 
+    // node Switch[1]: x = 226, y = 211, inputs = 2, label = Switch
+    // page group: MinMax
+    //
+MyMinMax_Switch_1_out_1 = 
+    Switch(
+    MyMinMax_Input_3_out_1,
+    MyMinMax_Input_4_out_1
+    ) [instance: 1, cache: 1];
+    // 
+    // node Output[3]: x = 225, y = 276, inputs = 1, label = Minimum
+    // page group: MinMax
+    // parameter: position = 1, name = 'Minimum', value = ' ', descriptive = 0, description = ' ', required = 0, visible = 1
+    //
+Minimum = MyMinMax_Switch_1_out_1;
+    // 
+    // node Switch[2]: x = 329, y = 211, inputs = 2, label = Switch
+    // page group: MinMax
+    //
+MyMinMax_Switch_2_out_1 = 
+    Switch(
+    MyMinMax_Input_7_out_1,
+    MyMinMax_Input_8_out_1
+    ) [instance: 2, cache: 1];
+    // 
+    // node Output[4]: x = 328, y = 276, inputs = 1, label = Maximum
+    // page group: MinMax
+    // parameter: position = 2, name = 'Maximum', value = ' ', descriptive = 0, description = ' ', required = 0, visible = 1
+    //
+Maximum = MyMinMax_Switch_2_out_1;
+// network: end of macro body
+}
+MyMinMax_Input_3_out_1 = NULL;
+MyMinMax_Input_4_out_1 = NULL;
+MyMinMax_Input_7_out_1 = NULL;
+MyMinMax_Input_8_out_1 = NULL;
+MyMinMax_Switch_1_out_1 = NULL;
+MyMinMax_Switch_2_out_1 = NULL;

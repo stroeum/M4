@@ -1,0 +1,133 @@
+//
+// time: Thu May  9 17:34:10 2013
+//
+// version: 3.2.0 (format), 4.4.4 (DX)
+//
+//
+// Begin MDF
+// MODULE MyInputs
+// CATEGORY Macros
+// INPUT data; field; (none); Input data
+// INPUT Reduction[visible:0]; scalar list or vector list; (1); Reduction factor
+// INPUT Variable; integer or integer list or string; (none); Variable to be plotted
+// INPUT Units; value list or string; (none); Units (xSI) with x=T,G,M,k,_,m,u,n,p,f
+// OUTPUT SelectedField; object; Selected field apropriately scaled
+// OUTPUT Name; value list or string; Variable name
+// OUTPUT VariableLabel; string; Variable (Units)
+// OUTPUT ConvFactor; value or value list or field;  
+// End MDF
+// page assignment: Inputs	order=2, windowed=0, showing=1
+// workspace: width = 377, height = 533
+// layout: snap = 1, width = 5, height = 5, align = CN
+//
+macro MyInputs(
+ data
+,Reduction
+,Variable
+,Units
+) -> (
+ SelectedField
+,Name
+,VariableLabel
+,ConvFactor
+) {
+    // 
+    // node Input[2]: x = 276, y = 126, inputs = 0, label = Units
+    // page group: Inputs
+    // parameter: position = 4, name = 'Units', value = ' ', descriptive = 0, description = 'Units (xSI) with x=T,G,M,k,_,m,u,n,p,f', required = 1, visible = 1
+    //
+MyInputs_Input_2_out_1 = Units;
+    // 
+    // node Compute[2]: x = 308, y = 286, inputs = 2, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "strstr($0,'(T')?1e-12:strstr($0,'(G')?1e-9:strstr($0,'(M')?1e-6:strstr($0,'(k')?1e-3:strstr($0,'(_')?1e0:strstr($0,'(m')?1e3:strstr($0,'(u')?1e6:strstr($0,'(n')?1e9:strstr($0,'(p')?1e12:strstr($0,'(f')?1e15:1"
+    // page group: Inputs
+    // expression: value = strstr(a,'(T')?1e-12:strstr(a,'(G')?1e-9:strstr(a,'(M')?1e-6:strstr(a,'(k')?1e-3:strstr(a,'(_')?1e0:strstr(a,'(m')?1e3:strstr(a,'(u')?1e6:strstr(a,'(n')?1e9:strstr(a,'(p')?1e12:strstr(a,'(f')?1e15:1
+    // name[2]: value = a
+    //
+MyInputs_Compute_2_out_1 = 
+    Compute(
+    "strstr($0,'(T')?1e-12:strstr($0,'(G')?1e-9:strstr($0,'(M')?1e-6:strstr($0,'(k')?1e-3:strstr($0,'(_')?1e0:strstr($0,'(m')?1e3:strstr($0,'(u')?1e6:strstr($0,'(n')?1e9:strstr($0,'(p')?1e12:strstr($0,'(f')?1e15:1",
+    MyInputs_Input_2_out_1
+    ) [instance: 2, cache: 1];
+    // 
+    // node Input[1]: x = 211, y = 126, inputs = 0, label = Variables
+    // page group: Inputs
+    // parameter: position = 3, name = 'Variable', value = ' ', descriptive = 0, description = 'Variable to be plotted', required = 1, visible = 1
+    //
+MyInputs_Input_1_out_1 = Variable;
+    // 
+    // node Format[1]: x = 196, y = 286, inputs = 3, label = Format
+    // input[1]: defaulting = 0, visible = 1, type = 32, value = "%s %s"
+    // page group: Inputs
+    //
+MyInputs_Format_1_out_1 = 
+    Format(
+    "%s %s",
+    MyInputs_Input_1_out_1,
+    MyInputs_Input_2_out_1
+    ) [instance: 1, cache: 1];
+    // 
+    // node Input[3]: x = 40, y = 131, inputs = 0, label = data
+    // page group: Inputs
+    // parameter: position = 1, name = 'data', value = '(none)', descriptive = 1, description = 'Input data', required = 1, visible = 1
+    //
+MyInputs_Input_3_out_1 = data;
+    // 
+    // node Input[4]: x = 82, y = 131, inputs = 0, label = Reduction factor
+    // page group: Inputs
+    // parameter: position = 2, name = 'Reduction', value = '(1)', descriptive = 1, description = 'Reduction factor', required = 0, visible = 0
+    //
+MyInputs_Input_4_out_1 = Reduction;
+    // 
+    // node Output[1]: x = 205, y = 471, inputs = 1, label = Name with Units
+    // page group: Inputs
+    // parameter: position = 3, name = 'VariableLabel', value = '(NULL)', descriptive = 1, description = 'Variable (Units)', required = 0, visible = 1
+    //
+VariableLabel = MyInputs_Format_1_out_1;
+    // 
+    // node Output[2]: x = 315, y = 471, inputs = 1, label = Conversion factor
+    // page group: Inputs
+    // parameter: position = 4, name = 'ConvFactor', value = '(NULL)', descriptive = 1, description = ' ', required = 0, visible = 1
+    //
+ConvFactor = MyInputs_Compute_2_out_1;
+    // 
+    // node Output[5]: x = 150, y = 471, inputs = 1, label = Variable name
+    // page group: Inputs
+    // parameter: position = 2, name = 'Name', value = '(NULL)', descriptive = 1, description = 'Variable name', required = 0, visible = 1
+    //
+Name = MyInputs_Input_1_out_1;
+    // 
+    // node Reduce[1]: x = 52, y = 201, inputs = 2, label = Reduce
+    // page group: Inputs
+    //
+MyInputs_Reduce_1_out_1 = 
+    Reduce(
+    MyInputs_Input_3_out_1,
+    MyInputs_Input_4_out_1
+    ) [instance: 1, cache: 1];
+    // 
+    // node Select[1]: x = 69, y = 296, inputs = 3, label = Select
+    // page group: Inputs
+    //
+MyInputs_Select_1_out_1 = 
+    Select(
+    MyInputs_Reduce_1_out_1,
+    MyInputs_Input_1_out_1,
+    NULL
+    ) [instance: 1, cache: 1];
+    // 
+    // node Output[6]: x = 66, y = 471, inputs = 1, label = SelectedField
+    // page group: Inputs
+    // parameter: position = 1, name = 'SelectedField', value = '(NULL)', descriptive = 1, description = 'Selected field apropriately scaled', required = 0, visible = 1
+    //
+SelectedField = MyInputs_Select_1_out_1;
+// network: end of macro body
+}
+MyInputs_Input_2_out_1 = NULL;
+MyInputs_Compute_2_out_1 = NULL;
+MyInputs_Input_1_out_1 = NULL;
+MyInputs_Format_1_out_1 = NULL;
+MyInputs_Input_3_out_1 = NULL;
+MyInputs_Input_4_out_1 = NULL;
+MyInputs_Reduce_1_out_1 = NULL;
+MyInputs_Select_1_out_1 = NULL;
