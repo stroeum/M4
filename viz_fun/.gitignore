@@ -2,6 +2,7 @@
 *
 #except this file
 !.gitignore
-!M4.*
+!*.net
+!*.cfg
 !*.m
 !*.sh
