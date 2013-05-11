@@ -1,5 +1,5 @@
 //
-// time: Thu May  9 11:50:59 2013
+// time: Fri May 10 20:00:20 2013
 //
 // version: 3.2.0 (format), 4.4.4 (DX)
 //
@@ -33,7 +33,7 @@
 // OUTPUT PlaneGlyph; group; Directions and magnitudes of the vector field
 // End MDF
 // page assignment: PlanesGlyphs	order=2, windowed=0, showing=1
-// workspace: width = 765, height = 903
+// workspace: width = 765, height = 938
 // layout: snap = 1, width = 5, height = 5, align = CN
 //
 macro MyPlaneAndGlyphs(
@@ -58,7 +58,7 @@ macro MyPlaneAndGlyphs(
 ,PlaneGlyph
 ) {
     // 
-    // node GetLocal[1]: x = 313, y = 566, inputs = 3, label = GetLocal
+    // node GetLocal[1]: x = 313, y = 601, inputs = 3, label = GetLocal
     // input[1]: visible = 0
     // input[2]: visible = 0
     // page group: PlanesGlyphs
@@ -193,27 +193,27 @@ MyPlaneAndGlyphs_AutoGlyph_1_out_1 =
     NULL
     ) [instance: 1, cache: 1];
     // 
-    // node Color[2]: x = 173, y = 496, inputs = 5, label = Color
+    // node Color[3]: x = 249, y = 536, inputs = 5, label = Color
     // input[2]: defaulting = 0, visible = 0, type = 32, value = "black"
     // input[3]: visible = 0
     // page group: PlanesGlyphs
     //
-MyPlaneAndGlyphs_Color_2_out_1 = 
+MyPlaneAndGlyphs_Color_3_out_1 = 
     Color(
     MyPlaneAndGlyphs_AutoGlyph_1_out_1,
     "black",
     NULL,
     NULL,
     NULL
-    ) [instance: 2, cache: 1];
+    ) [instance: 3, cache: 1];
     // 
-    // node Input[12]: x = 321, y = 291, inputs = 0, label = PositionsConnections
+    // node Input[12]: x = 322, y = 291, inputs = 0, label = PositionsConnections
     // page group: PlanesGlyphs
     // parameter: position = 10, name = 'ColorMapType', value = '(positions)', descriptive = 1, description = 'Positions or connections', required = 0, visible = 0
     //
 MyPlaneAndGlyphs_Input_12_out_1 = ColorMapType;
     // 
-    // node Post[1]: x = 306, y = 361, inputs = 2, label = Post
+    // node Post[1]: x = 307, y = 361, inputs = 2, label = Post
     // page group: PlanesGlyphs
     //
 MyPlaneAndGlyphs_Post_1_out_1 = 
@@ -222,19 +222,19 @@ MyPlaneAndGlyphs_Post_1_out_1 =
     MyPlaneAndGlyphs_Input_12_out_1
     ) [instance: 1, cache: 1];
     // 
-    // node Input[6]: x = 354, y = 361, inputs = 0, label = Colormap
+    // node Input[6]: x = 53, y = 461, inputs = 0, label = Colormap
     // page group: PlanesGlyphs
     // parameter: position = 3, name = 'Colormap', value = ' ', descriptive = 0, description = 'Colormap used to display the magnitudes', required = 1, visible = 1
     //
 MyPlaneAndGlyphs_Input_6_out_1 = Colormap;
     // 
-    // node Input[7]: x = 396, y = 361, inputs = 0, label = Opacity
+    // node Input[7]: x = 358, y = 411, inputs = 0, label = Opacity
     // page group: PlanesGlyphs
     // parameter: position = 4, name = 'Opacity', value = '(0.25)', descriptive = 1, description = 'Transparency of the planes', required = 0, visible = 0
     //
 MyPlaneAndGlyphs_Input_7_out_1 = Opacity;
     // 
-    // node Color[1]: x = 339, y = 496, inputs = 5, label = Color
+    // node Color[1]: x = 319, y = 531, inputs = 5, label = Color
     // page group: PlanesGlyphs
     //
 MyPlaneAndGlyphs_Color_1_out_1 = 
@@ -246,16 +246,16 @@ MyPlaneAndGlyphs_Color_1_out_1 =
     NULL
     ) [instance: 1, cache: 1];
     // 
-    // node Collect[1]: x = 258, y = 566, inputs = 2, label = Collect
+    // node Collect[1]: x = 258, y = 601, inputs = 2, label = Collect
     // page group: PlanesGlyphs
     //
 MyPlaneAndGlyphs_Collect_1_out_1 = 
     Collect(
-    MyPlaneAndGlyphs_Color_2_out_1,
+    MyPlaneAndGlyphs_Color_3_out_1,
     MyPlaneAndGlyphs_Color_1_out_1
     ) [instance: 1, cache: 1];
     // 
-    // node Append[1]: x = 240, y = 636, inputs = 3, label = Append
+    // node Append[1]: x = 240, y = 671, inputs = 3, label = Append
     // input[3]: visible = 0
     // page group: PlanesGlyphs
     //
@@ -266,7 +266,7 @@ MyPlaneAndGlyphs_Append_1_out_1 =
     NULL
     ) [instance: 1, cache: 1];
     // 
-    // node GetLocal[2]: x = 152, y = 566, inputs = 3, label = GetLocal
+    // node GetLocal[2]: x = 151, y = 601, inputs = 3, label = GetLocal
     // input[1]: visible = 0
     // input[2]: visible = 0
     // page group: PlanesGlyphs
@@ -279,7 +279,20 @@ MyPlaneAndGlyphs_GetLocal_2_out_2 =
     NULL
     ) [instance: 2, cache: 1];
     // 
-    // node Append[2]: x = 95, y = 636, inputs = 3, label = Append
+    // node Color[2]: x = 103, y = 536, inputs = 5, label = Color
+    // input[2]: defaulting = 1, visible = 1, type = 32, value = "black"
+    // page group: PlanesGlyphs
+    //
+MyPlaneAndGlyphs_Color_2_out_1 = 
+    Color(
+    MyPlaneAndGlyphs_AutoGlyph_1_out_1,
+    MyPlaneAndGlyphs_Input_6_out_1,
+    MyPlaneAndGlyphs_Input_7_out_1,
+    NULL,
+    NULL
+    ) [instance: 2, cache: 1];
+    // 
+    // node Append[2]: x = 94, y = 671, inputs = 3, label = Append
     // input[3]: visible = 0
     // page group: PlanesGlyphs
     //
@@ -290,7 +303,7 @@ MyPlaneAndGlyphs_Append_2_out_1 =
     NULL
     ) [instance: 2, cache: 1];
     // 
-    // node GetLocal[3]: x = 474, y = 566, inputs = 3, label = GetLocal
+    // node GetLocal[3]: x = 474, y = 601, inputs = 3, label = GetLocal
     // input[1]: visible = 0
     // input[2]: visible = 0
     // page group: PlanesGlyphs
@@ -303,7 +316,7 @@ MyPlaneAndGlyphs_GetLocal_3_out_2 =
     NULL
     ) [instance: 3, cache: 1];
     // 
-    // node Append[3]: x = 417, y = 636, inputs = 3, label = Append
+    // node Append[3]: x = 417, y = 671, inputs = 3, label = Append
     // input[3]: visible = 0
     // page group: PlanesGlyphs
     //
@@ -344,7 +357,7 @@ MyPlaneAndGlyphs_Input_23_out_1 = FixedFont;
     //
 MyPlaneAndGlyphs_Input_24_out_1 = LabelFixedFontSize;
     // 
-    // node ColorBar[1]: x = 576, y = 436, inputs = 16, label = ColorBar
+    // node ColorBar[1]: x = 576, y = 546, inputs = 16, label = ColorBar
     // input[2]: defaulting = 0, visible = 0, type = 8, value = [1 .5]
     // input[3]: defaulting = 0, visible = 0, type = 8, value = NULL
     // input[4]: defaulting = 0, visible = 0, type = 3, value = NULL
@@ -377,7 +390,7 @@ MyPlaneAndGlyphs_ColorBar_1_out_1 =
     MyPlaneAndGlyphs_Input_24_out_1
     ) [instance: 1, cache: 1];
     // 
-    // node Collect[2]: x = 257, y = 776, inputs = 2, label = Collect
+    // node Collect[2]: x = 257, y = 811, inputs = 2, label = Collect
     // page group: PlanesGlyphs
     //
 MyPlaneAndGlyphs_Collect_2_out_1 = 
@@ -386,7 +399,7 @@ MyPlaneAndGlyphs_Collect_2_out_1 =
     MyPlaneAndGlyphs_ColorBar_1_out_1
     ) [instance: 2, cache: 1];
     // 
-    // node Collect[3]: x = 434, y = 776, inputs = 2, label = Collect
+    // node Collect[3]: x = 434, y = 811, inputs = 2, label = Collect
     // page group: PlanesGlyphs
     //
 MyPlaneAndGlyphs_Collect_3_out_1 = 
@@ -395,25 +408,34 @@ MyPlaneAndGlyphs_Collect_3_out_1 =
     MyPlaneAndGlyphs_ColorBar_1_out_1
     ) [instance: 3, cache: 1];
     // 
-    // node Output[1]: x = 98, y = 706, inputs = 1, label = Vector field
+    // node Collect[4]: x = 111, y = 811, inputs = 2, label = Collect
+    // page group: PlanesGlyphs
+    //
+MyPlaneAndGlyphs_Collect_4_out_1 = 
+    Collect(
+    MyPlaneAndGlyphs_Append_2_out_1,
+    MyPlaneAndGlyphs_ColorBar_1_out_1
+    ) [instance: 4, cache: 1];
+    // 
+    // node Output[1]: x = 111, y = 876, inputs = 1, label = Vector field
     // page group: PlanesGlyphs
     // parameter: position = 1, name = 'Arrows', value = ' ', descriptive = 0, description = 'Directions of the vector field', required = 0, visible = 1
     //
-Arrows = MyPlaneAndGlyphs_Append_2_out_1;
+Arrows = MyPlaneAndGlyphs_Collect_4_out_1;
     // 
-    // node Output[2]: x = 434, y = 841, inputs = 1, label = Magnitude
+    // node Output[2]: x = 434, y = 876, inputs = 1, label = Magnitude
     // page group: PlanesGlyphs
     // parameter: position = 2, name = 'Norms', value = ' ', descriptive = 0, description = 'Magnitudes of the vector field', required = 0, visible = 1
     //
 Norms = MyPlaneAndGlyphs_Collect_3_out_1;
     // 
-    // node Output[3]: x = 257, y = 841, inputs = 1, label = Vector field
+    // node Output[3]: x = 257, y = 876, inputs = 1, label = Vector field
     // page group: PlanesGlyphs
     // parameter: position = 3, name = 'PlaneGlyph', value = ' ', descriptive = 0, description = 'Directions and magnitudes of the vector field', required = 0, visible = 1
     //
 PlaneGlyph = MyPlaneAndGlyphs_Collect_2_out_1;
     // 
-    // node SetLocal[1]: x = 314, y = 706, inputs = 3, label = SetLocal
+    // node SetLocal[1]: x = 314, y = 741, inputs = 3, label = SetLocal
     // page group: PlanesGlyphs
     //
     SetLocal(
@@ -422,7 +444,7 @@ PlaneGlyph = MyPlaneAndGlyphs_Collect_2_out_1;
     NULL
     ) [instance: 1, cache: 1];
     // 
-    // node SetLocal[2]: x = 153, y = 706, inputs = 3, label = SetLocal
+    // node SetLocal[2]: x = 152, y = 741, inputs = 3, label = SetLocal
     // page group: PlanesGlyphs
     //
     SetLocal(
@@ -431,7 +453,7 @@ PlaneGlyph = MyPlaneAndGlyphs_Collect_2_out_1;
     NULL
     ) [instance: 2, cache: 1];
     // 
-    // node SetLocal[3]: x = 475, y = 706, inputs = 3, label = SetLocal
+    // node SetLocal[3]: x = 475, y = 741, inputs = 3, label = SetLocal
     // page group: PlanesGlyphs
     //
     SetLocal(
@@ -457,7 +479,7 @@ MyPlaneAndGlyphs_Input_9_out_1 = NULL;
 MyPlaneAndGlyphs_Input_10_out_1 = NULL;
 MyPlaneAndGlyphs_Input_11_out_1 = NULL;
 MyPlaneAndGlyphs_AutoGlyph_1_out_1 = NULL;
-MyPlaneAndGlyphs_Color_2_out_1 = NULL;
+MyPlaneAndGlyphs_Color_3_out_1 = NULL;
 MyPlaneAndGlyphs_Input_12_out_1 = NULL;
 MyPlaneAndGlyphs_Post_1_out_1 = NULL;
 MyPlaneAndGlyphs_Input_6_out_1 = NULL;
@@ -467,6 +489,7 @@ MyPlaneAndGlyphs_Collect_1_out_1 = NULL;
 MyPlaneAndGlyphs_Append_1_out_1 = NULL;
 MyPlaneAndGlyphs_GetLocal_2_out_1 = NULL;
 MyPlaneAndGlyphs_GetLocal_2_out_2 = NULL;
+MyPlaneAndGlyphs_Color_2_out_1 = NULL;
 MyPlaneAndGlyphs_Append_2_out_1 = NULL;
 MyPlaneAndGlyphs_GetLocal_3_out_1 = NULL;
 MyPlaneAndGlyphs_GetLocal_3_out_2 = NULL;
@@ -479,3 +502,4 @@ MyPlaneAndGlyphs_Input_24_out_1 = NULL;
 MyPlaneAndGlyphs_ColorBar_1_out_1 = NULL;
 MyPlaneAndGlyphs_Collect_2_out_1 = NULL;
 MyPlaneAndGlyphs_Collect_3_out_1 = NULL;
+MyPlaneAndGlyphs_Collect_4_out_1 = NULL;
