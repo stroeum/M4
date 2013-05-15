@@ -12,7 +12,7 @@ me    = 9.1093e-31; %_kg, mass of e
 %% Find folder
 
 cd ..
-[upperPath, Folder] = fileparts(pwd);
+[topperPath, Folder] = fileparts(pwd);
 cd viz_fun
 
 
@@ -58,7 +58,7 @@ Fe.b(1,:) = raw.data(:,7+(l-1)*7);
 Fe.t(1,:) = raw.data(:,8+(l-1)*7);
 
 %% Plot
-FS=16;
+FS=10;
 figure(1)
 set(gcf,'Units','normalized','OuterPosition',[0 0 .25 1],'Color',[1 1 1])
 
@@ -111,7 +111,7 @@ plot(t,F.S,'k-',t,F.N,'k--',t,F.W,'k-.',t,F.E,'k:',t,F.B,'kv',t,F.T,'k^')
 xlabel('t (s)','FontSize',FS);
 ylabel('F^\beta=(\Sigma_in_iv_i^\beta+n_ev_e^\beta).dS (#/s)','FontSize',FS);
 axis tight
-legend('south','north','west','east','down','up','location','best')
+legend('south','north','west','east','bottom','top','location','best')
 legend('boxoff')
 set(gca,'TickDir','Out','FontSize',FS)
 
@@ -162,7 +162,7 @@ subplot(3,2,5)
 plot(t,Fi.b(1,:),'r--',t,Fi.b(2,:),'r-.',t,Fi.b(3,:),'r:',t,Fe.b(1,:),'b-');
 ylim([minF maxF])
 xlabel('t (s)','FontSize',FS);
-ylabel('F_\alpha^{Down} (#/s)','FontSize',FS);
+ylabel('F_\alpha^{bottom} (#/s)','FontSize',FS);
 legend('O_2^+','CO_2^+','O^+','e','location','best')
 legend('boxoff')
 set(gca,'TickDir','Out','FontSize',FS)
@@ -171,12 +171,63 @@ subplot(3,2,6)
 plot(t,Fi.t(1,:),'r--',t,Fi.t(2,:),'r-.',t,Fi.t(3,:),'r:',t,Fe.t(1,:),'b-');
 ylim([minF maxF])
 xlabel('t (s)','FontSize',FS);
-ylabel('F_\alpha^{Up} (#/s)','FontSize',FS);
+ylabel('F_\alpha^{top} (#/s)','FontSize',FS);
 legend('O_2^+','CO_2^+','O^+','e','location','best')
 legend('boxoff')
 set(gca,'TickDir','Out','FontSize',FS)
 
-% figure(3)
+
+%%
+figure(3)
+set(gcf,'Units','normalized','OuterPosition',[.5 0 .25 1],'Color',[1 1 1])
+
+plot(t,Fi.N./Fe.n,'r*',t,Fi.W./Fe.w,'b+')
+legend('F^{north}','F^{west}','location','best')
+%plot(t,Fi.S./Fe.s,'k-',t,Fi.N./Fe.n,'r-',t,Fi.W./Fe.w,'g-',t,Fi.E./Fe.e,'b-',t,Fi.B./Fe.b,'c',t,Fi.T./Fe.t,'m')
+%legend('F^{south}','F^{north}','F^{west}','F^{east}','F^{bottom}','F^{top}','location','best')
+legend('boxoff')
+%plot(t,F.S+F.N+F.W+F.E+F.B+F.T,'k')
+xlabel('t (s)','FontSize',FS);
+ylabel('\eta^\beta=(\Sigma_in_iv_i^\beta)/(n_ev_e^\beta)','FontSize',FS);
+axis tight
+ylim([.975 1.125])
+set(gca,'TickDir','Out','FontSize',FS)
+title(Folder)
+
+figure(4)
+set(gcf,'Units','normalized','OuterPosition',[.66 0 .25 1],'Color',[1 1 1])
+
+plot(t,Fi.n(1,:)./Fe.n,'r.',t,Fi.n(2,:)./Fe.n,'g.',t,Fi.n(1,:)./Fe.n,'b.',t,0,'k')
+legend('O_2^+','CO_2^+','O^+','location','best')
+legend('boxoff')
+xlabel('t (s)','FontSize',FS);
+ylabel('\eta^{north}_i=(n_iv_i^{north})/(n_ev_e^{north})','FontSize',FS);
+axis tight
+ylim([-1 2])
+set(gca,'TickDir','Out','FontSize',FS)
+title(Folder)
+
+%% FFT-ing the signal...
+
+r = Fi.n(2,:)./Fe.n;
+
+figure(5)
+subplot(121)
+plot(t,r,'b.-')
+xlabel('t (s)')
+ylabel('\eta^{north}_{CO_2^+}')
+
+Y = fft(r);
+Y(1) = [];
+
+n = length(Y);
+power = abs(Y(1:floor(n/2))).^2;
+nyquist = 1/2;
+f = (1:n/2)/(n/2)*nyquist;
+subplot(122)
+plot(f,power)
+
+% figure(5)
 % set(gcf,'Units','normalized','OuterPosition',[.5 0 .25 1])
 % subplot(3,2,1)
 % plot(t,mi(1)*Fi.s(1,:),'r--',t,mi(2)*Fi.s(2,:),'r-.',t,mi(3)*Fi.s(3,:),'r:',t,me*Fe.s(1,:),'b-');
@@ -213,7 +264,7 @@ set(gca,'TickDir','Out','FontSize',FS)
 % subplot(3,2,5)
 % plot(t,mi(1)*Fi.b(1,:),'r--',t,mi(2)*Fi.b(2,:),'r-.',t,mi(3)*Fi.b(3,:),'r:',t,me*Fe.b(1,:),'b-');
 % xlabel('t (s)','FontSize',FS);
-% ylabel('F_\alpha^{Down} (kg/s)','FontSize',FS);
+% ylabel('F_\alpha^{bottom} (kg/s)','FontSize',FS);
 % legend('O_2^+','CO_2^+','O^+','e','location','best')
 % legend('boxoff')
 % set(gca,'TickDir','Out','FontSize',FS)
@@ -221,11 +272,13 @@ set(gca,'TickDir','Out','FontSize',FS)
 % subplot(3,2,6)
 % plot(t,mi(1)*Fi.t(1,:),'r--',t,mi(2)*Fi.t(2,:),'r-.',t,mi(3)*Fi.t(3,:),'r:',t,me*Fe.t(1,:),'b-');
 % xlabel('t (s)','FontSize',FS);
-% ylabel('F_\alpha^{Up} (kg/s)','FontSize',FS);
+% ylabel('F_\alpha^{top} (kg/s)','FontSize',FS);
 % legend('O_2^+','CO_2^+','O^+','e','location','best')
 % legend('boxoff')
 % set(gca,'TickDir','Out','FontSize',FS)
 
 
-print(1,'-dps',[Folder,'_TotalFlowPerBoundary.ps'])
-print(2,'-dps',[Folder,'_FlowPerSpeciesPerBoundary.ps'])
+print(1,'-depsc',[Folder,'_TotalFlowPerBoundary.eps'])
+print(2,'-depsc',[Folder,'_FlowPerSpeciesPerBoundary.eps'])
+print(3,'-depsc',[Folder,'_RatioFlowPerBoundary.eps'])
+print(4,'-depsc',[Folder,'_RatioFlowPerSpeciesThruNorth.eps'])

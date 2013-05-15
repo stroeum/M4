@@ -1,5 +1,5 @@
 //
-// time: Fri May 10 20:00:20 2013
+// time: Mon May 13 14:40:42 2013
 //
 // version: 3.2.0 (format), 4.4.4 (DX)
 //
@@ -73,13 +73,13 @@ MyPlaneAndGlyphs_GetLocal_1_out_2 =
     // 
     // node Input[1]: x = 182, y = 76, inputs = 0, label = Variable
     // page group: PlanesGlyphs
-    // parameter: position = 1, name = 'Variable', value = ' ', descriptive = 0, description = 'Vector field', required = 1, visible = 1
+    // parameter: position = 1, name = 'Variable', value = '(none)', descriptive = 1, description = 'Vector field', required = 1, visible = 1
     //
 MyPlaneAndGlyphs_Input_1_out_1 = Variable;
     // 
     // node Input[2]: x = 292, y = 76, inputs = 0, label = List of cut planes
     // page group: PlanesGlyphs
-    // parameter: position = 2, name = 'PlaneList', value = ' ', descriptive = 0, description = 'Plane properties', required = 1, visible = 1
+    // parameter: position = 2, name = 'PlaneList', value = '(none)', descriptive = 1, description = 'Plane properties', required = 1, visible = 1
     //
 MyPlaneAndGlyphs_Input_2_out_1 = PlaneList;
     // 
@@ -224,7 +224,7 @@ MyPlaneAndGlyphs_Post_1_out_1 =
     // 
     // node Input[6]: x = 53, y = 461, inputs = 0, label = Colormap
     // page group: PlanesGlyphs
-    // parameter: position = 3, name = 'Colormap', value = ' ', descriptive = 0, description = 'Colormap used to display the magnitudes', required = 1, visible = 1
+    // parameter: position = 3, name = 'Colormap', value = '(none)', descriptive = 1, description = 'Colormap used to display the magnitudes', required = 1, visible = 1
     //
 MyPlaneAndGlyphs_Input_6_out_1 = Colormap;
     // 
@@ -280,7 +280,7 @@ MyPlaneAndGlyphs_GetLocal_2_out_2 =
     ) [instance: 2, cache: 1];
     // 
     // node Color[2]: x = 103, y = 536, inputs = 5, label = Color
-    // input[2]: defaulting = 1, visible = 1, type = 32, value = "black"
+    // input[2]: defaulting = 1, visible = 1, type = 32, value = "orange"
     // page group: PlanesGlyphs
     //
 MyPlaneAndGlyphs_Color_2_out_1 = 
