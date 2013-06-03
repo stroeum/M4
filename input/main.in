@@ -3,13 +3,13 @@
 -visualization_folder viz_dir
 #-input_file X840000.bin
 #
--bc_type 1 # 0: 1st order Neumann, 1: 2nd order Neumann, 2: zero'ed 2nd derivatives, 3: Non-symmetric "exact" solution, 10: combination of df/dn=0 amd d2f/dn2=0
+-bc_type 0 # 0: 1st order Neumann, 1: 2nd order Neumann, 2: zero'ed 2nd derivatives, 3: Non-symmetric "exact" solution, 10: combination of df/dn=0 amd d2f/dn2=0
 -limiters
--blockers
+#-blockers
 #-smoothing
 #
 -ts_max_steps 100000000
--viz_dstep 10000           # plot every dstep 
+-viz_dstep 2500           # plot every dstep 
 -ts_max_time 1e2 
 #-ts_final_time 1e2 
 #-mi0 5.3135e-26        #_kg, mass of O2+, only single charged ions allowed!
@@ -39,7 +39,7 @@
 #
 -da_grid_x 21
 -da_grid_y 11
--da_grid_z 101
+-da_grid_z 26
 #
 #Simulation parameters
 -in_x_min -100.0e+3       #_m

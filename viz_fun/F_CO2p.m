@@ -13,9 +13,10 @@ Nz = size(raw,1);
 Z = raw(:,1);
 
 F_CO2p_north(1,1:Nz) = raw(:,2);
-
-for n=1:26
-    step = (n-1)*10000;
+dn = 2500;
+N = 729;
+for n=1:N
+    step = (n-1)*dn;
     raw = importdata(['../viz_dir/F_CO2p_north_',num2str(step),'.dat']);
     F_CO2p_north(n+1,1:Nz) = raw(1:Nz,2);
 end
@@ -23,14 +24,14 @@ end
 FS = 16;
 set(gcf,'Units','normalized','OuterPosition',[0 0 .25 1],'Color',[1 1 1])
 hold on
-for n=1:26
-    step = (n-1)*10000; 
+for n=1:N
+    step = (n-1)*dn; 
     plot(F_CO2p_north(n,:),Z*1e-3,'b-')
     xlim([min(min(F_CO2p_north)) max(max(F_CO2p_north))])
     pause(.1);
 end
 hold off
-xlabel('F_{CO_2^+}^{north}(z) (#)','FontSize',FS);
+xlabel('F_{CO_2^+}^{north}(z) (#/s)','FontSize',FS);
 ylabel('z (km)','FontSize',FS);
 legend('Boxoff')
 axis tight

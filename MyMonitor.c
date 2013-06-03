@@ -15,6 +15,7 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
   PetscViewer    fViewer;
   AppCtx         *user = (AppCtx*)ctx;
   PetscLogDouble t0 = user->t0 , t1;
+  DM             da = user->da;
   DM             db = user->db;
   PetscInt       rank;
   PetscInt       istep = user->istep, vizdstep = user->viz_dstep;
@@ -22,6 +23,8 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
   PetscReal      dt;
   PetscBool      xtra_out = user->xtra_out;
   Vec            V;
+  Vec            localU;
+  PetscReal      ****u;
   FILE           *fd;
   PetscInt       flag;
 
@@ -51,14 +54,26 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
     ierr = PetscViewerDestroy(&fViewer); CHKERRQ(ierr);
     
     if(xtra_out) {
-      ierr = DMCreateGlobalVector(db,&V);CHKERRQ(ierr);
-      //PetscPrintf(PETSC_COMM_WORLD,"Extra Diagnostic Record: ...\n"); 
-      ierr = FormIntermediateFunction(U,V,user);CHKERRQ(ierr);
-      //PetscPrintf(PETSC_COMM_WORLD,"Extra Diagnostic Record: DONE\n"); 
+      ierr = DMGetGlobalVector(db,&V);CHKERRQ(ierr);
+      ierr = DMGetLocalVector(da,&localU);CHKERRQ(ierr);
 
+      ierr = DMGlobalToLocalBegin(da,U,INSERT_VALUES,localU);CHKERRQ(ierr);
+      ierr = DMGlobalToLocalEnd(da,U,INSERT_VALUES,localU);CHKERRQ(ierr);
+      ierr = DMDAVecGetArrayDOF(da,localU,&u);CHKERRQ(ierr);
+
+      ierr = FormBCu(u,user);CHKERRQ(ierr);
+
+      //PetscPrintf(PETSC_COMM_WORLD,"Extra Diagnostic Record: ...\n"); 
+      ierr = FormIntermediateFunction(u,V,user);CHKERRQ(ierr);
+      //PetscPrintf(PETSC_COMM_WORLD,"Extra Diagnostic Record: DONE\n"); 
+      
       sprintf(fName, "%s/Y%d.bin",user->dName,istep+step);
       ierr = PetscViewerBinaryOpen(PETSC_COMM_WORLD,fName,FILE_MODE_WRITE, &fViewer); CHKERRQ(ierr);
       ierr = VecView(V,fViewer); CHKERRQ(ierr);
+
+      ierr = DMDAVecRestoreArrayDOF(da,localU,&u);CHKERRQ(ierr);
+      ierr = DMRestoreLocalVector(da,&localU);CHKERRQ(ierr);
+      ierr = DMRestoreGlobalVector(db,&V);CHKERRQ(ierr);
       ierr = PetscViewerDestroy(&fViewer); CHKERRQ(ierr);
     }
   } 

@@ -39,9 +39,28 @@ run_help:
 	reset
 	./main -options_file input/main.in -help
 
+clr_pgm:
+	find .	     \( -name ".*.swp" -o -name ".nfs*"     \) -exec rm -rfv {} \;
+	find .	     \( -name "main"   -o -name "convert" -o -name "*.o" -o -name "*.out" \) -exec rm -rfv {} \;
+
 clr_dat:
-	rm -rfv .nfs* .*.swp input/.*.swp viz_dir/*.dat viz_dir/*.general viz_fun/*.*if* viz_fun/*.png viz_fun/*.pdf viz_fun/*.eps viz_fun/*.ps 
+	find .	     \( -name ".*.swp" -o -name ".nfs*"     \) -exec rm -rfv {} \;
+	find .       \( -name "*.?if*" -o -name "*.png"     \) -exec rm -rfv {} \;
+	find viz_dir \( -name "*.dat"  -o -name "*.general" \) -exec rm -rfv {} \;
+	find output  \( -name "*.dat" 			    \) -exec rm -rfv {} \;
+
 clr_img:
-	rm -rfv .nfs* .*.swp input/.*.swp viz_fun/*.*if* viz_fun/*.png viz_fun/*.pdf viz_fun/*.eps viz_fun/*.ps 
+	find .	     \( -name ".*.swp" -o -name ".nfs*"     \) -exec rm -rfv {} \;
+	find .       \( -name "*.?if*" -o -name "*.png"     \) -exec rm -rfv {} \;
+	find .       \( -name "*.pdf"  -o -name "*ps" 	    \) -exec rm -rfv {} \;
+
 clear:
-	rm -rfv *.o .nfs* .*.swp main convert input/.*.swp output/* viz_dir/*.dat viz_dir/*.general viz_fun/*.*if* viz_fun/*.png viz_dir/log.out ~/${NAME}.sh ~/log${NAME}.*
+	find .	     \( -name ".*.swp" -o -name ".nfs*"     \) -exec rm -rfv {} \;
+	find .	     \( -name "main"   -o -name "convert" -o -name "*.o" -o -name "*.out" \) -exec rm -rfv {} \;
+	find .       \( -name "*.?if*" -o -name "*.png"     \) -exec rm -rfv {} \;
+	find viz_dir \( -name "*.dat"  -o -name "*.general" \) -exec rm -rfv {} \;
+	find output  \( -name "*.bin*" -o -name "*.dat"     \) -exec rm -rfv {} \;
+	rm -rfv  ~/${NAME}.sh ~/log${NAME}.*
+
+stop:
+	sh scripts/stop.sh

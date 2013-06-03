@@ -33,7 +33,6 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 //PetscReal      un[3]={user->un[0],user->un[1],user->un[2]}; // neutral wind
 
   PetscInt       i,j,k,l,xs,ys,zs,xm,ym,zm;
-  Vec            localU;
   PetscReal      ****u;
   PetscReal      X,Y,Z;
   PetscReal      Te,Ti;
@@ -61,10 +60,8 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
     ierr = PetscViewerDestroy(&fViewer);CHKERRQ(ierr);   
     PetscPrintf(PETSC_COMM_WORLD,"Init from %s: DONE\n",fName);
   } else { 
-    // Map U on local U //
-    ierr = DMGetLocalVector(da,&localU);CHKERRQ(ierr);
-
-    ierr = DMDAVecGetArrayDOF(da,localU,&u);CHKERRQ(ierr);
+    // Map U //
+    ierr = DMDAVecGetArrayDOF(da,U,&u);CHKERRQ(ierr);
 
     // Get local grid boundaries //
     ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
@@ -78,15 +75,25 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 
           Te = Interpolate(user->RefProf, 8 ,Z, lin_flat);
           Ti = Interpolate(user->RefProf, 9 ,Z, lin_flat);
+          neo = Interpolate(user->RefProf, 7 ,Z, lin_exp);
           assert(Te>0);
           assert(Ti>0);
-          neo = Interpolate(user->RefProf, 7 ,Z, lin_exp);
-          //if(!(neo>0)) neo = eps.n*n0;
           assert(neo>0);
 
           nio[O2p]  = Interpolate(user->RefPart, O2p ,Z, lin_flat)*neo;
           nio[CO2p] = Interpolate(user->RefPart, CO2p,Z, lin_flat)*neo;
           nio[Op]   = Interpolate(user->RefPart, Op  ,Z, lin_flat)*neo;
+
+          /*
+          Te = 2000;
+          Ti = 2000;
+          neo = 1e11;
+          nio[O2p]  = .71*neo;
+          nio[CO2p] = .25*neo;
+          nio[Op]   = .04*neo;
+          //if(!(neo>0)) neo = eps.n*n0;
+          */
+
           for (l=0; l<3; l++) {
             if (!(nio[l] > 0)) nio[l] = eps.n*n0;
             vio[l] = 100.0;
@@ -168,15 +175,12 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
       }
     }
 
-    ierr = DMDAVecRestoreArrayDOF(da,localU,&u);CHKERRQ(ierr);
-    ierr = DMLocalToGlobalBegin(da,localU,INSERT_VALUES,U);CHKERRQ(ierr);
-    ierr = DMLocalToGlobalEnd(da,localU,INSERT_VALUES,U);CHKERRQ(ierr);
-    ierr = DMRestoreLocalVector(da,&localU);CHKERRQ(ierr);
+    ierr = DMDAVecRestoreArrayDOF(da,U,&u);CHKERRQ(ierr);
   }
 
-  PetscPrintf(PETSC_COMM_WORLD,"ARE WE THERE YET?\n");
+  //PetscPrintf(PETSC_COMM_WORLD,"ARE WE THERE YET?\n");
   // Compute initial BC for u //
-  ierr = FormBCu(U,user);CHKERRQ(ierr);
+  //ierr = FormBCu(U,user);CHKERRQ(ierr);
 
   PetscPrintf(PETSC_COMM_WORLD,"Form Initial Conditions: DONE\n");
   PetscFunctionReturn(0); 
@@ -187,7 +191,7 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 #define __FUNCT__ "FormBCu"
 /* 
    FormBoundaryConditions - Evaluates nonlinear function @ BC (outside the domain), F(u).
-   * U: Up, D: Down, N: North, S: South, E: East, W: West
+   * T: Top, B: Bottom, N: North, S: South, E: East, W: West
    * 8 corners: NWD, SWD, NED, SED, NWU, SWU, NEU, SEU
    * 12 edges: WD, ED, WU, EU, ND, SD, NU, SU, NE, NW, SE, SW
    * 6 faces: N, S, W, E, D, U
@@ -198,7 +202,7 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 .  u - output pointer
 .  ctx - optional user-defined context, as set by SNESSetFunction()
 */
-PetscErrorCode FormBCu(Vec U, void*ctx)
+PetscErrorCode FormBCu(PetscReal ****u, void*ctx)
 {
   PetscErrorCode ierr;
   AppCtx         *user = (AppCtx*)ctx;
@@ -211,8 +215,6 @@ PetscErrorCode FormBCu(Vec U, void*ctx)
   PetscReal      Zmin=user->outZmin,Z;
   PetscInt       bcType = user->bcType;
 
-  PetscReal      ****u;
-  Vec            localU;
 //PetscReal      vi[3][3],ve[3]; // velocity of i,e
   PetscInt       i,j,k,l,m,xs,ys,zs,xm,ym,zm;
   PetscInt       rank;
@@ -226,11 +228,6 @@ PetscErrorCode FormBCu(Vec U, void*ctx)
   // Get local grid boundaries //
   ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
 
-  // Map U on localU //
-  ierr = DMGetLocalVector(da,&localU);CHKERRQ(ierr);
-  ierr = DMGlobalToLocalBegin(da,U,INSERT_VALUES,localU);CHKERRQ(ierr);
-  ierr = DMGlobalToLocalEnd(da,U,INSERT_VALUES,localU);CHKERRQ(ierr);
-  ierr = DMDAVecGetArrayDOF(da,localU,&u);CHKERRQ(ierr);
 
   for (k=zs; k<zs+zm; k++) {
     Z = Zmin + z[k]*L;
@@ -404,7 +401,7 @@ PetscErrorCode FormBCu(Vec U, void*ctx)
   }
   for (j=ys; j<ys+ym; j++) {
     for (i=xs; i<xs+xm; i++) {
-      if(zs==0) {                     // D-boundary //
+      if(zs==0) {                     // B-boundary //
         Z = Zmin + z[zs]*L;
 
         id.z[0] = -1;
@@ -446,7 +443,7 @@ PetscErrorCode FormBCu(Vec U, void*ctx)
           for (l=3; l<19; l++) u[id.z[0]][j][i][l] = u[id.z[1]][j][i][l] ;
         }
       }
-      if(zs+zm==mz) {                 // U-boundary //
+      if(zs+zm==mz) {                 // T-boundary //
         Z = Zmin + z[mz-1]*L;
 
         id.z[0] = mz;
@@ -499,11 +496,259 @@ PetscErrorCode FormBCu(Vec U, void*ctx)
     }
   }
   */
-  ierr = DMDAVecRestoreArrayDOF(da,localU,&u);CHKERRQ(ierr);
-  ierr = DMLocalToGlobalBegin(da,localU,INSERT_VALUES,U);CHKERRQ(ierr);
-  ierr = DMLocalToGlobalEnd(da,localU,INSERT_VALUES,U);CHKERRQ(ierr);
-  ierr = DMRestoreLocalVector(da,&localU);CHKERRQ(ierr);
   PetscFunctionReturn(0);
+}
+
+/* ------------------------------------------------------------------- */
+#undef __FUNCT__
+#define __FUNCT__ "FormBCv"
+/* 
+   FormBCv - Evaluates intermediate function @ BC (outside the domain), F(u).
+   * T: Top, B: Bottom, N: North, S: South, E: East, W: West
+   * 8 corners: NWD, SWD, NED, SED, NWU, SWU, NEU, SEU
+   * 12 edges: WD, ED, WU, EU, ND, SD, NU, SU, NE, NW, SE, SW
+   * 6 faces: N, S, W, E, D, U
+   Input Parameters:
+.  v - input pointer
+
+   Output Parameter:
+.  v - output pointer
+.  ctx - optional user-defined context, as set by SNESSetFunction()
+*/
+
+PetscErrorCode FormBCv(PetscReal ****v, void *ctx)
+{
+  PetscErrorCode ierr;
+  AppCtx         *user = (AppCtx*)ctx;
+  DM             da = (DM)user->da;
+  svi            s = user->s;
+  
+  PetscInt       mx = user->mx, my = user->my, mz = user->mz;
+  PetscInt       rank;
+  PetscInt       i,j,k,l,m,xs,ys,zs,xm,ym,zm;
+
+  PetscReal      *x=user->x,*y=user->y,*z=user->z;
+  stencil        id;
+  PetscInt       bcType = user->bcType;
+  coeff3         D1,D2;
+  coeff2         dh;
+  
+  PetscFunctionBegin;
+
+  MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
+  id.x[0] = 0; id.y[0] = 0; id.z[0] = 0;
+  id.x[1] = 0; id.y[1] = 0; id.z[1] = 0;
+  id.x[2] = 0; id.y[2] = 0; id.z[2] = 0;
+
+  dh.x[0] = 0; dh.y[0] = 0; dh.z[0] = 0;
+  dh.x[1] = 0; dh.y[1] = 0; dh.z[1] = 0;
+
+  // Get local grid boundaries //
+  ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
+
+  for (j=ys; j<ys+ym; j++) {
+    for (i=xs; i<xs+xm; i++) {
+      if(zs==0) {                     // B-boundary //
+        id.z[0] = -1;
+        id.z[1] = 0;
+        id.z[2] = 1;
+        dh.z[0] =    z[id.z[2]] - z[id.z[1]] ;
+        dh.z[1] = 2*(z[id.z[2]] - z[id.z[1]]);
+        D1.z[0] = - 1.0/dh.z[0] - 1.0/dh.z[1]; 
+        D1.z[1] =   1.0/dh.z[0] - 1.0/(dh.z[0]-dh.z[1]); 
+        D1.z[2] =   1.0/dh.z[1] + 1.0/(dh.z[0]-dh.z[1]);
+        D2.z[0] =   2.0/(dh.z[0] * dh.z[1]); 
+        D2.z[1] =   2.0/(dh.z[0] * (dh.z[0]-dh.z[1])); 
+        D2.z[2] =   2.0/(dh.z[1] * (dh.z[1]-dh.z[0]));
+        
+        if (bcType==0 || bcType==11) { // 1st order Neumann BC
+          for (l=0; l<9; l++) v[id.z[0]][j][i][l] = v[id.z[1]][j][i][l];
+        }
+        if (bcType==1) { // 2nd Order Neumann BC
+          for (l=0; l<9; l++) v[id.z[0]][j][i][l] = -D1.z[1]/D1.z[0]*v[id.z[1]][j][i][l]-D1.z[2]/D1.z[0]*v[id.z[2]][j][i][l];
+        }
+        if (bcType==2) { // Continuous 2nd derivative BC
+          for (l=0; l<9; l++) v[id.z[0]][j][i][l] = -D2.z[1]/D2.z[0]*v[id.z[1]][j][i][l]-D2.z[2]/D2.z[0]*v[id.z[2]][j][i][l];
+        }
+        if (bcType==10) { // Combination of zero'ed 1st and 2nd derivatives
+          for (m=0; m<3; m++) {
+            v[id.z[0]][j][i][s.ve[m]] = -D2.z[1]/D2.z[0]*v[id.z[1]][j][i][s.ve[m]]-D2.z[2]/D2.z[0]*v[id.z[2]][j][i][s.ve[m]];
+            v[id.z[0]][j][i][s.E[m]]  = -D1.z[1]/D1.z[0]*v[id.z[1]][j][i][s.E[m]] -D1.z[2]/D1.z[0]*v[id.z[2]][j][i][s.E[m]];
+            v[id.z[0]][j][i][s.J[m]]  = -D1.z[1]/D1.z[0]*v[id.z[1]][j][i][s.J[m]] -D1.z[2]/D1.z[0]*v[id.z[2]][j][i][s.J[m]];
+          }
+        }
+      }
+      if(zs+zm==mz) {                 // T-boundary //
+        id.z[0] = mz;
+        id.z[1] = mz-1;
+        id.z[2] = mz-2;
+        dh.z[0] =    z[id.z[2]] - z[id.z[1]] ;
+        dh.z[1] = 2*(z[id.z[2]] - z[id.z[1]]);
+        D1.z[0] = - 1.0/dh.z[0] - 1.0/dh.z[1]; 
+        D1.z[1] =   1.0/dh.z[0] - 1.0/(dh.z[0]-dh.z[1]); 
+        D1.z[2] =   1.0/dh.z[1] + 1.0/(dh.z[0]-dh.z[1]);
+        D2.z[0] =   2.0/(dh.z[0] * dh.z[1]); 
+        D2.z[1] =   2.0/(dh.z[0] * (dh.z[0]-dh.z[1])); 
+        D2.z[2] =   2.0/(dh.z[1] * (dh.z[1]-dh.z[0]));
+
+        if (bcType==0 || bcType==11) { // 1st order Neumann BC
+          for (l=0; l<9; l++) v[id.z[0]][j][i][l] = v[id.z[1]][j][i][l];
+        }
+        if (bcType==1) { // 2nd Order Neumann BC
+          for (l=0; l<9; l++) v[id.z[0]][j][i][l] = -D1.z[1]/D1.z[0]*v[id.z[1]][j][i][l]-D1.z[2]/D1.z[0]*v[id.z[2]][j][i][l];
+        }
+        if (bcType==2) { // Continuous 2nd derivative BC
+          for (l=0; l<9; l++) v[id.z[0]][j][i][l] = -D2.z[1]/D2.z[0]*v[id.z[1]][j][i][l]-D2.z[2]/D2.z[0]*v[id.z[2]][j][i][l];
+        }
+        if (bcType==10) { // Combination of zero'ed 1st and 2nd derivatives
+          for (m=0; m<3; m++) {
+            v[id.z[0]][j][i][s.ve[m]] = -D2.z[1]/D2.z[0]*v[id.z[1]][j][i][s.ve[m]]-D2.z[2]/D2.z[0]*v[id.z[2]][j][i][s.ve[m]];
+            v[id.z[0]][j][i][s.E[m]]  = -D1.z[1]/D1.z[0]*v[id.z[1]][j][i][s.E[m]] -D1.z[2]/D1.z[0]*v[id.z[2]][j][i][s.E[m]];
+            v[id.z[0]][j][i][s.J[m]]  = -D1.z[1]/D1.z[0]*v[id.z[1]][j][i][s.J[m]] -D1.z[2]/D1.z[0]*v[id.z[2]][j][i][s.J[m]];
+          }
+        }
+      }
+    }
+  }
+
+  for (k=zs; k<zs+zm; k++) {
+    for (j=ys; j<ys+ym; j++) {
+      if(xs==0) {                     // W-boundary //
+        id.x[0] = -1;
+        id.x[1] = 0;
+        id.x[2] = 1;
+        dh.x[0] =    x[id.x[2]] - x[id.x[1]] ;
+        dh.x[1] = 2*(x[id.x[2]] - x[id.x[1]]);
+        D1.x[0] = - 1.0/dh.x[0] - 1.0/dh.x[1]; 
+        D1.x[1] =   1.0/dh.x[0] - 1.0/(dh.x[0]-dh.x[1]); 
+        D1.x[2] =   1.0/dh.x[1] + 1.0/(dh.x[0]-dh.x[1]);
+        D2.x[0] =   2.0/(dh.x[0] * dh.x[1]); 
+        D2.x[1] =   2.0/(dh.x[0] * (dh.x[0]-dh.x[1])); 
+        D2.x[2] =   2.0/(dh.x[1] * (dh.x[1]-dh.x[0]));
+        
+        if (bcType==0 || bcType==11) { // 1st order Neumann BC
+          for (l=0; l<9; l++) v[k][j][id.x[0]][l] = v[k][j][id.x[1]][l];
+        }
+        if (bcType==1) { // 2nd Order Neumann BC
+          for (l=0; l<9; l++) v[k][j][id.x[0]][l] = -D1.x[1]/D1.x[0]*v[k][j][id.x[1]][l]-D1.x[2]/D1.x[0]*v[k][j][id.x[2]][l];
+        }
+        if (bcType==2) { // Continuous 2nd derivative BC
+          for (l=0; l<9; l++) v[k][j][id.x[0]][l] = -D2.x[1]/D2.x[0]*v[k][j][id.x[1]][l]-D2.x[2]/D2.x[0]*v[k][j][id.x[2]][l];
+        }
+        if (bcType==10) { // Combination of zero'ed 1st and 2nd derivatives
+          for (m=0; m<3; m++) {
+            v[k][j][id.x[0]][s.ve[m]] = -D2.x[1]/D2.x[0]*v[k][j][id.x[1]][s.ve[m]]-D2.x[2]/D2.x[0]*v[k][j][id.x[2]][s.ve[m]];
+            v[k][j][id.x[0]][s.E[m]]  = -D1.x[1]/D1.x[0]*v[k][j][id.x[1]][s.E[m]] -D1.x[2]/D1.x[0]*v[k][j][id.x[2]][s.E[m]];
+            v[k][j][id.x[0]][s.J[m]]  = -D1.x[1]/D1.x[0]*v[k][j][id.x[1]][s.J[m]] -D1.x[2]/D1.x[0]*v[k][j][id.x[2]][s.J[m]];
+          }
+        }
+      }
+      if(xs+xm==mx) {                 // E-boundary //
+        id.x[0] = mx;
+        id.x[1] = mx-1;
+        id.x[2] = mx-2;
+        dh.x[0] =    x[id.x[2]] - x[id.x[1]] ;
+        dh.x[1] = 2*(x[id.x[2]] - x[id.x[1]]);
+        D1.x[0] = - 1.0/dh.x[0] - 1.0/dh.x[1]; 
+        D1.x[1] =   1.0/dh.x[0] - 1.0/(dh.x[0]-dh.x[1]); 
+        D1.x[2] =   1.0/dh.x[1] + 1.0/(dh.x[0]-dh.x[1]);
+        D2.x[0] =   2.0/(dh.x[0] * dh.x[1]); 
+        D2.x[1] =   2.0/(dh.x[0] * (dh.x[0]-dh.x[1])); 
+        D2.x[2] =   2.0/(dh.x[1] * (dh.x[1]-dh.x[0]));
+
+        if (bcType==0 || bcType==11) { // 1st order Neumann BC
+          for (l=0; l<9; l++) v[k][j][id.x[0]][l] = v[k][j][id.x[1]][l];
+        }
+        if (bcType==1) { // 2nd Order Neumann BC
+          for (l=0; l<9; l++) v[k][j][id.x[0]][l] = -D1.x[1]/D1.x[0]*v[k][j][id.x[1]][l]-D1.x[2]/D1.x[0]*v[k][j][id.x[2]][l];
+        }
+        if (bcType==2) { // Continuous 2nd derivative BC
+          for (l=0; l<9; l++) v[k][j][id.x[0]][l] = -D2.x[1]/D2.x[0]*v[k][j][id.x[1]][l]-D2.x[2]/D2.x[0]*v[k][j][id.x[2]][l];
+        }
+        if (bcType==10) { // Combination of zero'ed 1st and 2nd derivatives
+          for (m=0; m<3; m++) {
+            v[k][j][id.x[0]][s.ve[m]] = -D2.x[1]/D2.x[0]*v[k][j][id.x[1]][s.ve[m]]-D2.x[2]/D2.x[0]*v[k][j][id.x[2]][s.ve[m]];
+            v[k][j][id.x[0]][s.E[m]]  = -D1.x[1]/D1.x[0]*v[k][j][id.x[1]][s.E[m]] -D1.x[2]/D1.x[0]*v[k][j][id.x[2]][s.E[m]];
+            v[k][j][id.x[0]][s.J[m]]  = -D1.x[1]/D1.x[0]*v[k][j][id.x[1]][s.J[m]] -D1.x[2]/D1.x[0]*v[k][j][id.x[2]][s.J[m]];
+          }
+        }
+      }
+    }
+  }
+  for (i=xs; i<xs+xm; i++) {
+    for (k=zs; k<zs+zm; k++) {
+      if(ys==0) {                     // S-boundary //
+        id.y[0] = -1;
+        id.y[1] = 0;
+        id.y[2] = 1;
+        dh.y[0] =    y[id.y[2]] - y[id.y[1]] ;
+        dh.y[1] = 2*(y[id.y[2]] - y[id.y[1]]);
+        D1.y[0] = - 1.0/dh.y[0] - 1.0/dh.y[1]; 
+        D1.y[1] =   1.0/dh.y[0] - 1.0/(dh.y[0]-dh.y[1]); 
+        D1.y[2] =   1.0/dh.y[1] + 1.0/(dh.y[0]-dh.y[1]);
+        D2.y[0] =   2.0/(dh.y[0] * dh.y[1]); 
+        D2.y[1] =   2.0/(dh.y[0] * (dh.y[0]-dh.y[1])); 
+        D2.y[2] =   2.0/(dh.y[1] * (dh.y[1]-dh.y[0]));
+        
+        if (bcType==0 || bcType==11) { // 1st order Neumann BC
+          for (l=0; l<9; l++) v[k][id.y[0]][i][l] = v[k][id.y[1]][i][l];
+        }
+        if (bcType==1) { // 2nd Order Neumann BC
+          for (l=0; l<9; l++) v[k][id.y[0]][i][l] = -D1.y[1]/D1.y[0]*v[k][id.y[1]][i][l]-D1.y[2]/D1.y[0]*v[k][id.y[2]][i][l];
+        }
+        if (bcType==2) { // Continuous 2nd derivative BC
+          for (l=0; l<9; l++) v[k][id.y[0]][i][l] = -D2.y[1]/D2.y[0]*v[k][id.y[1]][i][l]-D2.y[2]/D2.y[0]*v[k][id.y[2]][i][l];
+        }
+        if (bcType==10) { // Combination of zero'ed 1st and 2nd derivatives
+          for (m=0; m<3; m++) {
+            v[k][id.y[0]][i][s.ve[m]] = -D2.y[1]/D2.y[0]*v[k][id.y[1]][i][s.ve[m]]-D2.y[2]/D2.y[0]*v[k][id.y[2]][i][s.ve[m]];
+            v[k][id.y[0]][i][s.E[m]]  = -D1.y[1]/D1.y[0]*v[k][id.y[1]][i][s.E[m]] -D1.y[2]/D1.y[0]*v[k][id.y[2]][i][s.E[m]];
+            v[k][id.y[0]][i][s.J[m]]  = -D1.y[1]/D1.y[0]*v[k][id.y[1]][i][s.J[m]] -D1.y[2]/D1.y[0]*v[k][id.y[2]][i][s.J[m]];
+          }
+        }
+      }
+      if(ys+ym==my) {                 // N-boundary //
+        id.y[0] = my;
+        id.y[1] = my-1;
+        id.y[2] = my-2;
+        dh.y[0] =    y[id.y[2]] - y[id.y[1]] ;
+        dh.y[1] = 2*(y[id.y[2]] - y[id.y[1]]);
+        D1.y[0] = - 1.0/dh.y[0] - 1.0/dh.y[1]; 
+        D1.y[1] =   1.0/dh.y[0] - 1.0/(dh.y[0]-dh.y[1]); 
+        D1.y[2] =   1.0/dh.y[1] + 1.0/(dh.y[0]-dh.y[1]);
+        D2.y[0] =   2.0/(dh.y[0] * dh.y[1]); 
+        D2.y[1] =   2.0/(dh.y[0] * (dh.y[0]-dh.y[1])); 
+        D2.y[2] =   2.0/(dh.y[1] * (dh.y[1]-dh.y[0]));
+        
+        if (bcType==0 || bcType==11) { // 1st order Neumann BC
+          for (l=0; l<9; l++) v[k][id.y[0]][i][l] = v[k][id.y[1]][i][l];
+        }
+        if (bcType==1) { // 2nd Order Neumann BC
+          for (l=0; l<9; l++) v[k][id.y[0]][i][l] = -D1.y[1]/D1.y[0]*v[k][id.y[1]][i][l]-D1.y[2]/D1.y[0]*v[k][id.y[2]][i][l];
+        }
+        if (bcType==2) { // Continuous 2nd derivative BC
+          for (l=0; l<9; l++) v[k][id.y[0]][i][l] = -D2.y[1]/D2.y[0]*v[k][id.y[1]][i][l]-D2.y[2]/D2.y[0]*v[k][id.y[2]][i][l];
+        }
+        if (bcType==10) { // Combination of zero'ed 1st and 2nd derivatives
+          for (m=0; m<3; m++) {
+            v[k][id.y[0]][i][s.ve[m]] = -D2.y[1]/D2.y[0]*v[k][id.y[1]][i][s.ve[m]]-D2.y[2]/D2.y[0]*v[k][id.y[2]][i][s.ve[m]];
+            v[k][id.y[0]][i][s.E[m]]  = -D1.y[1]/D1.y[0]*v[k][id.y[1]][i][s.E[m]] -D1.y[2]/D1.y[0]*v[k][id.y[2]][i][s.E[m]];
+            v[k][id.y[0]][i][s.J[m]]  = -D1.y[1]/D1.y[0]*v[k][id.y[1]][i][s.J[m]] -D1.y[2]/D1.y[0]*v[k][id.y[2]][i][s.J[m]];
+          }
+        }
+      }
+    }
+  }   
+  /*
+  if (rank == 7) { 
+    for (k=mz-2;k<=mz;k++) for (j=my-2;j<=my;j++) for (i=mx-2;i<=mx;i++) 
+      if (! ( (i==mx && j==my) || (i==mx && k==mz) || (j==my && k==mz) ) ) {
+        PetscPrintf(PETSC_COMM_SELF,"@[%2d][%2d][%2d] ve=[%2.5e %2.5e %2.5e]; J=[%2.5e %2.5e %2.5e]; E=[%2.5e %2.5e %2.5e]\n",i,j,k,v[k][j][i][0]*user->v0,v[k][j][i][1]*user->v0,v[k][j][i][2]*user->v0,v[k][j][i][3]*qe*user->n0*user->v0,v[k][j][i][4]*qe*user->n0*user->v0,v[k][j][i][5]*qe*user->n0*user->v0,v[k][j][i][6]*user->v0*user->B0,v[k][j][i][7]*user->v0*user->B0,v[k][j][i][8]*user->v0*user->B0);
+      }
+    }
+    */
+
+  PetscFunctionReturn(0); 
 }
 
 /* ------------------------------------------------------------------- */
@@ -521,13 +766,11 @@ PetscErrorCode FormBCu(Vec U, void*ctx)
 .  U - output vector
 .  V - output vector
 */
-
-PetscErrorCode CheckValues(Vec U, Vec V,void *ctx)
+PetscErrorCode CheckValues(PetscReal ****u,PetscReal ****v,void *ctx)
 {
   PetscErrorCode ierr;
   AppCtx         *user = (AppCtx*)ctx;
   DM             da = (DM)user->da;
-  DM             db = (DM)user->db;
   dvi            d = user->d;
   svi            s = user->s;
   tolerance      eps = user->eps;
@@ -540,8 +783,6 @@ PetscErrorCode CheckValues(Vec U, Vec V,void *ctx)
   PetscReal      Zmin = user->outZmin;
   PetscReal      L=user->L;
   PetscInt       i,j,k,l,m,xs,ys,zs,xm,ym,zm;
-  PetscReal      ****u,****v;
-  Vec            localU,localV;
 
   PetscFunctionBegin;
   MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
@@ -549,17 +790,6 @@ PetscErrorCode CheckValues(Vec U, Vec V,void *ctx)
   // Get local grid boundaries //
   ierr = DMDAGetGhostCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
 
-  // Map U,V on localU, localV //
-  ierr = DMGetLocalVector(da,&localU);CHKERRQ(ierr);
-  ierr = DMGetLocalVector(db,&localV);CHKERRQ(ierr);
-  ierr = DMGlobalToLocalBegin(da,U,INSERT_VALUES,localU);CHKERRQ(ierr);
-  ierr = DMGlobalToLocalBegin(db,V,INSERT_VALUES,localV);CHKERRQ(ierr);
-  ierr = DMGlobalToLocalEnd(da,U,INSERT_VALUES,localU);CHKERRQ(ierr);
-  ierr = DMGlobalToLocalEnd(db,V,INSERT_VALUES,localV);CHKERRQ(ierr);
-
-  ierr = DMDAVecGetArrayDOF(da,localU,&u);CHKERRQ(ierr);
-  ierr = DMDAVecGetArrayDOF(db,localV,&v);CHKERRQ(ierr);
-  
   // Check values //
   for (k=zs; k<zs+zm; k++) {
     Z = Zmin + z[k]*L; 
@@ -606,19 +836,208 @@ PetscErrorCode CheckValues(Vec U, Vec V,void *ctx)
     }
   }
 
-  // Clean temporary variables //
-  ierr = DMDAVecRestoreArrayDOF(db,localV,&v);CHKERRQ(ierr);
-  ierr = DMDAVecRestoreArrayDOF(da,localU,&u);CHKERRQ(ierr);
+  PetscFunctionReturn(0);
+}
 
-  ierr = DMLocalToGlobalBegin(db,localV,INSERT_VALUES,V);CHKERRQ(ierr);
-  ierr = DMLocalToGlobalBegin(da,localU,INSERT_VALUES,U);CHKERRQ(ierr);
-  
-  ierr = DMLocalToGlobalEnd(da,localU,INSERT_VALUES,U);CHKERRQ(ierr);
-  ierr = DMRestoreLocalVector(da,&localU);CHKERRQ(ierr);
+/* ------------------------------------------------------------------- */
+#undef __FUNCT__
+#define __FUNCT__ "CalculateFluxes"
+/* 
+   CalculateFlows - Evaluates Fluxes at BC of the simulation domain.
 
-  ierr = DMLocalToGlobalEnd(db,localV,INSERT_VALUES,V);CHKERRQ(ierr);
-  ierr = DMRestoreLocalVector(db,&localV);CHKERRQ(ierr);
+   Input Parameters:
+.  t - current time
+.  u - input pointer
+.  v - input pointer
 
+   Output Parameter:
+.  ctx - optional user-defined context, as set by SNESSetFunction()
+*/
+PetscErrorCode CalculateFluxes(PetscReal t, PetscInt step, PetscReal ****u, PetscReal ****v, void *ctx)
+{
+
+  PetscErrorCode ierr;
+  AppCtx         *user = (AppCtx*)ctx;
+  PetscReal      /*Xmin = user->outXmin, Ymin = user->outYmin,*/ Zmin = user->outZmin;
+  PetscReal      n0 = user->n0, v0 = user->v0;
+  PetscReal      *x = user->x, *y = user->y, *z = user->z;
+  PetscReal      DX,DY,DZ;
+  PetscInt       mx = user->mx, my = user->my, mz = user->mz;
+  DM             da = user->da;
+  PetscReal      L = user->L;
+  dvi            d = user->d;
+  svi            s = user->s;
+
+  FILE           *nFile;
+  char           fName[PETSC_MAX_PATH_LEN];
+  PetscInt       rank;
+  PetscInt       i,j,k,l,m,xs,ys,zs,xm,ym,zm;
+  PetscInt       imin,imax,jmin,jmax,kmin,kmax;
+  PetscReal      ne=0,ni[3]={0.0,0.0,0.0},ve[3],vi[3][3];
+  PetscReal      Fe[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  PetscReal      Fi[3][6] = { {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}};
+  PetscReal      /*X,Y,*/Z;
+
+  PetscFunctionBegin;
+
+  MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
+
+  // Get local grid boundaries //
+  ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
+
+  imin = 0;
+  imax = mx-1;
+  jmin = 0;
+  jmax = my-1;
+  kmin = 0;
+  kmax = mz-1;
+
+  // Calculate the flows through the boundaries of the PLOTTED domain //
+  PetscPrintf(PETSC_COMM_WORLD,"START FLUX CALCULATIONS.\n");
+  // W-E flows //
+  for (j=ys; j<ys+ym; j++) {
+    // Define y-space increment //
+    if (j==0)         DY = (y[   1]-y[   0])*L    ;
+    else if (j==my-1) DY = (y[my-1]-y[my-2])*L    ;
+    else              DY = (y[ j+1]-y[ j-1])*L/2.0;
+
+    for (k=zs; k<zs+zm; k++) {
+      // Define z-space increment //
+      if (k==0)         DZ = (z[   1]-z[   0])*L    ;
+      else if (k==mz-1) DZ = (z[mz-1]-z[mz-2])*L    ;
+      else              DZ = (z[ k+1]-z[ k-1])*L/2.0;
+
+      // W-flow //
+      i = imin;
+      ne = 0.0;
+      for (l=0; l<3; l++) {
+        ni[l]    = u[k][j][i][d.ni[l]];
+        vi[l][0] = u[k][j][i][d.vi[l][0]];
+        ne += ni[l];
+        Fi[l][0] -= ni[l]*n0 * vi[l][0]*v0 * DY*DZ;
+      }
+      ve[0] = v[k][j][i][s.ve[0]];
+      Fe[0] -= ne*n0 * ve[0]*v0 * DY*DZ;
+
+      // E-flow //
+      i = imax;
+      ne = 0.0;
+      for (l=0; l<3; l++) {
+        ni[l] = u[k][j][i][d.ni[l]];
+        vi[l][0] = u[k][j][i][d.vi[l][0]];
+        ne += ni[l];
+        Fi[l][1] += ni[l]*n0 * vi[l][0]*v0 * DY*DZ;
+      }
+      ve[0] = v[k][j][i][s.ve[0]];
+      Fe[1] += ne*n0 * ve[0]*v0 * DY*DZ;
+    }
+  }
+
+  // S-N flows //
+  for (k=zs; k<zs+zm; k++) {
+    // Define z-space increment //
+    if (k==0)         DZ = (z[   1]-z[   0])*L    ;
+    else if (k==mz-1) DZ = (z[mz-1]-z[mz-2])*L    ;
+    else              DZ = (z[ k+1]-z[ k-1])*L/2.0;
+
+    for (i=xs; i<xs+xm; i++) {
+
+      // Define x-space increment //
+      if (i==0)         DX = (x[   1]-x[   0])*L    ;
+      else if (i==mx-1) DX = (x[mx-1]-x[mx-2])*L    ;
+      else              DX = (x[ i+1]-x[ i-1])*L/2.0;
+
+      // S-flow //
+      j = jmin;
+      ne = 0.0;
+      for (l=0; l<3; l++) {
+        ni[l] = u[k][j][i][d.ni[l]];
+        vi[l][1] = u[k][j][i][d.vi[l][1]];
+        ne += ni[l];
+        Fi[l][2] -= ni[l]*n0 * vi[l][1]*v0 * DZ*DX;
+      }
+      ve[1] = v[k][j][i][s.ve[1]];
+      Fe[2] -= ne*n0 * ve[1]*v0 * DZ*DX;
+     // if(i==0) printf("@%d z=%12.6e\tnO2+=%12.6e\tvO2+=%12.6e\tDY=%12.6e\tDZ=%12.6e\n", rank, Zmin + z[k]*L, u[k][j][i][d.ni[0]]*n0,u[k][j][i][d.vi[0][1]]*v0,DY,DZ);
+
+      // N-flow //
+      j = jmax;
+      ne = 0.0;
+      for (l=0; l<3; l++) {
+        ni[l] = u[k][j][i][d.ni[l]];
+        vi[l][1] = u[k][j][i][d.vi[l][1]];
+        ne += ni[l];
+        Fi[l][3] += ni[l]*n0 * vi[l][1]*v0 * DZ*DX;
+      }
+      ve[1] = v[k][j][i][s.ve[1]];
+      Fe[3] += ne*n0 * ve[1]*v0 * DZ*DX;
+
+    }
+  }
+
+  // B-T flows //
+  for (i=xs; i<xs+xm; i++) {
+    // Define x-space increment //
+    if (i==0)         DX = (x[   1]-x[   0])*L    ;
+    else if (i==mx-1) DX = (x[mx-1]-x[mx-2])*L    ;
+    else              DX = (x[ i+1]-x[ i-1])*L/2.0;
+
+    for (j=ys; j<ys+ym; j++) {
+      // Define y-space increment //
+      if (j==0)         DY = (y[   1]-y[   0])*L    ;
+      else if (j==my-1) DY = (y[my-1]-y[my-2])*L    ;
+      else              DY = (y[ j+1]-y[ j-1])*L/2.0;
+
+      // B-flow //
+      k = kmin;
+      ne = 0.0;
+      for (l=0; l<3; l++) {
+        ni[l] = u[k][j][i][d.ni[l]];
+        vi[l][2] = u[k][j][i][d.vi[l][2]];
+        ne += ni[l]; 
+        Fi[l][4] -= ni[l]*n0 * vi[l][2]*v0 * DX*DY;
+      }
+      ve[2] = v[k][j][i][s.ve[2]];
+      Fe[4] -= ne*n0 *ve[2]*v0 * DX*DY;
+
+      // T-flow //
+      k = kmax;
+      ne = 0.0;
+      for (l=0; l<3; l++) {
+        ni[l] = u[k][j][i][d.ni[l]];
+        vi[l][2] = u[k][j][i][d.vi[l][2]];
+        ne += ni[l];
+        Fi[l][5] += ni[l]*n0 * vi[l][2]*v0 * DX*DY;
+      }
+      ve[2] = v[k][j][i][s.ve[2]];
+      Fe[5] += ne*n0 * ve[2]*v0 * DX*DY;
+    }
+  }
+
+  // Summing subdomain values //
+  /*
+  m = MPI_Allreduce(MPI_IN_PLACE,&Fi[0][0],3*6,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
+  m = MPI_Allreduce(MPI_IN_PLACE,&Fe      ,6  ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
+  */
+
+  // Fill the diagnotics.dat file //
+  /*
+  if (rank==0) {
+    sprintf(fName,"%s/diagnostics.dat",user->vName);
+    nFile = fopen(fName,"w");
+    if (step==0) 
+      fprintf(nFile,"t           \tF.w(O2+)    \tF.e(O2+)    \tF.s(O2+)    \tF.n(O2+)    \tF.b(O2+)    \tF.t(O2+)    \tF.w(CO2+)   \tF.e(CO2+)   \tF.s(CO2+)   \tF.n(CO2+)   \tF.b(CO2+)   \tF.t(CO2+)   \tF.w(O+)     \tF.e(O+)     \tF.s(O+)     \tF.n(O+)     \tF.b(O+)     \tF.t(O+)     \tF.w(e)      \tF.e(e)      \tF.s(e)      \tF.n(e)      \tF.b(e)      \tF.t(e)      \n");
+    
+    fprintf(nFile,"%12.6e\t",t);
+    for (l=0; l<3; l++) 
+      for (m=0; m<6; m++) 
+        fprintf(nFile,"%12.6e\t",Fi[l][m]);
+    for (m=0; m<6; m++)
+      fprintf(nFile,"%12.6e\t",Fe[m]);
+    fprintf(nFile,"\n");
+    fclose(nFile);
+  }
+  */
   PetscFunctionReturn(0);
 }
 
@@ -635,7 +1054,7 @@ PetscErrorCode CheckValues(Vec U, Vec V,void *ctx)
 .  V - output vector
 .  ctx - optional user-defined context, as set by SNESSetFunction()
 */
-PetscErrorCode FormIntermediateFunction(Vec U, Vec V,void *ctx)
+PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 {
   PetscErrorCode ierr;
   AppCtx         *user = (AppCtx*)ctx;
@@ -648,9 +1067,7 @@ PetscErrorCode FormIntermediateFunction(Vec U, Vec V,void *ctx)
   PetscReal      n0 = user->n0, v0 = user->v0, p0 = user->p0;
   PetscReal      un[3] = {user->un[0]/v0, user->un[1]/v0, user->un[2]/v0};       // neutral wind
   PetscInt       rank;
-  PetscInt       i,j,k,l,m,xs,ys,zs,xm,ym,zm;
-  PetscReal      ****u,****v;
-  Vec            localU,localV;
+  PetscInt       i,j,k,m,xs,ys,zs,xm,ym,zm;
   PetscReal      vi[3][3],ve[3]; // velocity of i,e
   PetscReal      E[3];  // E-field
   PetscReal      J[3];  // total conduction current
@@ -667,11 +1084,13 @@ PetscErrorCode FormIntermediateFunction(Vec U, Vec V,void *ctx)
   PetscReal      B[3];
   diff           dB[3],dpe;
   stencil        id;
+  PetscReal      ****v;
   PetscInt       bcType = user->bcType;
   coeff3         D1,D2;
   coeff2         dh;
   
   PetscFunctionBegin;
+  ierr = DMDAVecGetArrayDOF(db,V,&v);CHKERRQ(ierr);
 
   MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
   id.x[0] = 0; id.y[0] = 0; id.z[0] = 0;
@@ -687,15 +1106,6 @@ PetscErrorCode FormIntermediateFunction(Vec U, Vec V,void *ctx)
 //printf("@%d, xs=%d\txs+xm=%d\tys=%d\tys+ym=%d\tzs=%d\tzs+zm=%d\n",rank,xs,xs+xm,ys,ys+ym,zs,zs+zm);
 //exit(1);
 
-  // Map U on local U //
-  ierr = DMGetLocalVector(da,&localU);CHKERRQ(ierr);
-  ierr = DMGlobalToLocalBegin(da,U,INSERT_VALUES,localU);CHKERRQ(ierr);
-  ierr = DMGlobalToLocalEnd(da,U,INSERT_VALUES,localU);CHKERRQ(ierr);
-  ierr = DMDAVecGetArrayDOF(da,localU,&u);CHKERRQ(ierr);
-
-  // Create localV //
-  ierr = DMGetLocalVector(db,&localV);CHKERRQ(ierr);
-  ierr = DMDAVecGetArrayDOF(db,localV,&v);CHKERRQ(ierr);
   /*
   if (rank == 0) { 
     printf("step == %d\n",user->cnt);
@@ -814,9 +1224,13 @@ PetscErrorCode FormIntermediateFunction(Vec U, Vec V,void *ctx)
         ve[0] = ( (ni[O2p]*vi[O2p][0] + ni[CO2p]*vi[CO2p][0] + ni[Op]*vi[Op][0]) - J[0] )/ ne;
         ve[1] = ( (ni[O2p]*vi[O2p][1] + ni[CO2p]*vi[CO2p][1] + ni[Op]*vi[Op][1]) - J[1] )/ ne;
         ve[2] = ( (ni[O2p]*vi[O2p][2] + ni[CO2p]*vi[CO2p][2] + ni[Op]*vi[Op][2]) - J[2] )/ ne;
-        for (m=0; m<1; m++)
-          if (ne<=user->eps.n)
+        /*
+        for (m=0; m<3; m++)
+          if (ne<=user->eps.n){
             ve[m] = 0.0;
+            PetscPrintf(PETSC_COMM_WORLD,"HERE is the PROBLEM\n");
+          }
+        */
         //if (i==0 && j==0 && k==0) printf("dz=%2.1e km, nu_en=%2.5e ve=[%2.3e %2.3e %2.3e] un=[%2.3e %2.3e %2.3e]\n", dh.z[0],nu_en[CO2]+nu_en[O], ve[0]*v0,ve[1]*v0,ve[2]*v0,un[0]*v0,un[1]*v0,un[2]*v0);
         
         // E-field //
@@ -833,221 +1247,7 @@ PetscErrorCode FormIntermediateFunction(Vec U, Vec V,void *ctx)
       }
     }
   }
-
-  for (j=ys; j<ys+ym; j++) {
-    for (i=xs; i<xs+xm; i++) {
-      if(zs==0) {                     // D-boundary //
-        id.z[0] = -1;
-        id.z[1] = 0;
-        id.z[2] = 1;
-        dh.z[0] =    z[id.z[2]] - z[id.z[1]] ;
-        dh.z[1] = 2*(z[id.z[2]] - z[id.z[1]]);
-        D1.z[0] = - 1.0/dh.z[0] - 1.0/dh.z[1]; 
-        D1.z[1] =   1.0/dh.z[0] - 1.0/(dh.z[0]-dh.z[1]); 
-        D1.z[2] =   1.0/dh.z[1] + 1.0/(dh.z[0]-dh.z[1]);
-        D2.z[0] =   2.0/(dh.z[0] * dh.z[1]); 
-        D2.z[1] =   2.0/(dh.z[0] * (dh.z[0]-dh.z[1])); 
-        D2.z[2] =   2.0/(dh.z[1] * (dh.z[1]-dh.z[0]));
-        
-        if (bcType==0 || bcType==11) { // 1st order Neumann BC
-          for (l=0; l<9; l++) v[id.z[0]][j][i][l] = v[id.z[1]][j][i][l];
-        }
-        if (bcType==1) { // 2nd Order Neumann BC
-          for (l=0; l<9; l++) v[id.z[0]][j][i][l] = -D1.z[1]/D1.z[0]*v[id.z[1]][j][i][l]-D1.z[2]/D1.z[0]*v[id.z[2]][j][i][l];
-        }
-        if (bcType==2) { // Continuous 2nd derivative BC
-          for (l=0; l<9; l++) v[id.z[0]][j][i][l] = -D2.z[1]/D2.z[0]*v[id.z[1]][j][i][l]-D2.z[2]/D2.z[0]*v[id.z[2]][j][i][l];
-        }
-        if (bcType==10) { // Combination of zero'ed 1st and 2nd derivatives
-          for (m=0; m<3; m++) {
-            v[id.z[0]][j][i][s.ve[m]] = -D2.z[1]/D2.z[0]*v[id.z[1]][j][i][s.ve[m]]-D2.z[2]/D2.z[0]*v[id.z[2]][j][i][s.ve[m]];
-            v[id.z[0]][j][i][s.E[m]]  = -D1.z[1]/D1.z[0]*v[id.z[1]][j][i][s.E[m]] -D1.z[2]/D1.z[0]*v[id.z[2]][j][i][s.E[m]];
-            v[id.z[0]][j][i][s.J[m]]  = -D1.z[1]/D1.z[0]*v[id.z[1]][j][i][s.J[m]] -D1.z[2]/D1.z[0]*v[id.z[2]][j][i][s.J[m]];
-          }
-        }
-      }
-      if(zs+zm==mz) {                 // U-boundary //
-        id.z[0] = mz;
-        id.z[1] = mz-1;
-        id.z[2] = mz-2;
-        dh.z[0] =    z[id.z[2]] - z[id.z[1]] ;
-        dh.z[1] = 2*(z[id.z[2]] - z[id.z[1]]);
-        D1.z[0] = - 1.0/dh.z[0] - 1.0/dh.z[1]; 
-        D1.z[1] =   1.0/dh.z[0] - 1.0/(dh.z[0]-dh.z[1]); 
-        D1.z[2] =   1.0/dh.z[1] + 1.0/(dh.z[0]-dh.z[1]);
-        D2.z[0] =   2.0/(dh.z[0] * dh.z[1]); 
-        D2.z[1] =   2.0/(dh.z[0] * (dh.z[0]-dh.z[1])); 
-        D2.z[2] =   2.0/(dh.z[1] * (dh.z[1]-dh.z[0]));
-
-        if (bcType==0 || bcType==11) { // 1st order Neumann BC
-          for (l=0; l<9; l++) v[id.z[0]][j][i][l] = v[id.z[1]][j][i][l];
-        }
-        if (bcType==1) { // 2nd Order Neumann BC
-          for (l=0; l<9; l++) v[id.z[0]][j][i][l] = -D1.z[1]/D1.z[0]*v[id.z[1]][j][i][l]-D1.z[2]/D1.z[0]*v[id.z[2]][j][i][l];
-        }
-        if (bcType==2) { // Continuous 2nd derivative BC
-          for (l=0; l<9; l++) v[id.z[0]][j][i][l] = -D2.z[1]/D2.z[0]*v[id.z[1]][j][i][l]-D2.z[2]/D2.z[0]*v[id.z[2]][j][i][l];
-        }
-        if (bcType==10) { // Combination of zero'ed 1st and 2nd derivatives
-          for (m=0; m<3; m++) {
-            v[id.z[0]][j][i][s.ve[m]] = -D2.z[1]/D2.z[0]*v[id.z[1]][j][i][s.ve[m]]-D2.z[2]/D2.z[0]*v[id.z[2]][j][i][s.ve[m]];
-            v[id.z[0]][j][i][s.E[m]]  = -D1.z[1]/D1.z[0]*v[id.z[1]][j][i][s.E[m]] -D1.z[2]/D1.z[0]*v[id.z[2]][j][i][s.E[m]];
-            v[id.z[0]][j][i][s.J[m]]  = -D1.z[1]/D1.z[0]*v[id.z[1]][j][i][s.J[m]] -D1.z[2]/D1.z[0]*v[id.z[2]][j][i][s.J[m]];
-          }
-        }
-      }
-    }
-  }
-
-  for (k=zs; k<zs+zm; k++) {
-    for (j=ys; j<ys+ym; j++) {
-      if(xs==0) {                     // S-boundary //
-        id.x[0] = -1;
-        id.x[1] = 0;
-        id.x[2] = 1;
-        dh.x[0] =    x[id.x[2]] - x[id.x[1]] ;
-        dh.x[1] = 2*(x[id.x[2]] - x[id.x[1]]);
-        D1.x[0] = - 1.0/dh.x[0] - 1.0/dh.x[1]; 
-        D1.x[1] =   1.0/dh.x[0] - 1.0/(dh.x[0]-dh.x[1]); 
-        D1.x[2] =   1.0/dh.x[1] + 1.0/(dh.x[0]-dh.x[1]);
-        D2.x[0] =   2.0/(dh.x[0] * dh.x[1]); 
-        D2.x[1] =   2.0/(dh.x[0] * (dh.x[0]-dh.x[1])); 
-        D2.x[2] =   2.0/(dh.x[1] * (dh.x[1]-dh.x[0]));
-        
-        if (bcType==0 || bcType==11) { // 1st order Neumann BC
-          for (l=0; l<9; l++) v[k][j][id.x[0]][l] = v[k][j][id.x[1]][l];
-        }
-        if (bcType==1) { // 2nd Order Neumann BC
-          for (l=0; l<9; l++) v[k][j][id.x[0]][l] = -D1.x[1]/D1.x[0]*v[k][j][id.x[1]][l]-D1.x[2]/D1.x[0]*v[k][j][id.x[2]][l];
-        }
-        if (bcType==2) { // Continuous 2nd derivative BC
-          for (l=0; l<9; l++) v[k][j][id.x[0]][l] = -D2.x[1]/D2.x[0]*v[k][j][id.x[1]][l]-D2.x[2]/D2.x[0]*v[k][j][id.x[2]][l];
-        }
-        if (bcType==10) { // Combination of zero'ed 1st and 2nd derivatives
-          for (m=0; m<3; m++) {
-            v[k][j][id.x[0]][s.ve[m]] = -D2.x[1]/D2.x[0]*v[k][j][id.x[1]][s.ve[m]]-D2.x[2]/D2.x[0]*v[k][j][id.x[2]][s.ve[m]];
-            v[k][j][id.x[0]][s.E[m]]  = -D1.x[1]/D1.x[0]*v[k][j][id.x[1]][s.E[m]] -D1.x[2]/D1.x[0]*v[k][j][id.x[2]][s.E[m]];
-            v[k][j][id.x[0]][s.J[m]]  = -D1.x[1]/D1.x[0]*v[k][j][id.x[1]][s.J[m]] -D1.x[2]/D1.x[0]*v[k][j][id.x[2]][s.J[m]];
-          }
-        }
-      }
-      if(xs+xm==mx) {                 // N-boundary //
-        id.x[0] = mx;
-        id.x[1] = mx-1;
-        id.x[2] = mx-2;
-        dh.x[0] =    x[id.x[2]] - x[id.x[1]] ;
-        dh.x[1] = 2*(x[id.x[2]] - x[id.x[1]]);
-        D1.x[0] = - 1.0/dh.x[0] - 1.0/dh.x[1]; 
-        D1.x[1] =   1.0/dh.x[0] - 1.0/(dh.x[0]-dh.x[1]); 
-        D1.x[2] =   1.0/dh.x[1] + 1.0/(dh.x[0]-dh.x[1]);
-        D2.x[0] =   2.0/(dh.x[0] * dh.x[1]); 
-        D2.x[1] =   2.0/(dh.x[0] * (dh.x[0]-dh.x[1])); 
-        D2.x[2] =   2.0/(dh.x[1] * (dh.x[1]-dh.x[0]));
-
-        if (bcType==0 || bcType==11) { // 1st order Neumann BC
-          for (l=0; l<9; l++) v[k][j][id.x[0]][l] = v[k][j][id.x[1]][l];
-        }
-        if (bcType==1) { // 2nd Order Neumann BC
-          for (l=0; l<9; l++) v[k][j][id.x[0]][l] = -D1.x[1]/D1.x[0]*v[k][j][id.x[1]][l]-D1.x[2]/D1.x[0]*v[k][j][id.x[2]][l];
-        }
-        if (bcType==2) { // Continuous 2nd derivative BC
-          for (l=0; l<9; l++) v[k][j][id.x[0]][l] = -D2.x[1]/D2.x[0]*v[k][j][id.x[1]][l]-D2.x[2]/D2.x[0]*v[k][j][id.x[2]][l];
-        }
-        if (bcType==10) { // Combination of zero'ed 1st and 2nd derivatives
-          for (m=0; m<3; m++) {
-            v[k][j][id.x[0]][s.ve[m]] = -D2.x[1]/D2.x[0]*v[k][j][id.x[1]][s.ve[m]]-D2.x[2]/D2.x[0]*v[k][j][id.x[2]][s.ve[m]];
-            v[k][j][id.x[0]][s.E[m]]  = -D1.x[1]/D1.x[0]*v[k][j][id.x[1]][s.E[m]] -D1.x[2]/D1.x[0]*v[k][j][id.x[2]][s.E[m]];
-            v[k][j][id.x[0]][s.J[m]]  = -D1.x[1]/D1.x[0]*v[k][j][id.x[1]][s.J[m]] -D1.x[2]/D1.x[0]*v[k][j][id.x[2]][s.J[m]];
-          }
-        }
-      }
-    }
-  }
-  for (i=xs; i<xs+xm; i++) {
-    for (k=zs; k<zs+zm; k++) {
-      if(ys==0) {                     // W-boundary //
-        id.y[0] = -1;
-        id.y[1] = 0;
-        id.y[2] = 1;
-        dh.y[0] =    y[id.y[2]] - y[id.y[1]] ;
-        dh.y[1] = 2*(y[id.y[2]] - y[id.y[1]]);
-        D1.y[0] = - 1.0/dh.y[0] - 1.0/dh.y[1]; 
-        D1.y[1] =   1.0/dh.y[0] - 1.0/(dh.y[0]-dh.y[1]); 
-        D1.y[2] =   1.0/dh.y[1] + 1.0/(dh.y[0]-dh.y[1]);
-        D2.y[0] =   2.0/(dh.y[0] * dh.y[1]); 
-        D2.y[1] =   2.0/(dh.y[0] * (dh.y[0]-dh.y[1])); 
-        D2.y[2] =   2.0/(dh.y[1] * (dh.y[1]-dh.y[0]));
-        
-        if (bcType==0 || bcType==11) { // 1st order Neumann BC
-          for (l=0; l<9; l++) v[k][id.y[0]][i][l] = v[k][id.y[1]][i][l];
-        }
-        if (bcType==1) { // 2nd Order Neumann BC
-          for (l=0; l<9; l++) v[k][id.y[0]][i][l] = -D1.y[1]/D1.y[0]*v[k][id.y[1]][i][l]-D1.y[2]/D1.y[0]*v[k][id.y[2]][i][l];
-        }
-        if (bcType==2) { // Continuous 2nd derivative BC
-          for (l=0; l<9; l++) v[k][id.y[0]][i][l] = -D2.y[1]/D2.y[0]*v[k][id.y[1]][i][l]-D2.y[2]/D2.y[0]*v[k][id.y[2]][i][l];
-        }
-        if (bcType==10) { // Combination of zero'ed 1st and 2nd derivatives
-          for (m=0; m<3; m++) {
-            v[k][id.y[0]][i][s.ve[m]] = -D2.y[1]/D2.y[0]*v[k][id.y[1]][i][s.ve[m]]-D2.y[2]/D2.y[0]*v[k][id.y[2]][i][s.ve[m]];
-            v[k][id.y[0]][i][s.E[m]]  = -D1.y[1]/D1.y[0]*v[k][id.y[1]][i][s.E[m]] -D1.y[2]/D1.y[0]*v[k][id.y[2]][i][s.E[m]];
-            v[k][id.y[0]][i][s.J[m]]  = -D1.y[1]/D1.y[0]*v[k][id.y[1]][i][s.J[m]] -D1.y[2]/D1.y[0]*v[k][id.y[2]][i][s.J[m]];
-          }
-        }
-      }
-      if(ys+ym==my) {                 // E-boundary //
-        id.y[0] = my;
-        id.y[1] = my-1;
-        id.y[2] = my-2;
-        dh.y[0] =    y[id.y[2]] - y[id.y[1]] ;
-        dh.y[1] = 2*(y[id.y[2]] - y[id.y[1]]);
-        D1.y[0] = - 1.0/dh.y[0] - 1.0/dh.y[1]; 
-        D1.y[1] =   1.0/dh.y[0] - 1.0/(dh.y[0]-dh.y[1]); 
-        D1.y[2] =   1.0/dh.y[1] + 1.0/(dh.y[0]-dh.y[1]);
-        D2.y[0] =   2.0/(dh.y[0] * dh.y[1]); 
-        D2.y[1] =   2.0/(dh.y[0] * (dh.y[0]-dh.y[1])); 
-        D2.y[2] =   2.0/(dh.y[1] * (dh.y[1]-dh.y[0]));
-        
-        if (bcType==0 || bcType==11) { // 1st order Neumann BC
-          for (l=0; l<9; l++) v[k][id.y[0]][i][l] = v[k][id.y[1]][i][l];
-        }
-        if (bcType==1) { // 2nd Order Neumann BC
-          for (l=0; l<9; l++) v[k][id.y[0]][i][l] = -D1.y[1]/D1.y[0]*v[k][id.y[1]][i][l]-D1.y[2]/D1.y[0]*v[k][id.y[2]][i][l];
-        }
-        if (bcType==2) { // Continuous 2nd derivative BC
-          for (l=0; l<9; l++) v[k][id.y[0]][i][l] = -D2.y[1]/D2.y[0]*v[k][id.y[1]][i][l]-D2.y[2]/D2.y[0]*v[k][id.y[2]][i][l];
-        }
-        if (bcType==10) { // Combination of zero'ed 1st and 2nd derivatives
-          for (m=0; m<3; m++) {
-            v[k][id.y[0]][i][s.ve[m]] = -D2.y[1]/D2.y[0]*v[k][id.y[1]][i][s.ve[m]]-D2.y[2]/D2.y[0]*v[k][id.y[2]][i][s.ve[m]];
-            v[k][id.y[0]][i][s.E[m]]  = -D1.y[1]/D1.y[0]*v[k][id.y[1]][i][s.E[m]] -D1.y[2]/D1.y[0]*v[k][id.y[2]][i][s.E[m]];
-            v[k][id.y[0]][i][s.J[m]]  = -D1.y[1]/D1.y[0]*v[k][id.y[1]][i][s.J[m]] -D1.y[2]/D1.y[0]*v[k][id.y[2]][i][s.J[m]];
-          }
-        }
-      }
-    }
-  }   
-  /*
-  if (rank == 7) { 
-    for (k=mz-2;k<=mz;k++) for (j=my-2;j<=my;j++) for (i=mx-2;i<=mx;i++) 
-      if (! ( (i==mx && j==my) || (i==mx && k==mz) || (j==my && k==mz) ) ) {
-        PetscPrintf(PETSC_COMM_SELF,"@[%2d][%2d][%2d] ve=[%2.5e %2.5e %2.5e]; J=[%2.5e %2.5e %2.5e]; E=[%2.5e %2.5e %2.5e]\n",i,j,k,v[k][j][i][0]*user->v0,v[k][j][i][1]*user->v0,v[k][j][i][2]*user->v0,v[k][j][i][3]*qe*user->n0*user->v0,v[k][j][i][4]*qe*user->n0*user->v0,v[k][j][i][5]*qe*user->n0*user->v0,v[k][j][i][6]*user->v0*user->B0,v[k][j][i][7]*user->v0*user->B0,v[k][j][i][8]*user->v0*user->B0);
-      }
-    }
-    */
-
-  ierr = DMDAVecRestoreArrayDOF(db,localV,&v);CHKERRQ(ierr);
-  ierr = DMDAVecRestoreArrayDOF(da,localU,&u);CHKERRQ(ierr);
-
-  ierr = DMLocalToGlobalBegin(db,localV,INSERT_VALUES,V);CHKERRQ(ierr);
-  ierr = DMLocalToGlobalBegin(da,localU,INSERT_VALUES,U);CHKERRQ(ierr);
-  
-  ierr = DMLocalToGlobalEnd(da,localU,INSERT_VALUES,U);CHKERRQ(ierr);
-  ierr = DMRestoreLocalVector(da,&localU);CHKERRQ(ierr);
-
-  ierr = DMLocalToGlobalEnd(db,localV,INSERT_VALUES,V);CHKERRQ(ierr);
-  ierr = DMRestoreLocalVector(db,&localV);CHKERRQ(ierr);
- 
+  ierr = DMDAVecRestoreArrayDOF(db,V,&v);CHKERRQ(ierr);
   PetscFunctionReturn(0); 
 }
 
@@ -1145,16 +1345,16 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 
   PetscReal      T_cr[4] = {0.0,0.0,0.0,0.0};
   PetscErrorCode ierr;
-  PetscReal      dt,dt_CFL,h[3];
+  PetscReal      t,dt,dt_CFL,h[3];
   PetscReal      nu[4][2];                                                       // ion-neutral collision frequency
   PetscReal      E[3],B[3];                                                      // E-field, B-field
   PetscReal      ne,ni[3],nn[2];                                                 // [O2+], [CO2+], [O+], ne in m^-3
   PetscReal      Ti[3],Te,Tn;                                                    // Temperature of e, O2+, CO2+, O+, CO2, 0 in K
   PetscReal      pe,pi[3];                                                       // pressure of O2+, CO2+, O+, e in J/m^3
-  PetscReal      ****u,****v,****f;
   Vec            V;
+  PetscReal      ****u,****v,****f;
   Vec            localU,localV;
-  PetscInt       rank;
+  PetscInt       rank,step;
   PetscInt       i,j,k,l,m,n,xs,ys,zs,xm,ym,zm;
   PetscReal      Z;
   PetscReal      ve[3],vi[3][3];                                                 // electron and ion velocities 
@@ -1174,40 +1374,43 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
   
   MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
 
+  // Get current iteration t, dt, step //
   ierr = TSGetTimeStep(ts,&dt);CHKERRQ(ierr);
+  ierr = TSGetTime(ts,&t);CHKERRQ(ierr);
+  ierr = TSGetTimeStepNumber(ts,&step);CHKERRQ(ierr);
+
   ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
-  
-  // Form boundary conditions //
-  //PetscPrintf(PETSC_COMM_WORLD,"Form Boundary Conditions: ...\n");
-  ierr = FormBCu(U,user);CHKERRQ(ierr);
-  //PetscPrintf(PETSC_COMM_WORLD,"Form Boundary Conditions: DONE\n");
-
-  // Intermediate calculations //
   ierr = DMGetGlobalVector(db,&V);CHKERRQ(ierr);
-  //PetscPrintf(PETSC_COMM_WORLD,"Form Intermediate Function: ...\n");
-  ierr = FormIntermediateFunction(U,V,user);CHKERRQ(ierr);
-  //PetscPrintf(PETSC_COMM_WORLD,"Form Intermediate Function: DONE\n");
-
-  // Check values sanity //
-  //PetscPrintf(PETSC_COMM_WORLD,"Check Values Sanity: ...\n");
-  ierr = CheckValues(U,V,user);CHKERRQ(ierr);
-  //PetscPrintf(PETSC_COMM_WORLD,"Check Values Sanity: DONE\n");
-
-  // Map U,V on localU,localV //
+  
+  // Create and fill ****u inner cells proc ghosts //
   ierr = DMGetLocalVector(da,&localU);CHKERRQ(ierr);
-  ierr = DMGetLocalVector(db,&localV);CHKERRQ(ierr);
 
   ierr = DMGlobalToLocalBegin(da,U,INSERT_VALUES,localU);CHKERRQ(ierr);
-  ierr = DMGlobalToLocalBegin(db,V,INSERT_VALUES,localV);CHKERRQ(ierr);
-  ierr = DMGlobalToLocalEnd(db,V,INSERT_VALUES,localV);CHKERRQ(ierr);
   ierr = DMGlobalToLocalEnd(da,U,INSERT_VALUES,localU);CHKERRQ(ierr);
 
+  // Fill ****u domain ghosts //
   ierr = DMDAVecGetArrayDOF(da,localU,&u);CHKERRQ(ierr);
+  ierr = FormBCu(u,user);CHKERRQ(ierr);
+
+  // Create and fill ****v inner cells//
+  ierr = FormIntermediateFunction(u,V,user);CHKERRQ(ierr);
+
+  // Create and fill ****v inner cells proc ghosts //
+  ierr = DMGetLocalVector(db,&localV);CHKERRQ(ierr);
+
+  ierr = DMGlobalToLocalBegin(db,V,INSERT_VALUES,localV);CHKERRQ(ierr);
+  ierr = DMGlobalToLocalEnd(db,V,INSERT_VALUES,localV);CHKERRQ(ierr);
+  
+  // Fill ****v domain ghosts //
   ierr = DMDAVecGetArrayDOF(db,localV,&v);CHKERRQ(ierr);
-  ierr = DMDAVecGetArrayDOF(da,F,&f);CHKERRQ(ierr);
+  ierr = FormBCv(v,user);CHKERRQ(ierr);
+
+  // Check values sanity //
+  ierr = CheckValues(u,v,user);CHKERRQ(ierr);
 
   // Form F(u,v) = Udot //
-  
+  ierr = DMDAVecGetArrayDOF(da,F,&f);CHKERRQ(ierr);
+
   // Compute function over the locally owned part of the grid //
   dt_CFL = 1e300;
   flag   = PETSC_FALSE;
@@ -1365,24 +1568,40 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
            */
           T_cr[l] = MinAbs(MinAbs(h[0]/vcr_max[l][0] , h[1]/vcr_max[l][1]),h[2]/vcr_max[l][2]);
         }
-        
+
         vth = sqrt(3.0/2.0*kB*Te/me)/v0;
         // Critical speed and time for electrons //
         for (m=0; m<3; m++) {
           ve_max[m] = MaxAbs(MaxAbs(ve_max[m], ve[m]),vth);
           for (l=0; l<3; l++) {
-            if(limiters) {
-              T_cr[e] = MinAbs(MinAbs(h[0]/ve_max[0] , h[1]/ve_max[1]),h[2]/ve_max[2]);
-            }
-            /*
-            if (ve_max[m] > vcr_max[l][m])
-            {
+            if (ve_max[m] > vcr_max[l][m]) { 
+              /* 
+               * Case when the electron related velocities are the critical velocities
+               */
               if(blockers) {
+                /* 
+                 * If flag blockers is TRUE:
+                 * End the run
+                 * Normally ve>vi
+                 */
+                PetscPrintf(PETSC_COMM_WORLD,"ve_max[%.3d %.3d %.3d]=%12.6e\nvth[%.3d %.3d %.3d]=%12.6e\nvcr_max[%.3d %.3d %.3d][%d][%d]=%12.6e\n",k,j,i,ve_max[m]*v0,k,j,i,vth*v0,k,j,i,l,m,vcr_max[l][m]*v0);
                 PetscPrintf(PETSC_COMM_WORLD,"The CFL criterion is not stringent enough!\n");
                 exit(12);
+              } else if (limiters) {
+                /*
+                 * If flag limiters is TRUE
+                 * Adjust the critical time to account for the electron velocities
+                 */
+                T_cr[e] = MinAbs(MinAbs(h[0]/ve_max[0] , h[1]/ve_max[1]),h[2]/ve_max[2]);
+              } else {
+                /*
+                 * Limiters and Blockers flags are FALSE
+                 * Ignore electron velocities in the definition of the critical time for CFL criterion
+                 * Set arbitrarily large value for T_cr[e]
+                 */
+                T_cr[e] = 1.0e+308;
               }
             }
-            */
           }
         }
 
@@ -1449,14 +1668,13 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
   }
   */
 
-
   /* dt_CFL:
    * critical time for CFL condition
    * in the ENTIRE domain (i.e., for all point (k,j,i))
    * for ALL species (usually denoted l)
    * indepently from ANY direction in space (usually denoted m)
    */
-  m = MPI_Allreduce(MPI_IN_PLACE,&dt_CFL     ,1 ,MPIU_REAL,MPIU_MIN,PETSC_COMM_WORLD);
+  m = MPI_Allreduce(MPI_IN_PLACE,&dt_CFL ,1 ,MPIU_REAL,MPIU_MIN,PETSC_COMM_WORLD);
 
   // Adapt timestep to satisfy CFL //
   user->dt = c_CFL*dt_CFL;
@@ -1470,17 +1688,32 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
      vs_max[CO2p]*v0, vA_max[CO2p]*v0, vf_max[CO2p]*v0, vcr_max[CO2p][0]*v0 ,vcr_max[CO2p][1]*v0 ,vcr_max[CO2p][2]*v0,
      vs_max[Op]  *v0, vA_max[Op]  *v0, vf_max[Op]  *v0, vcr_max[Op][0]  *v0 ,vcr_max[Op][1]  *v0 ,vcr_max[Op][2]  *v0);
    */
+  // Calculates and write fluxes at the domain boundaries //
+  /*
+  if(step%user->viz_dstep==0) {
+    if(user->fluxRec) {
+      ierr = CalculateFluxes(t,step,u,v,user);CHKERRQ(ierr);
+      user->fluxRec = PETSC_FALSE;
+    } else {
+      user->fluxRec = PETSC_TRUE;
+    }
+    PetscPrintf(PETSC_COMM_WORLD,"%.6i %i\n",step,user->fluxRec);
+  }
+  */
+
 
   // Restore vectors //
-  ierr = DMRestoreGlobalVector(db,&V);CHKERRQ(ierr);
   ierr = DMDAVecRestoreArrayDOF(db,localV,&v);CHKERRQ(ierr);
   ierr = DMDAVecRestoreArrayDOF(da,localU,&u);CHKERRQ(ierr);
   ierr = DMDAVecRestoreArrayDOF(da,F,&f);CHKERRQ(ierr);
   
   ierr = DMRestoreLocalVector(db,&localV);CHKERRQ(ierr);
-  ierr = DMLocalToGlobalBegin(da,localU,INSERT_VALUES,U);CHKERRQ(ierr);
-  ierr = DMLocalToGlobalEnd(da,localU,INSERT_VALUES,U);CHKERRQ(ierr);
+  //ierr = DMLocalToGlobalBegin(da,localU,INSERT_VALUES,U);CHKERRQ(ierr);
+  //ierr = DMLocalToGlobalEnd(da,localU,INSERT_VALUES,U);CHKERRQ(ierr);
   ierr = DMRestoreLocalVector(da,&localU);CHKERRQ(ierr);
+
+  // Destroy V //
+  ierr = DMRestoreGlobalVector(db,&V); CHKERRQ(ierr);
   PetscFunctionReturn(0); 
 } 
 

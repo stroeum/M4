@@ -18,7 +18,7 @@ int main(int argc,char **argv)
   Vec            u,r; // solution, residual vectors
   Mat            J;   // Jacobian matrix
   PetscErrorCode ierr;
-  MatFDColoring  matfdcoloring = PETSC_NULL;
+  //MatFDColoring  matfdcoloring = PETSC_NULL;
   MonitorCtx     usermonitor;
   AppCtx         user;
   
@@ -86,10 +86,11 @@ int main(int argc,char **argv)
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      Free work space.  
    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+  /*
   ierr = MatDestroy(&J);CHKERRQ(ierr);
   if (matfdcoloring){
     ierr = MatFDColoringDestroy(&matfdcoloring);CHKERRQ(ierr);
-  }
+  }*/
   ierr = VecDestroy(&u);CHKERRQ(ierr);     
   ierr = TSDestroy(&ts);CHKERRQ(ierr);
   ierr = DMDestroy(&user.da);CHKERRQ(ierr);

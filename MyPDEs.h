@@ -9,9 +9,11 @@
 
 #include "MyCtx.h"
 
-extern PetscErrorCode FormBCu(Vec,void*);
-extern PetscErrorCode CheckValues(Vec,Vec,void*);
-extern PetscErrorCode FormIntermediateFunction(Vec,Vec,void*);
+extern PetscErrorCode FormBCu(PetscReal****,void*);
+extern PetscErrorCode FormBCv(PetscReal****,void*);
+extern PetscErrorCode CheckValues(PetscReal****,PetscReal****,void*);
+extern PetscErrorCode CalculateFluxes(PetscReal,PetscInt,PetscReal****,PetscReal****,void*);
+extern PetscErrorCode FormIntermediateFunction(PetscReal****,Vec,void*);
 extern PetscErrorCode FormFunction(TS,PetscReal,Vec,Vec,void*);  
 extern PetscErrorCode FormInitialSolution(Vec,void*);
 

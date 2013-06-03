@@ -150,7 +150,8 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
   user->da = PETSC_NULL;
   user->db = PETSC_NULL;
   user->cnt = 0;
-  
+  user->fluxRec = PETSC_TRUE;
+    
   user->gama[O2p]  = 1.0 + 2.0/6.0;
   user->gama[CO2p] = 1.0 + 2.0/9.0;
   user->gama[Op]   = 1.0 + 2.0/3.0;
@@ -175,7 +176,8 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
   ierr = PetscOptionsGetInt(PETSC_NULL,"-ts_max_steps",&user->maxsteps,PETSC_NULL);CHKERRQ(ierr);
   user->bcType = 0;
   ierr = PetscOptionsGetInt(PETSC_NULL,"-bc_type",&user->bcType,PETSC_NULL);CHKERRQ(ierr);
-  
+  user->bcRec = PETSC_TRUE;
+    
   ierr = PetscOptionsGetReal(PETSC_NULL,"-mi0",&user->mi[0],PETSC_NULL);CHKERRQ(ierr);
   ierr = PetscOptionsGetReal(PETSC_NULL,"-mi1",&user->mi[1],PETSC_NULL);CHKERRQ(ierr);
   ierr = PetscOptionsGetReal(PETSC_NULL,"-mi2",&user->mi[2],PETSC_NULL);CHKERRQ(ierr);
@@ -649,12 +651,15 @@ PetscErrorCode OutputData(void* ptr)
       fclose(pFile);
 
       // Find the global values of imin, jmin, kmin, imax, jmax, kmax//
+      // The next lines are useless since the conversion is single-proc //
+      /*
       m = MPI_Allreduce(MPI_IN_PLACE,&imin,1,MPIU_INT,MPIU_MIN,PETSC_COMM_WORLD);
       m = MPI_Allreduce(MPI_IN_PLACE,&imax,1,MPIU_INT,MPIU_MAX,PETSC_COMM_WORLD);
       m = MPI_Allreduce(MPI_IN_PLACE,&jmin,1,MPIU_INT,MPIU_MIN,PETSC_COMM_WORLD);
       m = MPI_Allreduce(MPI_IN_PLACE,&jmax,1,MPIU_INT,MPIU_MAX,PETSC_COMM_WORLD);
       m = MPI_Allreduce(MPI_IN_PLACE,&kmin,1,MPIU_INT,MPIU_MIN,PETSC_COMM_WORLD);
       m = MPI_Allreduce(MPI_IN_PLACE,&kmax,1,MPIU_INT,MPIU_MAX,PETSC_COMM_WORLD);
+      */
 
       // Calculate the flows through the boundaries of the PLOTTED domain //
       PetscReal Ve = 0.0;
@@ -677,7 +682,7 @@ PetscErrorCode OutputData(void* ptr)
           else              DZ = (z[ k+1]-z[ k-1])*L/2.0;
 
           // W-flow //
-          i = imin;
+          i = 0;
           ne = 0.0;
           for (l=0; l<3; l++) {
             ne += u[k][j][i][d.ni[l]];
@@ -687,7 +692,7 @@ PetscErrorCode OutputData(void* ptr)
           Fe[0] -= ne*Ve * n0*v0 * DY*DZ;
 
           // E-flow //
-          i = imax;
+          i = mx-1;
           ne = 0.0;
           for (l=0; l<3; l++) {
             ne += u[k][j][i][d.ni[l]];
@@ -728,7 +733,7 @@ PetscErrorCode OutputData(void* ptr)
           else              DX = (x[ i+1]-x[ i-1])*L/2.0;
 
           // S-flow //
-          j = jmin;
+          j = 0;
           ne = 0.0;
           for (l=0; l<3; l++) {
             ne += u[k][j][i][d.ni[l]];
@@ -739,7 +744,7 @@ PetscErrorCode OutputData(void* ptr)
          // if(i==0) printf("@%d z=%12.6e\tnO2+=%12.6e\tvO2+=%12.6e\tDY=%12.6e\tDZ=%12.6e\n", rank, Zmin + z[k]*L, u[k][j][i][d.ni[0]]*n0,u[k][j][i][d.vi[0][1]]*v0,DY,DZ);
 
           // N-flow //
-          j = jmax;
+          j = my-1;
           ne = 0.0;
           for (l=0; l<3; l++) {
             ne += u[k][j][i][d.ni[l]];
@@ -774,7 +779,7 @@ PetscErrorCode OutputData(void* ptr)
           else              DY = (y[ j+1]-y[ j-1])*L/2.0;
 
           // B-flow //
-          k = kmin;
+          k = 0;
           ne = 0.0;
           for (l=0; l<3; l++) {
             ne += u[k][j][i][d.ni[l]];
@@ -784,7 +789,7 @@ PetscErrorCode OutputData(void* ptr)
           Fe[4] -= ne*Ve * n0*v0 * DX*DY;
 
           // T-flow //
-          k = kmax;
+          k = mz-1;
           ne = 0.0;
           for (l=0; l<3; l++) {
             ne += u[k][j][i][d.ni[l]];
@@ -797,10 +802,13 @@ PetscErrorCode OutputData(void* ptr)
 
 
       // Summing subdomain values //
+      // The next lines are useless since the conversion is single-proc //
+      /*
       m = MPI_Allreduce(MPI_IN_PLACE,&Ni[0]   ,3  ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
       m = MPI_Allreduce(MPI_IN_PLACE,&Fi[0][0],3*6,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
       m = MPI_Allreduce(MPI_IN_PLACE,&Ne      ,1  ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
       m = MPI_Allreduce(MPI_IN_PLACE,&Fe      ,6  ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
+      */
 
       // Fill the diagnotics.dat file //
       ierr = PetscFPrintf(PETSC_COMM_WORLD,nFile,"%12.6e\t",t);CHKERRQ(ierr);
