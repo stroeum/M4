@@ -13,10 +13,10 @@ Nz = size(raw,1);
 Z = raw(:,1);
 
 F_CO2p_north(1,1:Nz) = raw(:,2);
-dn = 2500;
+dn = 10000;
 N = 729;
 for n=1:N
-    step = (n-1)*dn;
+    step = (n-1)*dn
     raw = importdata(['../viz_dir/F_CO2p_north_',num2str(step),'.dat']);
     F_CO2p_north(n+1,1:Nz) = raw(1:Nz,2);
 end
