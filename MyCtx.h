@@ -108,9 +108,11 @@ typedef struct {
     PetscBool      smoothing;                     // use smoothing Y/N
     PetscBool      blockers;                      // use blockers Y/N
     PetscBool      limiters;                      // use smoothing Y/N
+    PetscBool      vDamping;                      // use damping to get null velocities at 400 km
     PetscInt       BfieldType;                    // Define the B-field configuration a t=0 
     PetscReal      B[4];                          // x-, y-, and z-component of the default uniform magnetic field
     PetscReal      un[3];                         // x-, y-, and z-component of the neutral wind
+    PetscReal      ui[3];                         // Initial x-, y-, and z-component of the ions
     PetscReal      n0;                            // no[O2+,CO2+,O+,e], reference particule number densities
     PetscReal      gama[4];                       // Specific heat ratio (O2+,CO2+,O+,e)
     PetscReal      v0;                            // vo[O2+,CO2+,O+,e]=sqrt(3kT/m) --reference velocity (thermal velocity)

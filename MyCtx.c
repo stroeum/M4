@@ -190,6 +190,15 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
   user->un[2] = 0.0;
   ierr = PetscOptionsGetReal(PETSC_NULL,"-WindUD",&user->un[2],PETSC_NULL);CHKERRQ(ierr);
 
+  user->ui[0] = 0.0;
+  ierr = PetscOptionsGetReal(PETSC_NULL,"-iWindNS",&user->ui[0],PETSC_NULL);CHKERRQ(ierr);
+  user->ui[1] = 0.0;
+  ierr = PetscOptionsGetReal(PETSC_NULL,"-iWindEW",&user->ui[1],PETSC_NULL);CHKERRQ(ierr);
+  user->ui[2] = 0.0;
+  ierr = PetscOptionsGetReal(PETSC_NULL,"-iWindUD",&user->ui[2],PETSC_NULL);CHKERRQ(ierr);
+  user->vDamping = PETSC_FALSE;
+  ierr = PetscOptionsHasName(PETSC_NULL,"-vDamping",&user->vDamping);CHKERRQ(ierr);
+
   user->xtra_out = PETSC_FALSE;
   ierr = PetscOptionsHasName(PETSC_NULL,"-ExtraDiagnostics",&user->xtra_out);CHKERRQ(ierr);
   user->smoothing = PETSC_FALSE;
