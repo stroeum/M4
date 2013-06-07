@@ -24,19 +24,21 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
   PetscBool      Btype = user->BfieldType;
 //PetscInt       mx = user->mx, my = user->my, mz = user->mz;
   PetscReal      *x=user->x, *y=user->y, *z=user->z;
-  PetscReal      L=user->L;
+  PetscReal      L=user->L,Lz;
   PetscReal      Xmin=user->outXmin, Ymin=user->outYmin, Zmin=user->outZmin;
   PetscReal      inZmax=user->inZmax;
 //PetscReal      /*me = user->me,*/ mi[3] = {user->mi[O2p], user->mi[CO2p], user->mi[Op]};
   PetscReal      n0=user->n0, v0=user->v0, p0=user->p0, B0=user->B0;
   PetscReal      Bo=user->B[0], a=user->B[1], b=user->B[2], c=user->B[3];
 //PetscReal      un[3]={user->un[0],user->un[1],user->un[2]}; // neutral wind
+  PetscReal      ui[3]={user->ui[0],user->ui[1],user->ui[2]}; // initial ion wind
+  PetscBool      vDamping = user->vDamping;
 
-  PetscInt       i,j,k,l,xs,ys,zs,xm,ym,zm;
+  PetscInt       i,j,k,l,m,xs,ys,zs,xm,ym,zm;
   PetscReal      ****u;
   PetscReal      X,Y,Z;
   PetscReal      Te,Ti;
-  PetscReal      nio[3],neo,vio[3],pio[3],peo;
+  PetscReal      nio[3],neo/*,vio[3]*/,pio[3],peo;
   PetscInt       rank;
   PetscViewer    fViewer;
   char           fName[PETSC_MAX_PATH_LEN];
@@ -45,7 +47,7 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
   PetscFunctionBegin;
   PetscPrintf(PETSC_COMM_WORLD,"Form Initial Conditions: ...\n");
   MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
-
+  Lz = user->outZmax-user->inZmin;
   if (user->isInputFile) {
     // Read binary file containing the solution //
     sprintf(fName,"%s/%s",user->dName,user->InputFile);
@@ -96,7 +98,7 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 
           for (l=0; l<3; l++) {
             if (!(nio[l] > 0)) nio[l] = eps.n*n0;
-            vio[l] = 100.0;
+            //vio[l] = 100.0;
             //vio[l] = PetscSqrtScalar(3*kB*Ti/mi[l]);
             pio[l] = nio[l]*kB*Ti;
             //pio[l] = Profile(13+l,Z);
@@ -157,15 +159,13 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
           }
           for (l=0; l<3; l++) {
             u[k][j][i][d.ni[l]] = nio[l]/n0;
-            if (Btype==2) {
-              u[k][j][i][d.vi[l][0]] = 0.0   /v0;
-              u[k][j][i][d.vi[l][1]] = 0.0   /v0;
-              u[k][j][i][d.vi[l][2]] = vio[l]/v0;
-            } else {
-              u[k][j][i][d.vi[l][0]] = 0.0   /v0;
-              u[k][j][i][d.vi[l][1]] = vio[l]/v0;
-              u[k][j][i][d.vi[l][2]] = 0.0   /v0;
+            for (m=0; m<3; m++) {
+              if (vDamping) 
+                ui[m]*=((1.0-tanh(Z-Lz)/(Lz/12.0))/2.0);
+              u[k][j][i][d.vi[l][m]] = ui[m]/v0;
             }
+            if (Btype==2 && ui[2]==0)
+              SETERRQ(PETSC_COMM_WORLD,62,"For a horizontal field, an initial vertical velocity is preferred.");
             //vmax  = PetscMax(vmax,vio[l]/v0);
             u[k][j][i][d.pi[l]] = pio[l]/p0;
           }
@@ -224,7 +224,6 @@ PetscErrorCode FormBCu(PetscReal ****u, void*ctx)
   
   PetscFunctionBegin;
   MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
-
   // Get local grid boundaries //
   ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
 
@@ -1075,6 +1074,8 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 
   dvi            d = user->d;
   PetscReal      L = user->L;
+  PetscReal      Lz;
+  PetscBool      vDamping=user->vDamping;
   PetscReal      Zmin = user->outZmin, Z;
   PetscReal      *x=user->x,*y=user->y,*z=user->z;
   PetscReal      tau = user->tau; 
@@ -1090,9 +1091,11 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
   coeff2         dh;
   
   PetscFunctionBegin;
-  ierr = DMDAVecGetArrayDOF(db,V,&v);CHKERRQ(ierr);
 
   MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
+  Lz = user->outZmax - user->outZmin;
+
+  ierr = DMDAVecGetArrayDOF(db,V,&v);CHKERRQ(ierr);
   id.x[0] = 0; id.y[0] = 0; id.z[0] = 0;
   id.x[1] = 0; id.y[1] = 0; id.z[1] = 0;
   id.x[2] = 0; id.y[2] = 0; id.z[2] = 0;
@@ -1234,6 +1237,9 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
         //if (i==0 && j==0 && k==0) printf("dz=%2.1e km, nu_en=%2.5e ve=[%2.3e %2.3e %2.3e] un=[%2.3e %2.3e %2.3e]\n", dh.z[0],nu_en[CO2]+nu_en[O], ve[0]*v0,ve[1]*v0,ve[2]*v0,un[0]*v0,un[1]*v0,un[2]*v0);
         
         // E-field //
+        if (vDamping) 
+          for (m=0; m<3; m++) 
+             un[m]*=((1.0-tanh(Z-Lz)/(Lz/12.0))/2.0);
         E[0] = -CrossP(ve,B,0) - dpe.dx/ne + (nu_en[CO2] + nu_en[O]) * tau * (un[0] - ve[0]);
         E[1] = -CrossP(ve,B,1) - dpe.dy/ne + (nu_en[CO2] + nu_en[O]) * tau * (un[1] - ve[1]);
         E[2] = -CrossP(ve,B,2) - dpe.dz/ne + (nu_en[CO2] + nu_en[O]) * tau * (un[2] - ve[2]);
@@ -1274,10 +1280,12 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
   DM             db = (DM)user->db;
   PetscInt       mx = user->mx, my = user->my, mz = user->mz;
   PetscReal      L=user->L;
+  PetscReal      Lz;
   PetscReal      *x=user->x,*y=user->y,*z=user->z;
   PetscInt       bcType = user->bcType;
   PetscBool      limiters = user->limiters;
   PetscBool      blockers = user->blockers;
+  PetscBool      vDamping = user->vDamping;
   dvi            d = user->d;
   svi            s = user->s;
   PetscReal      rM = user->rM;
@@ -1373,6 +1381,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
   dh.x[1] = 0; dh.y[1] = 0; dh.z[1] = 0;
   
   MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
+  Lz = user->outZmax - user->outZmin;
 
   // Get current iteration t, dt, step //
   ierr = TSGetTimeStep(ts,&dt);CHKERRQ(ierr);
@@ -1628,6 +1637,10 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
           f[k][j][i][d.ni[l]] = -ni[l]*(dvi[l][0].dx + dvi[l][1].dy + dvi[l][2].dz) - (vi[l][0]*dni[l].dx + vi[l][1]*dni[l].dy + vi[l][2]*dni[l].dz);
       
         // Eq 3-11: Ion momenta // NEGLECT O and e-n collisions FOR NOW (07-29-11) //
+        if (vDamping) 
+          for (m=0; m<3; m++) 
+             un[m]*=((1.0-tanh(Z-Lz)/(Lz/12.0))/2.0);
+
         for (l=0; l<3; l++) {
           f[k][j][i][d.vi[l][0]] = - (vi[l][0]*dvi[l][0].dx +vi[l][1]*dvi[l][0].dy +vi[l][2]*dvi[l][0].dz) + me/mi[l]*(E[0] +CrossP(vi[l],B,0) -dpi[l].dx/ni[l])                           +tau*(nu[l][CO2]+nu[l][O])*(un[0]-vi[l][0]);
           f[k][j][i][d.vi[l][1]] = - (vi[l][0]*dvi[l][1].dx +vi[l][1]*dvi[l][1].dy +vi[l][2]*dvi[l][1].dz) + me/mi[l]*(E[1] +CrossP(vi[l],B,1) -dpi[l].dy/ni[l])                           +tau*(nu[l][CO2]+nu[l][O])*(un[1]-vi[l][1]);

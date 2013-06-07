@@ -1,7 +1,11 @@
 #Command line options
 -output_folder output
 -visualization_folder viz_dir
+<<<<<<< HEAD
 #-input_file X700000.bin
+=======
+#-input_file X12900000.bin
+>>>>>>> 14b81efea00b71efb20910500093b9530ec651c7
 #
 -bc_type 0 # 0: 1st order Neumann, 1: 2nd order Neumann, 2: zero'ed 2nd derivatives, 3: Non-symmetric "exact" solution, 10: combination of df/dn=0 amd d2f/dn2=0
 -limiters
@@ -22,8 +26,15 @@
 -WindNS 1e2            #_m/_s, x-component of neutral wind
 -WindEW 0e2            #_m/_s, y-component of neutral wind
 -WindUD 0e2            #_m/_s, z-component of neutral wind
+-iWindNS .5e2          #_m/_s, initial x-component of ion wind
+-iWindEW 0e2           #_m/_s, initial y-component of ion wind
+-iWindUD 0e2           #_m/_s, initial z-component of ion wind
 -ExtraDiagnostics
+<<<<<<< HEAD
 -B_field_type 3        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical, 7: Arcadse, 8: Three lines of dipoles giving parallel arcades
+=======
+-B_field_type 8        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical, 7: Arcadse, 8: Three lines of dipoles giving parallel arcades
+>>>>>>> 14b81efea00b71efb20910500093b9530ec651c7
 -B0 1e16               #_A_m2, magnitude of the magnetic dipole moment 
 -B1 -20e3              #_m, geometry parameter a
 -B2 0e3                #_m, geometry parameter b
@@ -37,6 +48,7 @@
 #-ts_ssp_type lax
 #-ts_ssp_nstages 2
 #
+<<<<<<< HEAD
 -da_grid_x 11
 -da_grid_y 11
 -da_grid_z 26
@@ -60,5 +72,30 @@
 -vizbox_x_max 200.0e+3   #_m
 -vizbox_y_min -200.0e+3  #_m
 -vizbox_y_max 200.0e+3   #_m
+=======
+-da_grid_x 21
+-da_grid_y 21
+-da_grid_z 26
+#
+#Simulation parameters
+-in_x_min -100.0e+3       #_m
+-in_x_max 100.0e+3        #_m
+-in_y_min -100.0e+3       #_m
+-in_y_max 100.0e+3        #_m
+-in_z_min 100.0e+3        #_m
+-in_z_max 200.0e+3        #_m
+-out_x_min -400.0e+3      #_m
+-out_x_max 400.0e+3       #_m
+-out_y_min -400.0e+3      #_m
+-out_y_max 400.0e+3       #_m
+-out_z_min 100.0e+3       #_m
+-out_z_max 400.0e+3       #_m
+
+#Visualization parameters
+-vizbox_x_min -400.0e+3  #_m
+-vizbox_x_max 400.0e+3   #_m
+-vizbox_y_min -400.0e+3  #_m
+-vizbox_y_max 400.0e+3   #_m
+>>>>>>> 14b81efea00b71efb20910500093b9530ec651c7
 -vizbox_z_min 0.0e+3     #_m
 -vizbox_z_max 10000.0e+3 #_m
