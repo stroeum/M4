@@ -500,7 +500,7 @@ PetscErrorCode OutputData(void* ptr)
   else         NFile = fopen(fName,"w");
   ierr = PetscFPrintf(PETSC_COMM_WORLD,NFile,"Z (m)       \tn.O2+  (m-3)\tn.CO2+ (m-3)\tn.O+   (m-3)\tn.e    (m-3)\n");CHKERRQ(ierr);
 
-  tFile = fopen("output/t.dat","r");
+  tFile = fopen("output/t.out","r");
 
   // Get local grid boundaries //
   ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
