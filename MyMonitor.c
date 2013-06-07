@@ -37,7 +37,7 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
     ierr = PetscGetTime(&t1);CHKERRQ(ierr);
     ierr = PetscPrintf(PETSC_COMM_WORLD,"Elapsed_time=%2.1e\ttimestep %D\tt %2.3e\tdt %2.3e\n",t1-t0,istep+step,ptime*tau,user->dt*tau);CHKERRQ(ierr);
 
-    sprintf(fName, "%s/t.dat",user->dName);
+    sprintf(fName, "%s/t.out",user->dName);
     flag = access(fName,W_OK);
     if (flag==0) fd=fopen(fName,"a");
     else         fd=fopen(fName,"w");

@@ -190,6 +190,15 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
   user->un[2] = 0.0;
   ierr = PetscOptionsGetReal(PETSC_NULL,"-WindUD",&user->un[2],PETSC_NULL);CHKERRQ(ierr);
 
+  user->ui[0] = 0.0;
+  ierr = PetscOptionsGetReal(PETSC_NULL,"-iWindNS",&user->ui[0],PETSC_NULL);CHKERRQ(ierr);
+  user->ui[1] = 0.0;
+  ierr = PetscOptionsGetReal(PETSC_NULL,"-iWindEW",&user->ui[1],PETSC_NULL);CHKERRQ(ierr);
+  user->ui[2] = 0.0;
+  ierr = PetscOptionsGetReal(PETSC_NULL,"-iWindUD",&user->ui[2],PETSC_NULL);CHKERRQ(ierr);
+  user->vDamping = PETSC_FALSE;
+  ierr = PetscOptionsHasName(PETSC_NULL,"-vDamping",&user->vDamping);CHKERRQ(ierr);
+
   user->xtra_out = PETSC_FALSE;
   ierr = PetscOptionsHasName(PETSC_NULL,"-ExtraDiagnostics",&user->xtra_out);CHKERRQ(ierr);
   user->smoothing = PETSC_FALSE;
@@ -500,7 +509,7 @@ PetscErrorCode OutputData(void* ptr)
   else         NFile = fopen(fName,"w");
   ierr = PetscFPrintf(PETSC_COMM_WORLD,NFile,"Z (m)       \tn.O2+  (m-3)\tn.CO2+ (m-3)\tn.O+   (m-3)\tn.e    (m-3)\n");CHKERRQ(ierr);
 
-  tFile = fopen("output/t.dat","r");
+  tFile = fopen("output/t.out","r");
 
   // Get local grid boundaries //
   ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
