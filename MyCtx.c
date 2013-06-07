@@ -433,8 +433,8 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 
   // Read input files //
   if(rank==0) {
-    ReadTable(user->RefProf,Np_REF,"input/Profiles.dat");
-    ReadTable(user->RefPart,4,"input/Partition.dat");
+    ReadTable(user->RefProf,Np_REF,"input/Profiles.in");
+    ReadTable(user->RefPart,4,"input/Partition.in");
   }
   MPI_Bcast(&(user->RefProf[0][0]),Np_REF*Nz_REF, MPIU_REAL, 0, PETSC_COMM_WORLD);
   MPI_Bcast(&(user->RefPart[0][0]),     4*Nz_REF, MPIU_REAL, 0, PETSC_COMM_WORLD);
