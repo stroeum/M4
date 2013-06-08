@@ -1,5 +1,6 @@
 FOLDER=/nv/hp5/jriousset6/data/
-for file in ~/log*.e*; 
+NAME=$(notdir $(CURDIR))
+for file in ~/log$NAME.e*; 
 do 
   JOBID=`echo ${file} | sed s/^.*\.e//`;
   canceljob $JOBID

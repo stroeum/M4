@@ -1,0 +1,3 @@
+*
+# ignore everything but the following files
+!*.sh
