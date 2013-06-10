@@ -267,6 +267,7 @@ PetscReal Interpolate(PetscReal profiles[][Nz_REF], PetscInt i, PetscReal h, Pet
     Dz[2] =   1.0/dh[1] + 1.0/(dh[0]-dh[1]);
 
     Du    = Dz[0]*u[0] + Dz[1]*u[1] + Dz[2]*u[2];
+    //PetscPrintf(PETSC_COMM_WORLD,"Dz=[%f %f %f] u=[%f %f %f] Du=%f\n",Dz[0],Dz[1],Dz[2],u[0],u[1],u[2],Du);
 
     // linear interpolation below min reference altitude //
     if (ItpType==lin_lin) {
@@ -275,15 +276,15 @@ PetscReal Interpolate(PetscReal profiles[][Nz_REF], PetscInt i, PetscReal h, Pet
     // exponential decrease below min reference altitude //
     if (ItpType==lin_exp) {
       H     = u[0]/Du;
-      if (H<0) {
+      // if (H>0) {
         if (fabs((h-z[0])/H)<alpha)
           v = u[0]*exp( (h-z[0])/H );
         else
           v = u[0]*exp(-alpha);
-      } else {
+      /* } else {
         PetscPrintf(PETSC_COMM_WORLD,"Wrong Interpolation\n");
         exit(1);
-      }
+      }*/
     }
     // flat interpolation below min reference altitude //
     if (ItpType==lin_flat) {

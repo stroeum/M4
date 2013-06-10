@@ -196,8 +196,6 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
   ierr = PetscOptionsGetReal(PETSC_NULL,"-iWindEW",&user->ui[1],PETSC_NULL);CHKERRQ(ierr);
   user->ui[2] = 0.0;
   ierr = PetscOptionsGetReal(PETSC_NULL,"-iWindUD",&user->ui[2],PETSC_NULL);CHKERRQ(ierr);
-  user->vDamping = PETSC_FALSE;
-  ierr = PetscOptionsHasName(PETSC_NULL,"-vDamping",&user->vDamping);CHKERRQ(ierr);
 
   user->xtra_out = PETSC_FALSE;
   ierr = PetscOptionsHasName(PETSC_NULL,"-ExtraDiagnostics",&user->xtra_out);CHKERRQ(ierr);
@@ -247,6 +245,15 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
   if(user->outZmin<0) user->outZmin = 0.0;
   user->outZmax = user->inZmax;
   ierr = PetscOptionsGetReal(PETSC_NULL,"-out_z_max",&user->outZmax,PETSC_NULL);CHKERRQ(ierr);
+
+  user->vDamping = PETSC_FALSE;
+  ierr = PetscOptionsHasName(PETSC_NULL,"-vDamping",&user->vDamping);CHKERRQ(ierr);
+  user->ZL    = user->inZmin;
+  ierr = PetscOptionsGetReal(PETSC_NULL,"-Damping_lower_alt",&user->ZL,PETSC_NULL);CHKERRQ(ierr);
+  user->ZU    = user->inZmax;
+  ierr = PetscOptionsGetReal(PETSC_NULL,"-Damping_upper_alt",&user->ZU,PETSC_NULL);CHKERRQ(ierr);
+  user->lambda= 1.0;
+  ierr = PetscOptionsGetReal(PETSC_NULL,"-Damping_scaleheight",&user->lambda,PETSC_NULL);CHKERRQ(ierr);
 
   if(user->outXmin >= user->inXmin) user->outXmin = user->inXmin;
   if(user->outXmax <= user->inXmax) user->outXmax = user->inXmax;

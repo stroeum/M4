@@ -33,6 +33,7 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 //PetscReal      un[3]={user->un[0],user->un[1],user->un[2]}; // neutral wind
   PetscReal      ui[3]={user->ui[0],user->ui[1],user->ui[2]}; // initial ion wind
   PetscBool      vDamping = user->vDamping;
+  PetscReal      ZL=user->ZL,ZU=user->ZU,lambda=user->lambda;
 
   PetscInt       i,j,k,l,m,xs,ys,zs,xm,ym,zm;
   PetscReal      ****u;
@@ -160,8 +161,10 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
           for (l=0; l<3; l++) {
             u[k][j][i][d.ni[l]] = nio[l]/n0;
             for (m=0; m<3; m++) {
-              if (vDamping) 
-                ui[m]*=((1.0-tanh(Z-Lz)/(Lz/12.0))/2.0);
+              if (vDamping) { //((1.0-tanh(Z-Lz)/(Lz/12.0))/2.0);
+                ui[m]*=.5*(1+erf((Z-ZL)/lambda));
+                ui[m]*=.5*(1-erf((Z-ZU)/lambda));
+              }
               u[k][j][i][d.vi[l][m]] = ui[m]/v0;
             }
             if (Btype==2 && ui[2]==0)
@@ -1076,6 +1079,7 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
   PetscReal      L = user->L;
   PetscReal      Lz;
   PetscBool      vDamping=user->vDamping;
+  PetscReal      ZL=user->ZL,ZU=user->ZU,lambda=user->lambda;
   PetscReal      Zmin = user->outZmin, Z;
   PetscReal      *x=user->x,*y=user->y,*z=user->z;
   PetscReal      tau = user->tau; 
@@ -1237,9 +1241,12 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
         //if (i==0 && j==0 && k==0) printf("dz=%2.1e km, nu_en=%2.5e ve=[%2.3e %2.3e %2.3e] un=[%2.3e %2.3e %2.3e]\n", dh.z[0],nu_en[CO2]+nu_en[O], ve[0]*v0,ve[1]*v0,ve[2]*v0,un[0]*v0,un[1]*v0,un[2]*v0);
         
         // E-field //
-        if (vDamping) 
-          for (m=0; m<3; m++) 
-             un[m]*=((1.0-tanh(Z-Lz)/(Lz/12.0))/2.0);
+        if (vDamping) { //((1.0-tanh(Z-Lz)/(Lz/12.0))/2.0);
+          for (m=0; m<3; m++) { 
+            un[m]*=.5*(1+erf((Z-ZL)/lambda));
+            un[m]*=.5*(1-erf((Z-ZU)/lambda));
+          }
+        }
         E[0] = -CrossP(ve,B,0) - dpe.dx/ne + (nu_en[CO2] + nu_en[O]) * tau * (un[0] - ve[0]);
         E[1] = -CrossP(ve,B,1) - dpe.dy/ne + (nu_en[CO2] + nu_en[O]) * tau * (un[1] - ve[1]);
         E[2] = -CrossP(ve,B,2) - dpe.dz/ne + (nu_en[CO2] + nu_en[O]) * tau * (un[2] - ve[2]);
@@ -1286,6 +1293,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
   PetscBool      limiters = user->limiters;
   PetscBool      blockers = user->blockers;
   PetscBool      vDamping = user->vDamping;
+  PetscReal      ZL=user->ZL,ZU=user->ZU,lambda=user->lambda;
   dvi            d = user->d;
   svi            s = user->s;
   PetscReal      rM = user->rM;
@@ -1637,9 +1645,12 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
           f[k][j][i][d.ni[l]] = -ni[l]*(dvi[l][0].dx + dvi[l][1].dy + dvi[l][2].dz) - (vi[l][0]*dni[l].dx + vi[l][1]*dni[l].dy + vi[l][2]*dni[l].dz);
       
         // Eq 3-11: Ion momenta // NEGLECT O and e-n collisions FOR NOW (07-29-11) //
-        if (vDamping) 
-          for (m=0; m<3; m++) 
-             un[m]*=((1.0-tanh(Z-Lz)/(Lz/12.0))/2.0);
+        if (vDamping) { //((1.0-tanh(Z-Lz)/(Lz/12.0))/2.0);
+          for (m=0; m<3; m++) { 
+            un[m]*=.5*(1+erf((Z-ZL)/lambda));
+            un[m]*=.5*(1-erf((Z-ZU)/lambda));
+          }
+        }
 
         for (l=0; l<3; l++) {
           f[k][j][i][d.vi[l][0]] = - (vi[l][0]*dvi[l][0].dx +vi[l][1]*dvi[l][0].dy +vi[l][2]*dvi[l][0].dz) + me/mi[l]*(E[0] +CrossP(vi[l],B,0) -dpi[l].dx/ni[l])                           +tau*(nu[l][CO2]+nu[l][O])*(un[0]-vi[l][0]);
