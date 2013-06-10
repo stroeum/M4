@@ -9,7 +9,7 @@
 #-smoothing
 #
 -ts_max_steps 100000000
--viz_dstep 100000           # plot every dstep 
+-viz_dstep 10000           # plot every dstep 
 -ts_max_time 1e3 
 #-ts_final_time 1e2 
 #-mi0 5.3135e-26        #_kg, mass of O2+, only single charged ions allowed!
@@ -27,8 +27,8 @@
 -iWindUD 0e2           #_m/_s, initial z-component of ion wind
 -ExtraDiagnostics
 -B_field_type 3        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical, 7: Arcadse, 8: Three lines of dipoles giving parallel arcades
--B0 -1e16               #_A_m2, magnitude of the magnetic dipole moment 
--B1 20e3              #_m, geometry parameter a
+-B0 1e16               #_A_m2, magnitude of the magnetic dipole moment 
+-B1 -20e3              #_m, geometry parameter a
 -B2 0e3                #_m, geometry parameter b
 -B3 0e3                #_m, geometry parameter c
 -Mmars 6.4185e23       #_kg, Mars' mass
@@ -55,7 +55,7 @@
 -out_x_max 400.0e+3       #_m
 -out_y_min -400.0e+3      #_m
 -out_y_max 400.0e+3       #_m
--out_z_min 0.0e+3         #_m
+-out_z_min 100.0e+3         #_m
 -out_z_max 400.0e+3       #_m
 
 -vDamping 

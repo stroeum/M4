@@ -56,10 +56,10 @@ clr_img:
 
 clear:
 	find .	     \( -name ".*.swp" -o -name ".nfs*"     \) -exec rm -rfv {} \;
-	find .	     \( -name "main"   -o -name "convert" -o -name "*.o" -o -name "*.out" \) -exec rm -rfv {} \;
+	find .	     \( -name "main"   -o -name "convert"   \) -exec rm -rfv {} \;
 	find .       \( -name "*.?if*" -o -name "*.png"     \) -exec rm -rfv {} \;
 	find viz_dir \( -name "*.dat"  -o -name "*.general" \) -exec rm -rfv {} \;
-	find output  \( -name "*.bin*" -o -name "*.dat"     \) -exec rm -rfv {} \;
+	find output  \( -name "*.bin*" -o -name "*.dat"     -o -name "*.o" -o -name "*.out" \) -exec rm -rfv {} \;
 	rm -rfv  ~/${NAME}.sh ~/log${NAME}.*
 
 stop:
