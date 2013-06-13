@@ -1,5 +1,5 @@
 //
-// time: Thu Jun 13 10:20:27 2013
+// time: Thu Jun 13 11:15:43 2013
 //
 // version: 3.2.0 (format), 4.4.4 (DX)
 //
@@ -28,7 +28,7 @@ include "FieldlineFine.net"
 //
 // MODULE main
 // page assignment: B	order=11, windowed=0, showing=0
-// page assignment: Bz	order=13, windowed=0, showing=1
+// page assignment: Bz	order=13, windowed=0, showing=0
 // page assignment: Camera	order=15, windowed=0, showing=0
 // page assignment: Dipoles	order=3, windowed=0, showing=0
 // page assignment: E	order=9, windowed=0, showing=0
@@ -41,8 +41,8 @@ include "FieldlineFine.net"
 // page assignment: Vi	order=8, windowed=0, showing=0
 // page assignment: dB	order=12, windowed=0, showing=0
 // page assignment: dn_n	order=14, windowed=0, showing=0
-// page assignment: plot	order=4, windowed=0, showing=0
-// workspace: width = 1412, height = 908
+// page assignment: plot	order=4, windowed=0, showing=1
+// workspace: width = 1563, height = 763
 // layout: snap = 1, width = 5, height = 5, align = CN
 //
 macro main(
@@ -56,8 +56,8 @@ macro main(
     // input[6]: defaulting = 1, visible = 0, type = 1, value = 1
     // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 50 1 0 50 1 }
     // page group: Input
-    // vcr[1]: min = 0, max = 50, beg = 0, end = 50, cur = 5, inc = 1, loop = off, step = on, pal = off
-    // window: position = (0.1917,0.6046), size = 0.1193x0.0833, screen = 0
+    // vcr[1]: min = 0, max = 50, beg = 0, end = 50, cur = 0, inc = 1, loop = off, step = off, pal = off
+    // window: position = (0.6323,0.3731), size = 0.1193x0.0833, screen = 0
     //
     main_Sequencer_1_out_1 = @frame;
     // 
@@ -3658,12 +3658,12 @@ main_Receiver_1177_out_1[cache: 0] = togdBmax;
     // node Scalar[59]: x = 1195, y = 416, inputs = 11, label = Scalar
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_59"
     // input[2]: defaulting = 0, visible = 0, type = 67108863, value = NULL
-    // input[3]: defaulting = 0, visible = 0, type = 5, value = 200.0 
+    // input[3]: defaulting = 0, visible = 0, type = 5, value = 600.0 
     // input[5]: defaulting = 1, visible = 0, type = 5, value = -1000000.0
     // input[6]: defaulting = 1, visible = 0, type = 5, value = 1000000.0
     // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 5
-    // output[1]: visible = 1, type = 5, value = 200.0 
+    // output[1]: visible = 1, type = 5, value = 600.0 
     // page group: Input
     //
 main_Scalar_59_out_1[cache: 2] = 
@@ -3710,17 +3710,17 @@ main_MyMinMax_6_out_2 =
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.042643923 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_46"
     // input[7]: defaulting = 1, visible = 1, type = 5, value = 0.0
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 200.0
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 600.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[10]: defaulting = 1, visible = 0, type = 2048, value = NULL
     // input[11]: defaulting = 1, visible = 0, type = 2048, value = NULL
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 200.0 }
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 600.0 }
     // input[13]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[14]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[15]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[16]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.0
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 200.0
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 600.0
     // page group: dB
     // window: position = (0.0188,0.0231), size = 0.5089x0.5778, screen = 0
     //
@@ -5911,14 +5911,6 @@ main_Display_15_out_1[cache: 2] =
     main_Display_15_in_16
     ) [instance: 15, cache: 1];
     // 
-    // node Echo[3]: x = 825, y = 31, inputs = 2, label = Echo
-    // page group: E
-    //
-    Echo(
-    main_MyMinMax_13_out_1,
-    main_MyMinMax_13_out_2
-    ) [instance: 3, cache: 1];
-    // 
     // node Transmitter[43]: x = 331, y = 266, inputs = 1, label = t
     // page group: Input
     //
@@ -6061,13 +6053,13 @@ main_Receiver_841_out_1[cache: 0] = reset;
     // 
     // node Toggle[28]: x = 263, y = 591, inputs = 6, label = Toggle
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Toggle_28"
-    // input[2]: defaulting = 0, visible = 0, type = 29, value = 0
-    // input[3]: defaulting = 0, visible = 0, type = 3, value = 0
+    // input[2]: defaulting = 0, visible = 0, type = 29, value = 1
+    // input[3]: defaulting = 0, visible = 0, type = 3, value = 1
     // input[4]: defaulting = 1, visible = 0, type = 29, value = 1
     // input[5]: defaulting = 1, visible = 0, type = 29, value = 0
-    // output[1]: visible = 1, type = 29, value = 0
+    // output[1]: visible = 1, type = 29, value = 1
     // page group: Input
-    // toggle : 0
+    // toggle : 1
     //
     // 
     // node Transmitter[107]: x = 276, y = 656, inputs = 1, label = rec
@@ -6216,7 +6208,7 @@ main_Receiver_849_out_1[cache: 0] = Font;
     // page group: J
     // title: value = J (uA/m)
     // depth: value = 24
-    // window: position = (0.2740,0.0093), size = 0.6323x0.8713, screen = 0
+    // window: position = (0.2729,0.0093), size = 0.6323x0.8713, screen = 0
     // internal caching: 1
     //
 main_Image_73_out_1,
@@ -7690,7 +7682,7 @@ main_Receiver_1208_out_1[cache: 0] = Font;
     // page group: Bz
     // title: value = Bz (nT)
     // depth: value = 24
-    // window: position = (0.1312,0.0750), size = 0.6323x0.8713, screen = 0
+    // window: position = (   inf,  -nan), size =    infx   inf
     // internal caching: 1
     //
 main_Image_86_out_1,
@@ -9258,7 +9250,7 @@ main_Transmitter_157_out_1 = NULL;
 main_Receiver_1177_out_1 = NULL;
 main_Scalar_59_in_1 = "Scalar_59";
 main_Scalar_59_in_2 = NULL;
-main_Scalar_59_in_3 = 200.0 ;
+main_Scalar_59_in_3 = 600.0 ;
 main_Scalar_59_in_4 = NULL;
 main_Scalar_59_in_5 = NULL;
 main_Scalar_59_in_6 = NULL;
@@ -9267,7 +9259,7 @@ main_Scalar_59_in_8 = NULL;
 main_Scalar_59_in_9 = NULL;
 main_Scalar_59_in_10 = NULL;
 main_Scalar_59_in_11 = NULL;
-main_Scalar_59_out_1 = 200.0 ;
+main_Scalar_59_out_1 = 600.0 ;
 main_Transmitter_155_out_1 = NULL;
 main_Receiver_1178_out_1 = NULL;
 main_MyMinMax_6_out_1 = NULL;
@@ -9280,13 +9272,13 @@ main_Colormap_46_in_5 = "Colormap_46";
 main_Colormap_46_in_9 = NULL;
 main_Colormap_46_in_10 = NULL;
 main_Colormap_46_in_11 = NULL;
-main_Colormap_46_in_12 = { 0.0 200.0 };
+main_Colormap_46_in_12 = { 0.0 600.0 };
 main_Colormap_46_in_13 = NULL;
 main_Colormap_46_in_14 = NULL;
 main_Colormap_46_in_15 = NULL;
 main_Colormap_46_in_16 = NULL;
 main_Colormap_46_in_17 = 0.0;
-main_Colormap_46_in_18 = 200.0;
+main_Colormap_46_in_18 = 600.0;
 main_Colormap_46_in_19 = NULL;
 main_Colormap_46_out_1 = NULL;
 main_Receiver_893_out_1 = NULL;
@@ -9916,12 +9908,12 @@ main_Toggle_27_out_1 = 1;
 main_Transmitter_108_out_1 = NULL;
 main_Receiver_841_out_1 = NULL;
 main_Toggle_28_in_1 = "Toggle_28";
-main_Toggle_28_in_2 = 0;
-main_Toggle_28_in_3 = 0;
+main_Toggle_28_in_2 = 1;
+main_Toggle_28_in_3 = 1;
 main_Toggle_28_in_4 = NULL;
 main_Toggle_28_in_5 = NULL;
 main_Toggle_28_in_6 = NULL;
-main_Toggle_28_out_1 = 0;
+main_Toggle_28_out_1 = 1;
 main_Transmitter_107_out_1 = NULL;
 main_Receiver_842_out_1 = NULL;
 main_String_33_out_1 = "miff";

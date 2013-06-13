@@ -41,7 +41,7 @@ run_help:
 
 clr_pgm:
 	find .	     \( -name ".*.swp" -o -name ".nfs*"     \) -exec rm -rfv {} \;
-	find .	     \( -name "main"   -o -name "convert" -o -name "*.o" -o -name "*.out" \) -exec rm -rfv {} \;
+	find .	     \( -name "main"   -o -name "convert" -o -name "*.o" \) -exec rm -rfv {} \;
 
 clr_dat:
 	find .	     \( -name ".*.swp" -o -name ".nfs*"     \) -exec rm -rfv {} \;

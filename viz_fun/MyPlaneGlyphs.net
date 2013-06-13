@@ -1,5 +1,5 @@
 //
-// time: Thu Jun 13 10:39:01 2013
+// time: Thu Jun 13 10:43:31 2013
 //
 // version: 3.2.0 (format), 4.4.4 (DX)
 //
@@ -375,13 +375,13 @@ MyPlaneAndGlyphs_Post_1_out_1 =
     MyPlaneAndGlyphs_Input_12_out_1
     ) [instance: 1, cache: 1];
     // 
-    // node Input[6]: x = 53, y = 526, inputs = 0, label = Colormap
+    // node Input[6]: x = 599, y = 406, inputs = 0, label = Colormap
     // page group: PlanesGlyphs
     // parameter: position = 3, name = 'Colormap', value = '(none)', descriptive = 1, description = 'Colormap used to display the magnitudes', required = 1, visible = 1
     //
 MyPlaneAndGlyphs_Input_6_out_1 = Colormap;
     // 
-    // node Input[7]: x = 465, y = 506, inputs = 0, label = Opacity
+    // node Input[7]: x = 465, y = 521, inputs = 0, label = Opacity
     // page group: PlanesGlyphs
     // parameter: position = 4, name = 'Opacity', value = '(0.25)', descriptive = 1, description = 'Transparency of the planes', required = 0, visible = 0
     //
