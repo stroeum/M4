@@ -901,16 +901,17 @@ PetscErrorCode CFL(TS ts)
 {
   PetscErrorCode ierr;
   AppCtx         *user;
-  PetscReal      old_dt,new_dt;
 
   PetscFunctionBegin;
   ierr = TSGetApplicationContext(ts,(void *)&user);CHKERRQ(ierr);
-  ierr = TSGetTimeStep(ts,&old_dt);CHKERRQ(ierr);
-  new_dt = user->dt;
-  //PetscPrintf(PETSC_COMM_WORLD,"dt = %3.5e %3.5e\n", old_dt*user->tau,new_dt*user->tau);
-  //ierr = TSSetTimeStep(ts,PetscMin(old_dt,new_dt));CHKERRQ(ierr);
-  //ierr = TSSetTimeStep(ts,new_dt);CHKERRQ(ierr);
   ierr = TSSetTimeStep(ts,user->dt);CHKERRQ(ierr);
+  if (user->dt*user->tau < 1e-12) { 
+#if PETSC_VERSION_LT(3,4,0)
+  SETERRQ(PETSC_COMM_WORLD,PETSC_ERR_ARG_NULL,"dt <1e-12"); 
+#else
+  ierr = TSSetConvergedReason(ts,TS_CONVERGED_USER);CHKERRQ(ierr);
+#endif
+  };
   PetscFunctionReturn(0);
 }
 
