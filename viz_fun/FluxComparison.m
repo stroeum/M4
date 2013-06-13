@@ -85,6 +85,42 @@ Arca.Fe.n(1,:) = raw.data(:,6+(l-1)*7);
 Arca.Fe.b(1,:) = raw.data(:,7+(l-1)*7);
 Arca.Fe.t(1,:) = raw.data(:,8+(l-1)*7);
 
+%% Load Loop data
+raw = importdata('../../NewLoop/viz_dir/diagnostics.dat');
+
+%% Resize data
+% S.N = size(N.data);
+Loop.t         = raw.data(:,1);
+N              = length(Loop.t);
+Loop.Fi.s(3,N) = 0.0;
+Loop.Fi.n(3,N) = 0.0;
+Loop.Fi.w(3,N) = 0.0;
+Loop.Fi.e(3,N) = 0.0;
+Loop.Fi.b(3,N) = 0.0;
+Loop.Fi.t(3,N) = 0.0;
+Loop.Fe.w(1,N) = 0.0;
+Loop.Fe.e(1,N) = 0.0;
+Loop.Fe.s(1,N) = 0.0;
+Loop.Fe.n(1,N) = 0.0;
+Loop.Fe.b(1,N) = 0.0;
+Loop.Fe.t(1,N) = 0.0;
+
+for l=1:3
+    Loop.Fi.w(l,:) = raw.data(:,3+(l-1)*7);
+    Loop.Fi.e(l,:) = raw.data(:,4+(l-1)*7);
+    Loop.Fi.s(l,:) = raw.data(:,5+(l-1)*7);
+    Loop.Fi.n(l,:) = raw.data(:,6+(l-1)*7);
+    Loop.Fi.b(l,:) = raw.data(:,7+(l-1)*7);
+    Loop.Fi.t(l,:) = raw.data(:,8+(l-1)*7);
+end
+l=4;
+Loop.Fe.w(1,:) = raw.data(:,3+(l-1)*7);
+Loop.Fe.e(1,:) = raw.data(:,4+(l-1)*7);
+Loop.Fe.s(1,:) = raw.data(:,5+(l-1)*7);
+Loop.Fe.n(1,:) = raw.data(:,6+(l-1)*7);
+Loop.Fe.b(1,:) = raw.data(:,7+(l-1)*7);
+Loop.Fe.t(1,:) = raw.data(:,8+(l-1)*7);
+
 %% Plot
 FS=10;
 figure(1)
@@ -98,6 +134,8 @@ plot(...
     Arca.t,Arca.Fi.t(1,:),'k+-' ,Arca.t,Arca.Fi.t(2,:),'kx-' ,Arca.t,Arca.Fi.t(3,:),'k*-'  ...
     ,...
     Cusp.t,Cusp.Fi.t(1,:),'b+--',Cusp.t,Cusp.Fi.t(2,:),'bx--',Cusp.t,Cusp.Fi.t(3,:),'b*--' ...
+    ,...
+    Loop.t,Loop.Fi.t(1,:),'r+:' ,Loop.t,Loop.Fi.t(2,:),'rx:' ,Loop.t,Loop.Fi.t(3,:),'r*:'  ...    
     );
 ylim([minF maxF])
 xlabel('t (s)','FontSize',FS);
@@ -112,11 +150,13 @@ plot(...
     Arca.t,Arca.Fe.t(1,:),'k' ...
     ,...
     Cusp.t,Cusp.Fe.t(1,:),'b' ... 
+    ,...
+    Loop.t,Loop.Fe.t(1,:),'r' ...     
     );
 ylim([minF maxF])
 xlabel('t (s)','FontSize',FS);
 ylabel('F_e^{top} (#/s)','FontSize',FS);
-legend('Arcades','Cusp','location','best')
+legend('Arcades','Cusp','Loop','location','best')
 legend('boxoff')
 set(gca,'TickDir','Out','FontSize',FS)
 axis tight
