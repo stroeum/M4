@@ -33,8 +33,11 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
   MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
 
   if((istep+step)%vizdstep==0) { // || (step>=9400) ) {
-    ierr = TSGetTimeStep(ts,&dt);CHKERRQ(ierr);
-    ierr = PetscGetTime(&t1);CHKERRQ(ierr);
+#if PETSC_VERSION_LT(3,4,0)
+  ierr = PetscGetTime(&t1);CHKERRQ(ierr);
+#else
+  ierr = PetscTime(&t1);CHKERRQ(ierr);
+#endif
     ierr = PetscPrintf(PETSC_COMM_WORLD,"Elapsed_time=%2.1e\ttimestep %D\tt %2.3e\tdt %2.3e\n",t1-t0,istep+step,ptime*tau,user->dt*tau);CHKERRQ(ierr);
 
     sprintf(fName, "%s/t.out",user->dName);

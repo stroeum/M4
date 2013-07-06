@@ -47,20 +47,20 @@ int main(int argc,char **argv)
      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
   ierr = TSCreate(PETSC_COMM_WORLD,&ts);CHKERRQ(ierr);
   ierr = TSSetType(ts,TSSSP);CHKERRQ(ierr);CHKERRQ(ierr);
-  ierr = PetscFListAdd(&TSSSPList,"rk2jar", "TSSSPStep_RK_2_JAR", (void(*)(void))TSSSPStep_RK_2_JAR); CHKERRQ(ierr);
-  ierr = PetscFListAdd(&TSSSPList,"lw", "TSSSPStep_LW", (void(*)(void))TSSSPStep_LW); CHKERRQ(ierr);
-  ierr = PetscFListAdd(&TSSSPList,"lax", "TSSSPStep_LAX", (void(*)(void))TSSSPStep_LAX); CHKERRQ(ierr);
+  ierr = DMCreateMatrix(user.da,MATAIJ,&J);CHKERRQ(ierr);
+  ierr = TSGetSNES(ts,&snes);CHKERRQ(ierr);
+
+  char version[255];
+  size_t len=255;
+  ierr = PetscGetVersion(version,len);CHKERRQ(ierr);
+  ierr = PetscPrintf(PETSC_COMM_WORLD,"Version = %s\n",version);CHKERRQ(ierr);
+  ierr = PetscFunctionListAdd(&TSSSPList,"rk2jar", (void(*)(void))TSSSPStep_RK_2_JAR);CHKERRQ(ierr);
+  ierr = PetscFunctionListAdd(&TSSSPList,"lw"    , (void(*)(void))TSSSPStep_LW      );CHKERRQ(ierr);
+  ierr = PetscFunctionListAdd(&TSSSPList,"lax"   , (void(*)(void))TSSSPStep_LAX     );CHKERRQ(ierr);
+  ierr = SNESSetJacobian(snes,J,J,SNESComputeJacobianDefault,(void *)&user);CHKERRQ(ierr);
   ierr = TSSetProblemType(ts,TS_NONLINEAR);CHKERRQ(ierr);
   ierr = TSSetRHSFunction(ts,r,FormFunction,(void *)&user);CHKERRQ(ierr);
   ierr = TSSetApplicationContext(ts,(void *)&user);
-#if PETSC_VERSION_LT(3,3,1)
-  ierr = DMCreateMatrix(user.da,MATAIJ,&J);CHKERRQ(ierr);
-#else
-  ierr = DMGetMatrix(user.da,MATAIJ,&J);CHKERRQ(ierr);
-#endif
-  ierr = TSGetSNES(ts,&snes);CHKERRQ(ierr);
-  ierr = SNESSetJacobian(snes,J,J,SNESDefaultComputeJacobian,(void *)&user);CHKERRQ(ierr);
-//ierr = TSSetRHSJacobian(ts,J,J,TSDefaultComputeJacobian,(void *)&user);CHKERRQ(ierr);
 
   ierr = TSSetDuration(ts,user.maxsteps,user.tf);CHKERRQ(ierr);
   ierr = TSMonitorSet(ts,MyTSMonitor,&user,PETSC_NULL);CHKERRQ(ierr);
@@ -81,7 +81,7 @@ int main(int argc,char **argv)
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      Solve nonlinear system
      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-  ierr = TSSolve(ts,u,&(user.tf));CHKERRQ(ierr);
+  ierr = TSSolve(ts,u);CHKERRQ(ierr);
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      Free work space.  

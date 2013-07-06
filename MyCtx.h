@@ -8,7 +8,7 @@
 #define mu0 1.2566370614e-6    //_N/_A, free space permeability
 #define kB 1.3806503e-23       //_J/_K, Boltzmann constant
 #define qe 1.60217646e-19      //_C, elementary charge
-#define G 6.673e-11            //_m^3/_kg/_s^2, gravitational constant
+#define G 6.673e-11            //_m^3/_kg/_s^/\2, gravitational constant
 #define c_CFL 0.5              //_, CFL coefficient 
 #define Nz_REF 301             // number of reference altitude points
 #define Np_REF 18              // number of parameters in Profiles.dat
@@ -21,16 +21,12 @@
 #include "petsctime.h"
 #include "petscdmda.h"
 #include "petscts.h"
-#if PETSC_VERSION_LT(3,3,1)
-  #include <petsc-private/tsimpl.h>
-#else
-  #include <private/tsimpl.h>
-#endif
+#include <petsc-private/tsimpl.h>
 #include <unistd.h>
 #include <assert.h>
 
 // For JAR RK method personalization //
-extern PetscFList TSSSPList;
+extern PetscFunctionList TSSSPList;
 
 typedef struct {
   PetscErrorCode (*onestep)(TS,PetscReal,PetscReal,Vec);

@@ -160,7 +160,11 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
   PetscFunctionBegin;
   MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
   
+#if PETSC_VERSION_LT(3,4,0)
   ierr = PetscGetTime(&user->t0);CHKERRQ(ierr);
+#else
+  ierr = PetscTime(&user->t0);CHKERRQ(ierr);
+#endif
   user->ldName = sprintf(user->dName,"ouput/");
   ierr = PetscOptionsGetString(PETSC_NULL,"-output_folder",user->dName,PETSC_MAX_PATH_LEN-1,PETSC_NULL);CHKERRQ(ierr);
   user->ldName = sprintf(user->vName,"viz_dir/");
@@ -906,11 +910,7 @@ PetscErrorCode CFL(TS ts)
   ierr = TSGetApplicationContext(ts,(void *)&user);CHKERRQ(ierr);
   ierr = TSSetTimeStep(ts,user->dt);CHKERRQ(ierr);
   if (user->dt*user->tau < 1e-12) { 
-#if PETSC_VERSION_LT(3,4,0)
-  SETERRQ(PETSC_COMM_WORLD,PETSC_ERR_ARG_NULL,"dt <1e-12"); 
-#else
-  ierr = TSSetConvergedReason(ts,TS_CONVERGED_USER);CHKERRQ(ierr);
-#endif
+    ierr = TSSetConvergedReason(ts,TS_CONVERGED_USER);CHKERRQ(ierr);
   };
   PetscFunctionReturn(0);
 }

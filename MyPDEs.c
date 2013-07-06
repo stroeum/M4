@@ -176,8 +176,10 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
                 u[k][j][i][d.vi[l][m]] = ui[m]/v0;
               }
             }
-            if (Btype==2 && ui[2]==0)
-              SETERRQ(PETSC_COMM_WORLD,62,"For a horizontal field, an initial vertical velocity is preferred.");
+            if (Btype==2 && ui[2]==0) {
+              //PetscPrintf(PETSC_COMM_WORLD,"[%i %i %i], It worked... so far.\n",i,j,k);
+              //SETERRQ(PETSC_COMM_WORLD,62,"For a horizontal field, an initial vertical velocity is preferred.");
+            }
             //vmax  = PetscMax(vmax,vio[l]/v0);
             u[k][j][i][d.pi[l]] = pio[l]/p0;
           }
