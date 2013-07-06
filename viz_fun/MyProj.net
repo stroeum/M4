@@ -1,0 +1,908 @@
+//
+// time: Fri Jul  5 16:51:49 2013
+//
+// version: 3.2.0 (format), 4.4.4 (DX)
+//
+//
+//
+// macro reference (direct): MyInputs /nv/hp5/jriousset6/data/M4/NewCusp/viz_fun/MyInputs.net
+include "MyInputs.net"
+//
+// macro reference (direct): MyGlyphs /nv/hp5/jriousset6/data/M4/NewCusp/viz_fun/MyPlaneGlyphsSimple.net
+include "MyPlaneGlyphsSimple.net"
+//
+// Begin MDF
+// MODULE MyProj
+// CATEGORY Macros
+// DESCRIPTION Projected field
+// INPUT data; field; (none); data
+// INPUT Reduct[visible:0]; scalar list or vector list; (1); Reduction factor
+// INPUT var; integer or integer list or string; (none); Variable
+// INPUT units; value list or string; (none); Variable units
+// INPUT min; scalar or value list or string list or object; (no default); Minimum
+// INPUT max; scalar or value list or string list or object; (no default); Maximum
+// INPUT cmap; field; (none); Colormap
+// INPUT cmaptype; string; ("positions"); Colormap type
+// OPTIONS positions ; connections  
+// INPUT altitute; value list or field or string or string list; (none); Altitude of the horizontal plane
+// INPUT zoom[visible:0]; value list or field or string or string list; (1); zoom
+// INPUT L; value list or field or string or string list; (none); Dimensions of the domain
+// INPUT h; value list or field or string or string list; (none); Resolutions
+// INPUT LabelScale[visible:0]; scalar; (1); Label Scale
+// INPUT FixedFont[visible:0]; flag; (1); Use fixed font size
+// INPUT FontSize[visible:0]; integer; (18); Font size
+// INPUT Font[visible:0]; string; ("roman_d"); Label font
+// OPTIONS area ; cyril_d ; fixed ; gothiceng_t ; gothicger_t ; gothicit_t ; greek_d ; greek_s ; italic_d ; italic_t ; pitman ; roman_d ; roman_dser ; roman_s ; roman_tser ; roman_ext ; roman_sfix ; script_d ; script_s ; variable 
+// INPUT Ticks; integer or integer list; (-50); Number of tick marks
+// INPUT corners; vector list or object; (none); Simulation box
+// INPUT ts; object; (""); Time stamp
+// INPUT PlotType; integer; (3); 0:off; 1:Glyphs; 2:Planes; 3:Glyph&Planes
+// OUTPUT Display; image; 
+// End MDF
+// page assignment: Projections	order=1, windowed=0, showing=0
+// workspace: width = 2125, height = 1273
+// layout: snap = 1, width = 5, height = 5, align = CN
+//
+macro MyProj(
+ data
+,Reduct
+,var
+,units
+,min
+,max
+,cmap
+,cmaptype
+,altitute
+,zoom
+,L
+,h
+,LabelScale
+,FixedFont
+,FontSize
+,Font
+,Ticks
+,corners
+,ts
+,PlotType
+) -> (
+ Display
+) {
+    // 
+    // node Input[56]: x = 1736, y = 526, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 20, name = 'PlotType', value = '(3)', descriptive = 1, description = '0:off; 1:Glyphs; 2:Planes; 3:Glyph&Planes', required = 0, visible = 1
+    //
+MyProj_Input_56_out_1 = PlotType;
+    // 
+    // node Input[32]: x = 1220, y = 1, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 1, name = 'data', value = '(none)', descriptive = 1, description = 'data', required = 1, visible = 1
+    //
+MyProj_Input_32_out_1 = data;
+    // 
+    // node Input[33]: x = 1262, y = 1, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 2, name = 'Reduct', value = '(1)', descriptive = 1, description = 'Reduction factor', required = 0, visible = 0
+    //
+MyProj_Input_33_out_1 = Reduct;
+    // 
+    // node Input[34]: x = 1304, y = 1, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 3, name = 'var', value = '(none)', descriptive = 1, description = 'Variable', required = 1, visible = 1
+    //
+MyProj_Input_34_out_1 = var;
+    // 
+    // node Input[35]: x = 1346, y = 1, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 4, name = 'units', value = '(none)', descriptive = 1, description = 'Variable units', required = 1, visible = 1
+    //
+MyProj_Input_35_out_1 = units;
+    // 
+    // node MyInputs[21]: x = 1255, y = 91, inputs = 4, label = MyInputs
+    // input[2]: visible = 1
+    // page group: Projections
+    //
+MyProj_MyInputs_21_out_1,
+MyProj_MyInputs_21_out_2,
+MyProj_MyInputs_21_out_3,
+MyProj_MyInputs_21_out_4 = 
+    MyInputs(
+    MyProj_Input_32_out_1,
+    MyProj_Input_33_out_1,
+    MyProj_Input_34_out_1,
+    MyProj_Input_35_out_1
+    ) [instance: 21, cache: 1];
+    // 
+    // node Inquire[4]: x = 39, y = 206, inputs = 3, label = Inquire
+    // input[2]: defaulting = 0, visible = 1, type = 32, value = "connection gridcounts"
+    // input[3]: defaulting = 1, visible = 0, type = 32, value = "0"
+    // page group: Projections
+    //
+MyProj_Inquire_4_out_1 = 
+    Inquire(
+    MyProj_MyInputs_21_out_1,
+    "connection gridcounts",
+    NULL
+    ) [instance: 4, cache: 1];
+    // 
+    // node Compute[154]: x = 32, y = 281, inputs = 2, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "[1,floor(($0.y-1)/2),0]"
+    // page group: Projections
+    // expression: value = [1,floor((m.y-1)/2),0]
+    // name[2]: value = m
+    //
+MyProj_Compute_154_out_1 = 
+    Compute(
+    "[1,floor(($0.y-1)/2),0]",
+    MyProj_Inquire_4_out_1
+    ) [instance: 154, cache: 1];
+    // 
+    // node Input[38]: x = 1654, y = 221, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 7, name = 'cmap', value = '(none)', descriptive = 1, description = 'Colormap', required = 1, visible = 1
+    //
+MyProj_Input_38_out_1 = cmap;
+    // 
+    // node Input[40]: x = 1696, y = 236, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 8, name = 'cmaptype', value = '("positions")', descriptive = 1, description = 'Colormap type', required = 0, visible = 1
+    //
+MyProj_Input_40_out_1 = cmaptype;
+    // 
+    // node Input[36]: x = 1738, y = 251, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 5, name = 'min', value = '(no default)', descriptive = 1, description = 'Minimum', required = 0, visible = 1
+    //
+MyProj_Input_36_out_1 = min;
+    // 
+    // node Input[37]: x = 1780, y = 266, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 6, name = 'max', value = '(no default)', descriptive = 1, description = 'Maximum', required = 0, visible = 1
+    //
+MyProj_Input_37_out_1 = max;
+    // 
+    // node MyGlyphs[1]: x = 30, y = 521, inputs = 17, label = MyGlyphs
+    // input[5]: defaulting = 0, visible = 1, type = 1, value = 1000
+    // input[10]: visible = 1
+    // input[11]: visible = 0
+    // page group: Projections
+    //
+MyProj_MyGlyphs_1_out_1,
+MyProj_MyGlyphs_1_out_2,
+MyProj_MyGlyphs_1_out_3,
+MyProj_MyGlyphs_1_out_4 = 
+    MyGlyphs(
+    MyProj_MyInputs_21_out_1,
+    MyProj_Compute_154_out_1,
+    MyProj_Input_38_out_1,
+    NULL,
+    1000,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    MyProj_Input_40_out_1,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    MyProj_Input_36_out_1,
+    MyProj_Input_37_out_1
+    ) [instance: 1, cache: 1];
+    // 
+    // node Switch[191]: x = 15, y = 636, inputs = 4, label = Switch
+    // page group: Projections
+    //
+MyProj_Switch_191_out_1 = 
+    Switch(
+    MyProj_Input_56_out_1,
+    MyProj_MyGlyphs_1_out_1,
+    MyProj_MyGlyphs_1_out_2,
+    MyProj_MyGlyphs_1_out_3
+    ) [instance: 191, cache: 1];
+    // 
+    // node Input[43]: x = 1822, y = 286, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 12, name = 'h', value = '(none)', descriptive = 1, description = 'Resolutions', required = 1, visible = 1
+    //
+MyProj_Input_43_out_1 = h;
+    // 
+    // node Input[41]: x = 1864, y = 311, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 10, name = 'zoom', value = '(1)', descriptive = 1, description = 'zoom', required = 0, visible = 0
+    //
+MyProj_Input_41_out_1 = zoom;
+    // 
+    // node Compute[168]: x = 198, y = 521, inputs = 3, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "$0.x*$1"
+    // page group: Projections
+    // expression: value = h.x*zoom
+    // name[2]: value = h
+    // name[3]: value = zoom
+    //
+MyProj_Compute_168_out_1 = 
+    Compute(
+    "$0.x*$1",
+    MyProj_Input_43_out_1,
+    MyProj_Input_41_out_1
+    ) [instance: 168, cache: 1];
+    // 
+    // node Compute[167]: x = 267, y = 521, inputs = 2, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "$0.x"
+    // page group: Projections
+    // expression: value = h.x
+    // name[2]: value = h
+    //
+MyProj_Compute_167_out_1 = 
+    Compute(
+    "$0.x",
+    MyProj_Input_43_out_1
+    ) [instance: 167, cache: 1];
+    // 
+    // node Input[42]: x = 1906, y = 326, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 11, name = 'L', value = '(none)', descriptive = 1, description = 'Dimensions of the domain', required = 1, visible = 1
+    //
+MyProj_Input_42_out_1 = L;
+    // 
+    // node Compute[165]: x = 336, y = 521, inputs = 2, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "$0.z/$0.x"
+    // page group: Projections
+    // expression: value = L.z/L.x
+    // name[2]: value = L
+    //
+MyProj_Compute_165_out_1 = 
+    Compute(
+    "$0.z/$0.x",
+    MyProj_Input_42_out_1
+    ) [instance: 165, cache: 1];
+    // 
+    // node AutoCamera[22]: x = 174, y = 706, inputs = 9, label = AutoCamera
+    // input[2]: defaulting = 0, visible = 0, type = 32, value = "bottom"
+    // input[3]: defaulting = 1, visible = 1, type = 5, value = 1200.0
+    // input[4]: defaulting = 1, visible = 1, type = 1, value = 800
+    // input[5]: defaulting = 1, visible = 1, type = 5, value = .375
+    // input[9]: defaulting = 0, visible = 0, type = 32, value = "white"
+    // page group: Projections
+    //
+MyProj_AutoCamera_22_out_1 = 
+    AutoCamera(
+    MyProj_Switch_191_out_1,
+    "bottom",
+    MyProj_Compute_168_out_1,
+    MyProj_Compute_167_out_1,
+    MyProj_Compute_165_out_1,
+    NULL,
+    NULL,
+    NULL,
+    "white"
+    ) [instance: 22, cache: 1];
+    // 
+    // node Input[48]: x = 1803, y = 571, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 17, name = 'Ticks', value = '(-50)', descriptive = 1, description = 'Number of tick marks', required = 0, visible = 1
+    //
+MyProj_Input_48_out_1 = Ticks;
+    // 
+    // node Input[51]: x = 1846, y = 591, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 18, name = 'corners', value = '(none)', descriptive = 1, description = 'Simulation box', required = 1, visible = 1
+    //
+MyProj_Input_51_out_1 = corners;
+    // 
+    // node Input[44]: x = 1954, y = 346, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 13, name = 'LabelScale', value = '(1)', descriptive = 1, description = 'Label Scale', required = 0, visible = 0
+    //
+MyProj_Input_44_out_1 = LabelScale;
+    // 
+    // node Input[47]: x = 1996, y = 366, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 16, name = 'Font', value = '("roman_d")', descriptive = 1, description = 'Label font', required = 0, visible = 0
+    //
+MyProj_Input_47_out_1 = Font;
+    // 
+    // node AutoAxes[1]: x = 51, y = 846, inputs = 19, label = AutoAxes
+    // input[3]: defaulting = 0, visible = 1, type = 16777248, value = {"x (km)","y (km)","z (km)"}
+    // input[4]: defaulting = 1, visible = 1, type = 1, value = NULL
+    // input[5]: visible = 1
+    // input[6]: defaulting = 0, visible = 0, type = 3, value = 1
+    // input[7]: defaulting = 0, visible = 0, type = 3, value = 0
+    // input[8]: defaulting = 0, visible = 0, type = 8, value = NULL
+    // input[9]: defaulting = 0, visible = 0, type = 3, value = 0
+    // input[10]: defaulting = 0, visible = 0, type = 16777248, value = {"clear","black","black","black"}
+    // input[11]: defaulting = 0, visible = 0, type = 16777248, value = {"background","grid","ticks","labels"}
+    // input[12]: visible = 1
+    // input[13]: visible = 1
+    // page group: Projections
+    //
+MyProj_AutoAxes_1_out_1 = 
+    AutoAxes(
+    MyProj_Switch_191_out_1,
+    MyProj_AutoCamera_22_out_1,
+    {"x (km)","y (km)","z (km)"},
+    MyProj_Input_48_out_1,
+    MyProj_Input_51_out_1,
+    1,
+    0,
+    NULL,
+    0,
+    {"clear","black","black","black"},
+    {"background","grid","ticks","labels"},
+    MyProj_Input_44_out_1,
+    MyProj_Input_47_out_1,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+    ) [instance: 1, cache: 1];
+    // 
+    // node Render[30]: x = 180, y = 916, inputs = 3, label = Render
+    // input[3]: defaulting = 1, visible = 0, type = 32, value = NULL
+    // page group: Projections
+    //
+MyProj_Render_30_out_1 = 
+    Render(
+    MyProj_AutoAxes_1_out_1,
+    MyProj_AutoCamera_22_out_1,
+    NULL
+    ) [instance: 30, cache: 1];
+    // 
+    // node Input[45]: x = 2041, y = 381, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 14, name = 'FixedFont', value = '(1)', descriptive = 1, description = 'Use fixed font size', required = 0, visible = 0
+    //
+MyProj_Input_45_out_1 = FixedFont;
+    // 
+    // node Input[46]: x = 2083, y = 396, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 15, name = 'FontSize', value = '(18)', descriptive = 1, description = 'Font size', required = 0, visible = 0
+    //
+MyProj_Input_46_out_1 = FontSize;
+    // 
+    // node ColorBar[2]: x = 1159, y = 521, inputs = 16, label = ColorBar
+    // input[2]: defaulting = 0, visible = 1, type = 8, value = [.75 0.5]
+    // input[3]: defaulting = 0, visible = 1, type = 8, value = [250 25]
+    // input[4]: defaulting = 1, visible = 1, type = 3, value = 1
+    // input[5]: defaulting = 0, visible = 0, type = 1, value = -10
+    // input[6]: visible = 1
+    // input[7]: visible = 1
+    // input[9]: defaulting = 0, visible = 0, type = 16777248, value = {"black"}
+    // input[10]: defaulting = 0, visible = 0, type = 16777248, value = {"all"}
+    // input[11]: visible = 1
+    // input[12]: visible = 1
+    // input[15]: visible = 1
+    // input[16]: visible = 1
+    // page group: Projections
+    //
+MyProj_ColorBar_2_out_1 = 
+    ColorBar(
+    MyProj_Input_38_out_1,
+    [.75 0.5],
+    [250 25],
+    NULL,
+    -10,
+    MyProj_Input_36_out_1,
+    MyProj_Input_37_out_1,
+    MyProj_MyInputs_21_out_3,
+    {"black"},
+    {"all"},
+    MyProj_Input_44_out_1,
+    MyProj_Input_47_out_1,
+    NULL,
+    NULL,
+    MyProj_Input_45_out_1,
+    MyProj_Input_46_out_1
+    ) [instance: 2, cache: 1];
+    // 
+    // node Input[52]: x = 2060, y = 631, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 19, name = 'ts', value = '("")', descriptive = 1, description = 'Time stamp', required = 0, visible = 1
+    //
+MyProj_Input_52_out_1 = ts;
+    // 
+    // node Collect[95]: x = 1263, y = 871, inputs = 2, label = Collect
+    // page group: Projections
+    //
+MyProj_Collect_95_out_1 = 
+    Collect(
+    MyProj_ColorBar_2_out_1,
+    MyProj_Input_52_out_1
+    ) [instance: 95, cache: 1];
+    // 
+    // node Compute[178]: x = 1423, y = 521, inputs = 3, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "$0.z*$1"
+    // page group: Projections
+    // expression: value = h.z*zoom
+    // name[2]: value = h
+    // name[3]: value = zoom
+    //
+MyProj_Compute_178_out_1 = 
+    Compute(
+    "$0.z*$1",
+    MyProj_Input_43_out_1,
+    MyProj_Input_41_out_1
+    ) [instance: 178, cache: 1];
+    // 
+    // node Compute[177]: x = 1492, y = 521, inputs = 2, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "$0.z"
+    // page group: Projections
+    // expression: value = h.z
+    // name[2]: value = h
+    //
+MyProj_Compute_177_out_1 = 
+    Compute(
+    "$0.z",
+    MyProj_Input_43_out_1
+    ) [instance: 177, cache: 1];
+    // 
+    // node Compute[176]: x = 1561, y = 521, inputs = 2, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "$0.z/$0.z"
+    // page group: Projections
+    // expression: value = L.z/L.z
+    // name[2]: value = L
+    //
+MyProj_Compute_176_out_1 = 
+    Compute(
+    "$0.z/$0.z",
+    MyProj_Input_42_out_1
+    ) [instance: 176, cache: 1];
+    // 
+    // node AutoCamera[26]: x = 1279, y = 731, inputs = 9, label = AutoCamera
+    // input[2]: defaulting = 0, visible = 0, type = 32, value = "bottom"
+    // input[3]: defaulting = 1, visible = 1, type = 5, value = 600.0
+    // input[4]: defaulting = 1, visible = 1, type = 1, value = 300
+    // input[5]: defaulting = 1, visible = 1, type = 5, value = 1.0
+    // input[6]: defaulting = 0, visible = 0, type = 8, value = [0 1 0 ]
+    // input[9]: defaulting = 0, visible = 0, type = 32, value = "white"
+    // page group: Projections
+    //
+MyProj_AutoCamera_26_out_1 = 
+    AutoCamera(
+    MyProj_ColorBar_2_out_1,
+    "bottom",
+    MyProj_Compute_178_out_1,
+    MyProj_Compute_177_out_1,
+    MyProj_Compute_176_out_1,
+    [0 1 0 ],
+    NULL,
+    NULL,
+    "white"
+    ) [instance: 26, cache: 1];
+    // 
+    // node Render[33]: x = 1285, y = 996, inputs = 3, label = Render
+    // page group: Projections
+    //
+MyProj_Render_33_out_1 = 
+    Render(
+    MyProj_Collect_95_out_1,
+    MyProj_AutoCamera_26_out_1,
+    NULL
+    ) [instance: 33, cache: 1];
+    // 
+    // node Input[39]: x = 1612, y = 206, inputs = 0, label = Input
+    // page group: Projections
+    // parameter: position = 9, name = 'altitute', value = '0', descriptive = 1, description = 'Altitude of the horizontal plane', required = 1, visible = 1
+    //
+MyProj_Input_39_out_1 = altitute;
+    // 
+    // node Compute[158]: x = 782, y = 281, inputs = 2, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "[2,$0,0]"
+    // page group: Projections
+    // expression: value = [2,m,0]
+    // name[2]: value = m
+    //
+MyProj_Compute_158_out_1 = 
+    Compute(
+    "[2,$0,0]",
+    MyProj_Input_39_out_1
+    ) [instance: 158, cache: 1];
+    // 
+    // node MyGlyphs[2]: x = 780, y = 521, inputs = 17, label = MyGlyphs
+    // input[5]: defaulting = 0, visible = 1, type = 1, value = 1000
+    // input[10]: visible = 1
+    // input[11]: visible = 0
+    // page group: Projections
+    //
+MyProj_MyGlyphs_2_out_1,
+MyProj_MyGlyphs_2_out_2,
+MyProj_MyGlyphs_2_out_3,
+MyProj_MyGlyphs_2_out_4 = 
+    MyGlyphs(
+    MyProj_MyInputs_21_out_1,
+    MyProj_Compute_158_out_1,
+    MyProj_Input_38_out_1,
+    NULL,
+    1000,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    MyProj_Input_40_out_1,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    MyProj_Input_36_out_1,
+    MyProj_Input_37_out_1
+    ) [instance: 2, cache: 1];
+    // 
+    // node Switch[193]: x = 765, y = 636, inputs = 4, label = Switch
+    // page group: Projections
+    //
+MyProj_Switch_193_out_1 = 
+    Switch(
+    MyProj_Input_56_out_1,
+    MyProj_MyGlyphs_2_out_1,
+    MyProj_MyGlyphs_2_out_2,
+    MyProj_MyGlyphs_2_out_3
+    ) [instance: 193, cache: 1];
+    // 
+    // node Compute[171]: x = 949, y = 521, inputs = 3, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "$0.x*$1"
+    // page group: Projections
+    // expression: value = h.x*zoom
+    // name[2]: value = h
+    // name[3]: value = zoom
+    //
+MyProj_Compute_171_out_1 = 
+    Compute(
+    "$0.x*$1",
+    MyProj_Input_43_out_1,
+    MyProj_Input_41_out_1
+    ) [instance: 171, cache: 1];
+    // 
+    // node Compute[170]: x = 1018, y = 521, inputs = 2, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "$0.x"
+    // page group: Projections
+    // expression: value = h.x
+    // name[2]: value = h
+    //
+MyProj_Compute_170_out_1 = 
+    Compute(
+    "$0.x",
+    MyProj_Input_43_out_1
+    ) [instance: 170, cache: 1];
+    // 
+    // node Compute[169]: x = 1087, y = 521, inputs = 2, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "$0.y/$0.x"
+    // page group: Projections
+    // expression: value = L.y/L.x
+    // name[2]: value = L
+    //
+MyProj_Compute_169_out_1 = 
+    Compute(
+    "$0.y/$0.x",
+    MyProj_Input_42_out_1
+    ) [instance: 169, cache: 1];
+    // 
+    // node AutoCamera[27]: x = 924, y = 731, inputs = 9, label = AutoCamera
+    // input[2]: defaulting = 0, visible = 0, type = 32, value = "front"
+    // input[3]: defaulting = 1, visible = 1, type = 5, value = 1200.0
+    // input[4]: defaulting = 1, visible = 1, type = 1, value = 800
+    // input[5]: defaulting = 1, visible = 1, type = 5, value = 1.0
+    // input[9]: defaulting = 0, visible = 0, type = 32, value = "white"
+    // page group: Projections
+    //
+MyProj_AutoCamera_27_out_1 = 
+    AutoCamera(
+    MyProj_Switch_193_out_1,
+    "front",
+    MyProj_Compute_171_out_1,
+    MyProj_Compute_170_out_1,
+    MyProj_Compute_169_out_1,
+    NULL,
+    NULL,
+    NULL,
+    "white"
+    ) [instance: 27, cache: 1];
+    // 
+    // node AutoAxes[3]: x = 801, y = 871, inputs = 19, label = AutoAxes
+    // input[3]: defaulting = 0, visible = 1, type = 16777248, value = {"x (km)","y (km)","z (km)"}
+    // input[4]: defaulting = 1, visible = 1, type = 1, value = NULL
+    // input[5]: visible = 1
+    // input[6]: defaulting = 0, visible = 0, type = 3, value = 1
+    // input[7]: defaulting = 0, visible = 0, type = 3, value = 0
+    // input[8]: defaulting = 0, visible = 0, type = 8, value = NULL
+    // input[9]: defaulting = 0, visible = 0, type = 3, value = 0
+    // input[10]: defaulting = 0, visible = 0, type = 16777248, value = {"clear","black","black","black"}
+    // input[11]: defaulting = 0, visible = 0, type = 16777248, value = {"background","grid","ticks","labels"}
+    // input[12]: visible = 1
+    // input[13]: visible = 1
+    // page group: Projections
+    //
+MyProj_AutoAxes_3_out_1 = 
+    AutoAxes(
+    MyProj_Switch_193_out_1,
+    MyProj_AutoCamera_27_out_1,
+    {"x (km)","y (km)","z (km)"},
+    MyProj_Input_48_out_1,
+    MyProj_Input_51_out_1,
+    1,
+    0,
+    NULL,
+    0,
+    {"clear","black","black","black"},
+    {"background","grid","ticks","labels"},
+    MyProj_Input_44_out_1,
+    MyProj_Input_47_out_1,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+    ) [instance: 3, cache: 1];
+    // 
+    // node Render[31]: x = 930, y = 966, inputs = 3, label = Render
+    // page group: Projections
+    //
+MyProj_Render_31_out_1 = 
+    Render(
+    MyProj_AutoAxes_3_out_1,
+    MyProj_AutoCamera_27_out_1,
+    NULL
+    ) [instance: 31, cache: 1];
+    // 
+    // node Compute[157]: x = 407, y = 281, inputs = 2, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "[0,floor(($0.x-1)/2),0]"
+    // page group: Projections
+    // expression: value = [0,floor((m.x-1)/2),0]
+    // name[2]: value = m
+    //
+MyProj_Compute_157_out_1 = 
+    Compute(
+    "[0,floor(($0.x-1)/2),0]",
+    MyProj_Inquire_4_out_1
+    ) [instance: 157, cache: 1];
+    // 
+    // node MyGlyphs[3]: x = 405, y = 521, inputs = 17, label = MyGlyphs
+    // input[5]: defaulting = 0, visible = 1, type = 1, value = 1000
+    // input[10]: visible = 1
+    // input[11]: visible = 0
+    // page group: Projections
+    //
+MyProj_MyGlyphs_3_out_1,
+MyProj_MyGlyphs_3_out_2,
+MyProj_MyGlyphs_3_out_3,
+MyProj_MyGlyphs_3_out_4 = 
+    MyGlyphs(
+    MyProj_MyInputs_21_out_1,
+    MyProj_Compute_157_out_1,
+    MyProj_Input_38_out_1,
+    NULL,
+    1000,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    MyProj_Input_40_out_1,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    MyProj_Input_36_out_1,
+    MyProj_Input_37_out_1
+    ) [instance: 3, cache: 1];
+    // 
+    // node Switch[192]: x = 390, y = 631, inputs = 4, label = Switch
+    // page group: Projections
+    //
+MyProj_Switch_192_out_1 = 
+    Switch(
+    MyProj_Input_56_out_1,
+    MyProj_MyGlyphs_3_out_1,
+    MyProj_MyGlyphs_3_out_2,
+    MyProj_MyGlyphs_3_out_3
+    ) [instance: 192, cache: 1];
+    // 
+    // node Compute[175]: x = 573, y = 521, inputs = 3, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "$0.z*$1"
+    // page group: Projections
+    // expression: value = h.z*zoom
+    // name[2]: value = h
+    // name[3]: value = zoom
+    //
+MyProj_Compute_175_out_1 = 
+    Compute(
+    "$0.z*$1",
+    MyProj_Input_43_out_1,
+    MyProj_Input_41_out_1
+    ) [instance: 175, cache: 1];
+    // 
+    // node Compute[174]: x = 642, y = 521, inputs = 2, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "$0.z"
+    // page group: Projections
+    // expression: value = h.z
+    // name[2]: value = h
+    //
+MyProj_Compute_174_out_1 = 
+    Compute(
+    "$0.z",
+    MyProj_Input_43_out_1
+    ) [instance: 174, cache: 1];
+    // 
+    // node Compute[173]: x = 711, y = 521, inputs = 2, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "$0.y/$0.z"
+    // page group: Projections
+    // expression: value = L.y/L.z
+    // name[2]: value = L
+    //
+MyProj_Compute_173_out_1 = 
+    Compute(
+    "$0.y/$0.z",
+    MyProj_Input_42_out_1
+    ) [instance: 173, cache: 1];
+    // 
+    // node AutoCamera[29]: x = 549, y = 731, inputs = 9, label = AutoCamera
+    // input[2]: defaulting = 0, visible = 0, type = 32, value = "left"
+    // input[3]: defaulting = 1, visible = 1, type = 5, value = 450.0
+    // input[4]: defaulting = 1, visible = 1, type = 1, value = 300
+    // input[5]: defaulting = 1, visible = 1, type = 5, value = 2.66666
+    // input[9]: defaulting = 0, visible = 0, type = 32, value = "white"
+    // page group: Projections
+    //
+MyProj_AutoCamera_29_out_1 = 
+    AutoCamera(
+    MyProj_Switch_192_out_1,
+    "left",
+    MyProj_Compute_175_out_1,
+    MyProj_Compute_174_out_1,
+    MyProj_Compute_173_out_1,
+    NULL,
+    NULL,
+    NULL,
+    "white"
+    ) [instance: 29, cache: 1];
+    // 
+    // node AutoAxes[5]: x = 426, y = 871, inputs = 19, label = AutoAxes
+    // input[3]: defaulting = 0, visible = 1, type = 16777248, value = {"x (km)","y (km)","z (km)"}
+    // input[4]: defaulting = 1, visible = 1, type = 1, value = NULL
+    // input[5]: visible = 1
+    // input[6]: defaulting = 0, visible = 0, type = 3, value = 1
+    // input[7]: defaulting = 0, visible = 0, type = 3, value = 0
+    // input[8]: defaulting = 0, visible = 0, type = 8, value = NULL
+    // input[9]: defaulting = 0, visible = 0, type = 3, value = 0
+    // input[10]: defaulting = 0, visible = 0, type = 16777248, value = {"clear","black","black","black"}
+    // input[11]: defaulting = 0, visible = 0, type = 16777248, value = {"background","grid","ticks","labels"}
+    // input[12]: visible = 1
+    // input[13]: visible = 1
+    // page group: Projections
+    //
+MyProj_AutoAxes_5_out_1 = 
+    AutoAxes(
+    MyProj_Switch_192_out_1,
+    MyProj_AutoCamera_29_out_1,
+    {"x (km)","y (km)","z (km)"},
+    MyProj_Input_48_out_1,
+    MyProj_Input_51_out_1,
+    1,
+    0,
+    NULL,
+    0,
+    {"clear","black","black","black"},
+    {"background","grid","ticks","labels"},
+    MyProj_Input_44_out_1,
+    MyProj_Input_47_out_1,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+    ) [instance: 5, cache: 1];
+    // 
+    // node Render[32]: x = 555, y = 941, inputs = 3, label = Render
+    // page group: Projections
+    //
+MyProj_Render_32_out_1 = 
+    Render(
+    MyProj_AutoAxes_5_out_1,
+    MyProj_AutoCamera_29_out_1,
+    NULL
+    ) [instance: 32, cache: 1];
+    // 
+    // node Collect[94]: x = 196, y = 1081, inputs = 4, label = Collect
+    // page group: Projections
+    //
+MyProj_Collect_94_out_1 = 
+    Collect(
+    MyProj_Render_30_out_1,
+    MyProj_Render_33_out_1,
+    MyProj_Render_31_out_1,
+    MyProj_Render_32_out_1
+    ) [instance: 94, cache: 1];
+    // 
+    // node Arrange[11]: x = 232, y = 1146, inputs = 5, label = Arrange
+    // input[2]: defaulting = 0, visible = 1, type = 1, value = 2
+    // input[3]: defaulting = 0, visible = 0, type = 8, value = [1 1]
+    // input[4]: defaulting = 0, visible = 0, type = 8, value = [0 0]
+    // input[5]: defaulting = 0, visible = 1, type = 8, value = [0 0]
+    // page group: Projections
+    //
+MyProj_Arrange_11_out_1 = 
+    Arrange(
+    MyProj_Collect_94_out_1,
+    2,
+    [1 1],
+    [0 0],
+    [0 0]
+    ) [instance: 11, cache: 1];
+    // 
+    // node Output[7]: x = 241, y = 1211, inputs = 1, label = Output
+    // page group: Projections
+    // parameter: position = 1, name = 'Display', value = '(NULL)', descriptive = 1, description = ' ', required = 0, visible = 1
+    //
+Display = MyProj_Arrange_11_out_1;
+// network: end of macro body
+}
+MyProj_Input_56_out_1 = NULL;
+MyProj_Input_32_out_1 = NULL;
+MyProj_Input_33_out_1 = NULL;
+MyProj_Input_34_out_1 = NULL;
+MyProj_Input_35_out_1 = NULL;
+MyProj_MyInputs_21_out_1 = NULL;
+MyProj_MyInputs_21_out_3 = NULL;
+MyProj_Inquire_4_out_1 = NULL;
+MyProj_Compute_154_out_1 = NULL;
+MyProj_Input_38_out_1 = NULL;
+MyProj_Input_40_out_1 = NULL;
+MyProj_Input_36_out_1 = NULL;
+MyProj_Input_37_out_1 = NULL;
+MyProj_MyGlyphs_1_out_1 = NULL;
+MyProj_MyGlyphs_1_out_2 = NULL;
+MyProj_MyGlyphs_1_out_3 = NULL;
+MyProj_Switch_191_out_1 = NULL;
+MyProj_Input_43_out_1 = NULL;
+MyProj_Input_41_out_1 = NULL;
+MyProj_Compute_168_out_1 = NULL;
+MyProj_Compute_167_out_1 = NULL;
+MyProj_Input_42_out_1 = NULL;
+MyProj_Compute_165_out_1 = NULL;
+MyProj_AutoCamera_22_out_1 = NULL;
+MyProj_Input_48_out_1 = NULL;
+MyProj_Input_51_out_1 = NULL;
+MyProj_Input_44_out_1 = NULL;
+MyProj_Input_47_out_1 = NULL;
+MyProj_AutoAxes_1_out_1 = NULL;
+MyProj_Render_30_out_1 = NULL;
+MyProj_Input_45_out_1 = NULL;
+MyProj_Input_46_out_1 = NULL;
+MyProj_ColorBar_2_out_1 = NULL;
+MyProj_Input_52_out_1 = NULL;
+MyProj_Collect_95_out_1 = NULL;
+MyProj_Compute_178_out_1 = NULL;
+MyProj_Compute_177_out_1 = NULL;
+MyProj_Compute_176_out_1 = NULL;
+MyProj_AutoCamera_26_out_1 = NULL;
+MyProj_Render_33_out_1 = NULL;
+MyProj_Input_39_out_1 = NULL;
+MyProj_Compute_158_out_1 = NULL;
+MyProj_MyGlyphs_2_out_1 = NULL;
+MyProj_MyGlyphs_2_out_2 = NULL;
+MyProj_MyGlyphs_2_out_3 = NULL;
+MyProj_Switch_193_out_1 = NULL;
+MyProj_Compute_171_out_1 = NULL;
+MyProj_Compute_170_out_1 = NULL;
+MyProj_Compute_169_out_1 = NULL;
+MyProj_AutoCamera_27_out_1 = NULL;
+MyProj_AutoAxes_3_out_1 = NULL;
+MyProj_Render_31_out_1 = NULL;
+MyProj_Compute_157_out_1 = NULL;
+MyProj_MyGlyphs_3_out_1 = NULL;
+MyProj_MyGlyphs_3_out_2 = NULL;
+MyProj_MyGlyphs_3_out_3 = NULL;
+MyProj_Switch_192_out_1 = NULL;
+MyProj_Compute_175_out_1 = NULL;
+MyProj_Compute_174_out_1 = NULL;
+MyProj_Compute_173_out_1 = NULL;
+MyProj_AutoCamera_29_out_1 = NULL;
+MyProj_AutoAxes_5_out_1 = NULL;
+MyProj_Render_32_out_1 = NULL;
+MyProj_Collect_94_out_1 = NULL;
+MyProj_Arrange_11_out_1 = NULL;
