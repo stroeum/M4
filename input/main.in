@@ -26,7 +26,7 @@
 -iWindEW 1e2           #_m/_s, initial y-component of ion wind
 -iWindUD 0e2           #_m/_s, initial z-component of ion wind
 -ExtraDiagnostics
--B_field_type 7        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical, 7: Arcades, 8: Three lines of dipoles giving parallel arcades
+-B_field_type 3        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical, 7: Arcades, 8: Three lines of dipoles giving parallel arcades
 -B0 1e16               #_A_m2, magnitude of the magnetic dipole moment 
 -B1 -20e3              #_m, geometry parameter a
 -B2 0e3                #_m, geometry parameter b
