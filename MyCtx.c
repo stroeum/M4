@@ -507,6 +507,14 @@ PetscErrorCode OutputData(void* ptr)
   PetscPrintf(PETSC_COMM_WORLD,"box: [%2.1f,%2.1f,%2.1f] to [%2.1f,%2.1f,%2.1f] (km)\n",vizbox[0]/1e3,vizbox[2]/1e3,vizbox[4]/1e3,vizbox[1]/1e3,vizbox[3]/1e3,vizbox[5]/1e3);
   
   // Store total number of charge carriers in a file named diagnotics.dat //
+  int kTop=0;
+  Z = Zmin + z[kTop]*L;
+  while(Z<400e3) {
+    kTop++;
+    Z = Zmin + z[kTop]*L;
+  }
+  PetscPrintf(PETSC_COMM_WORLD,"kTop=%d, fluxAlt=%f\n", kTop, Z*1e-3);
+
   sprintf(fName,"%s/diagnostics.dat",user->vName);
   flag  = access(fName,W_OK);
   if (flag==0) nFile = fopen(fName,"a");
@@ -533,7 +541,7 @@ PetscErrorCode OutputData(void* ptr)
       // Retrieve current time //
       fscanf(tFile,"%e",&t);
 
-      // Read binary file containing the solution //
+     // Read binary file containing the solution //
       sprintf(fName,"%s/X%d.bin",user->dName,step);
       flag  = access(fName,F_OK);
       if (flag != 0) break;
@@ -758,14 +766,6 @@ PetscErrorCode OutputData(void* ptr)
           Fe[3] += ne*Ve * n0*v0 * DZ*DX;
         }
       }
-
-      int kTop=0;
-      Z = Zmin + z[kTop]*L;
-      while(Z<300e3) {
-        kTop++;
-        Z = Zmin + z[kTop]*L;
-      }
-      PetscPrintf(PETSC_COMM_WORLD,"kTop=%d, fluxAlt=%f\n", kTop, Z*1e-3);
 
       // B-T flows //
       for (i=xs; i<xs+xm; i++) {
