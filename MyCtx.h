@@ -119,7 +119,6 @@ typedef struct {
     dvi            d;                             // Definition of indices for "dynamic" variables (defined by a partial differential equaiton)
     PetscBool      isInputFile;                   // Input file: 1, and 0, no input file
     PetscBool      bcRec;                         // Record BC
-    PetscBool      fluxRec;                       // Record fluxes at BC
     char           InputFile[PETSC_MAX_PATH_LEN]; // Name of the input file
     char           dName[PETSC_MAX_PATH_LEN];     // Name of the output directory
     char           vName[PETSC_MAX_PATH_LEN];     // Name of the visualization direction

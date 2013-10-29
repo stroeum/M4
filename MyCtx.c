@@ -150,7 +150,6 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
   user->da = PETSC_NULL;
   user->db = PETSC_NULL;
   user->cnt = 0;
-  user->fluxRec = PETSC_TRUE;
     
   user->gama[O2p]  = 1.0 + 2.0/6.0;
   user->gama[CO2p] = 1.0 + 2.0/9.0;
@@ -508,6 +507,14 @@ PetscErrorCode OutputData(void* ptr)
   PetscPrintf(PETSC_COMM_WORLD,"box: [%2.1f,%2.1f,%2.1f] to [%2.1f,%2.1f,%2.1f] (km)\n",vizbox[0]/1e3,vizbox[2]/1e3,vizbox[4]/1e3,vizbox[1]/1e3,vizbox[3]/1e3,vizbox[5]/1e3);
   
   // Store total number of charge carriers in a file named diagnotics.dat //
+  int kTop=0;
+  Z = Zmin + z[kTop]*L;
+  while(Z<400e3) {
+    kTop++;
+    Z = Zmin + z[kTop]*L;
+  }
+  PetscPrintf(PETSC_COMM_WORLD,"kTop=%d, fluxAlt=%f\n", kTop, Z*1e-3);
+
   sprintf(fName,"%s/diagnostics.dat",user->vName);
   flag  = access(fName,W_OK);
   if (flag==0) nFile = fopen(fName,"a");
@@ -534,7 +541,7 @@ PetscErrorCode OutputData(void* ptr)
       // Retrieve current time //
       fscanf(tFile,"%e",&t);
 
-      // Read binary file containing the solution //
+     // Read binary file containing the solution //
       sprintf(fName,"%s/X%d.bin",user->dName,step);
       flag  = access(fName,F_OK);
       if (flag != 0) break;
@@ -723,27 +730,12 @@ PetscErrorCode OutputData(void* ptr)
         }
       }
 
-      //////////////////////////////////////////////////////////////////////////
-      double FCO2p[user->mz];
-      FILE  *FCO2pFile;
-      sprintf(fName,"%s/F_CO2p_north_%d.dat",user->vName,step);
-      //PetscPrintf(PETSC_COMM_WORLD,"HERE!!!!!!!!!!!");
-      flag  = access(fName,W_OK);
-      if (flag==0) FCO2pFile = fopen(fName,"a");
-      else         FCO2pFile = fopen(fName,"w");
-      //////////////////////////////////////////////////////////////////////////
-
       // S-N flows //
       for (k=zs; k<zs+zm; k++) {
         // Define z-space increment //
         if (k==0)         DZ = (z[   1]-z[   0])*L    ;
         else if (k==mz-1) DZ = (z[mz-1]-z[mz-2])*L    ;
         else              DZ = (z[ k+1]-z[ k-1])*L/2.0;
-
-        //////////////////////////////////////////////////////////////////////////
-        FCO2p[k] = 0;
-        Z = Zmin + z[k]*L;
-        //////////////////////////////////////////////////////////////////////////
 
         for (i=xs; i<xs+xm; i++) {
 
@@ -772,18 +764,8 @@ PetscErrorCode OutputData(void* ptr)
           }
           Ve = v[k][j][i][s.ve[1]];
           Fe[3] += ne*Ve * n0*v0 * DZ*DX;
-
-          //////////////////////////////////////////////////////////////////////////
-          FCO2p[k] += u[k][j][i][d.ni[1]] * u[k][j][i][d.vi[1][1]] * n0*v0 * DZ*DX;
-          //////////////////////////////////////////////////////////////////////////
         }
-
-        //////////////////////////////////////////////////////////////////////////
-        ierr=PetscFPrintf(PETSC_COMM_WORLD,FCO2pFile,"%12.6e\t%12.6e\n",Z,FCO2p[k]);CHKERRQ(ierr);
-        //////////////////////////////////////////////////////////////////////////
-
       }
-      fclose(FCO2pFile);
 
       // B-T flows //
       for (i=xs; i<xs+xm; i++) {
@@ -809,7 +791,8 @@ PetscErrorCode OutputData(void* ptr)
           Fe[4] -= ne*Ve * n0*v0 * DX*DY;
 
           // T-flow //
-          k = mz-1;
+          /*k = mz-1;*/
+          k = kTop;
           ne = 0.0;
           for (l=0; l<3; l++) {
             ne += u[k][j][i][d.ni[l]];

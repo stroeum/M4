@@ -23,12 +23,12 @@
 -WindEW 0e2            #_m/_s, y-component of neutral wind
 -WindUD 0e2            #_m/_s, z-component of neutral wind
 -iWindNS 0e2          #_m/_s, initial x-component of ion wind
--iWindEW 0e2           #_m/_s, initial y-component of ion wind
+-iWindEW 1e2           #_m/_s, initial y-component of ion wind
 -iWindUD 0e2           #_m/_s, initial z-component of ion wind
 -ExtraDiagnostics
--B_field_type 2        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical, 7: Arcades, 8: Three lines of dipoles giving parallel arcades
--B0 5e-9               #_A_m2, magnitude of the magnetic dipole moment 
--B1 0e3              #_m, geometry parameter a
+-B_field_type 7        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical, 7: Arcades, 8: Three lines of dipoles giving parallel arcades
+-B0 1e16               #_A_m2, magnitude of the magnetic dipole moment 
+-B1 -20e3              #_m, geometry parameter a
 -B2 0e3                #_m, geometry parameter b
 -B3 0e3                #_m, geometry parameter c
 -Mmars 6.4185e23       #_kg, Mars' mass
@@ -64,9 +64,9 @@
 #-Damping_scaleheight 10.0e3 #_m
 
 #Visualization parameters
--vizbox_x_min -1000.0e+3  #_m
--vizbox_x_max 1000.0e+3   #_m
--vizbox_y_min -1000.0e+3  #_m
--vizbox_y_max 1000.0e+3   #_m
+-vizbox_x_min -400.0e+3  #_m
+-vizbox_x_max 400.0e+3   #_m
+-vizbox_y_min -400.0e+3  #_m
+-vizbox_y_max 400.0e+3   #_m
 -vizbox_z_min 0.0e+3     #_m
 -vizbox_z_max 10000.0e+3 #_m

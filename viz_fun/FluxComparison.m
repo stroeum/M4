@@ -121,6 +121,42 @@ Loop.Fe.n(1,:) = raw.data(:,6+(l-1)*7);
 Loop.Fe.b(1,:) = raw.data(:,7+(l-1)*7);
 Loop.Fe.t(1,:) = raw.data(:,8+(l-1)*7);
 
+%% Load horizontal field data
+raw = importdata('../../NewHfield/viz_dir/diagnostics.dat');
+
+%% Resize data
+% S.N = size(N.data);
+hfield.t         = raw.data(:,1);
+N              = length(hfield.t);
+hfield.Fi.s(3,N) = 0.0;
+hfield.Fi.n(3,N) = 0.0;
+hfield.Fi.w(3,N) = 0.0;
+hfield.Fi.e(3,N) = 0.0;
+hfield.Fi.b(3,N) = 0.0;
+hfield.Fi.t(3,N) = 0.0;
+hfield.Fe.w(1,N) = 0.0;
+hfield.Fe.e(1,N) = 0.0;
+hfield.Fe.s(1,N) = 0.0;
+hfield.Fe.n(1,N) = 0.0;
+hfield.Fe.b(1,N) = 0.0;
+hfield.Fe.t(1,N) = 0.0;
+
+for l=1:3
+    hfield.Fi.w(l,:) = raw.data(:,3+(l-1)*7);
+    hfield.Fi.e(l,:) = raw.data(:,4+(l-1)*7);
+    hfield.Fi.s(l,:) = raw.data(:,5+(l-1)*7);
+    hfield.Fi.n(l,:) = raw.data(:,6+(l-1)*7);
+    hfield.Fi.b(l,:) = raw.data(:,7+(l-1)*7);
+    hfield.Fi.t(l,:) = raw.data(:,8+(l-1)*7);
+end
+l=4;
+hfield.Fe.w(1,:) = raw.data(:,3+(l-1)*7);
+hfield.Fe.e(1,:) = raw.data(:,4+(l-1)*7);
+hfield.Fe.s(1,:) = raw.data(:,5+(l-1)*7);
+hfield.Fe.n(1,:) = raw.data(:,6+(l-1)*7);
+hfield.Fe.b(1,:) = raw.data(:,7+(l-1)*7);
+hfield.Fe.t(1,:) = raw.data(:,8+(l-1)*7);
+
 %% Plot
 FS=10;
 figure(1)
@@ -131,19 +167,22 @@ maxF = 5e23;
 
 subplot(2,1,1)
 plot(...
-    Arca.t,Arca.Fi.t(1,:),'k+-' ,Arca.t,Arca.Fi.t(2,:),'kx-' ,Arca.t,Arca.Fi.t(3,:),'k*-'  ...
+    Arca.t,Arca.Fi.t(1,:),'k+' ,Arca.t,Arca.Fi.t(2,:),'kx' ,Arca.t,Arca.Fi.t(3,:),'k*'  ...
     ,...
-    Cusp.t,Cusp.Fi.t(1,:),'b+--',Cusp.t,Cusp.Fi.t(2,:),'bx--',Cusp.t,Cusp.Fi.t(3,:),'b*--' ...
+    Cusp.t,Cusp.Fi.t(1,:),'b+',Cusp.t,Cusp.Fi.t(2,:),'bx',Cusp.t,Cusp.Fi.t(3,:),'b*' ...
     ,...
-    Loop.t,Loop.Fi.t(1,:),'r+:' ,Loop.t,Loop.Fi.t(2,:),'rx:' ,Loop.t,Loop.Fi.t(3,:),'r*:'  ...    
+    Loop.t,Loop.Fi.t(1,:),'r+' ,Loop.t,Loop.Fi.t(2,:),'rx' ,Loop.t,Loop.Fi.t(3,:),'r*'  ...    
+    ,...
+    hfield.t,hfield.Fi.t(1,:),'g+' ,hfield.t,hfield.Fi.t(2,:),'gx' ,hfield.t,hfield.Fi.t(3,:),'g*'  ...    
     );
 ylim([minF maxF])
+xlim([0 30])
 xlabel('t (s)','FontSize',FS);
 ylabel('F_\alpha^{top} (#/s)','FontSize',FS);
 legend('O_2^+','CO_2^+','O^+','e','location','best')
 legend('boxoff')
 set(gca,'TickDir','Out','FontSize',FS)
-axis tight
+%axis tight
 
 subplot(2,1,2)
 plot(...
@@ -151,14 +190,38 @@ plot(...
     ,...
     Cusp.t,Cusp.Fe.t(1,:),'b' ... 
     ,...
-    Loop.t,Loop.Fe.t(1,:),'r' ...     
+    Loop.t,Loop.Fe.t(1,:),'r' ...
+    ,...
+    hfield.t,hfield.Fe.t(1,:),'g' ...
     );
 ylim([minF maxF])
+xlim([0 30])
 xlabel('t (s)','FontSize',FS);
 ylabel('F_e^{top} (#/s)','FontSize',FS);
 legend('Arcades','Cusp','Loop','location','best')
 legend('boxoff')
 set(gca,'TickDir','Out','FontSize',FS)
-axis tight
+%axis tight
 
-print(1,'-depsc','ComparisonTotalFlowThruTop.eps')
+figure(2)
+set(gcf,'Units','normalized','OuterPosition',[.25 0 .25 .5],'Color',[1 1 1])
+plot(...
+    Arca.t,Arca.Fi.t(1,:),'b--',Arca.t,Arca.Fi.t(2,:),'r--',Arca.t,Arca.Fi.t(3,:),'g--' ...%,Arca.t,Arca.Fe.t,'k--' ...
+    ,...
+    Cusp.t,Cusp.Fi.t(1,:),'b-' ,Cusp.t,Cusp.Fi.t(2,:),'r-' ,Cusp.t,Cusp.Fi.t(3,:),'g-'  ...%,Cusp.t,Cusp.Fe.t,'k-' ...
+    );
+
+minF = -1e23;
+maxF = 2.5e23;
+
+ylim([minF maxF])
+
+xlim([0 30])
+xlabel('t (s)','FontSize',FS);
+ylabel('F_\alpha^{top} (#/s)','FontSize',FS);
+% legend('O_2^+','CO_2^+','O^+','e','location','best')
+% legend('boxoff')
+set(gca,'TickDir','Out','FontSize',FS)
+%axis tight
+
+print(2,'-depsc','FluxThruTop.eps')
