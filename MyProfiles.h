@@ -60,16 +60,12 @@
  *    - Automatize the creation of the DMDA da to use the appropriate number of equations and variables
  * 6. Modify the size of the containers ni, pi, vi... in MyCtx.h
  */
-enum chargedspecies {O2p, CO2p, Op, e};
 enum interpolations {lin_lin, lin_exp, lin_flat};
-enum neutrals {CO2, O};
 
 extern PetscInt  ReadTable(PetscReal table[][Nz_REF], PetscInt P, const char *fName);
 extern PetscReal Interpolate(PetscReal table[][Nz_REF], PetscInt i, PetscReal h, PetscInt ItpType);  
-extern PetscReal vin(PetscReal profiles[][Nz_REF],PetscInt i, PetscInt n, PetscReal h);
-extern PetscReal Vin(PetscInt i, PetscInt n, PetscReal nn, PetscReal Ti, PetscReal Tn);
-extern PetscReal ven(PetscReal profiles[][Nz_REF],PetscInt n, PetscReal h);
-extern PetscReal Ven(PetscInt n, PetscReal nn, PetscReal Te);
+extern PetscReal Interpolate1(PetscReal x, PetscReal xi[], PetscReal yi[], PetscInt Ni, PetscInt ItpType);  
+extern PetscReal Interpolate2(PetscReal x, PetscReal xi[], PetscReal yi[], PetscInt Ni, PetscInt ItpType);  
 
 #endif
 

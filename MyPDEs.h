@@ -8,6 +8,9 @@
 #define MYPDES_H
 
 #include "MyCtx.h"
+#include "MyProfiles.h"
+#include "MyChemistry.h"
+#include "MyCollisions.h"
 
 extern PetscErrorCode FormBCu(PetscReal****,void*);
 extern PetscErrorCode FormBCv(PetscReal****,void*);

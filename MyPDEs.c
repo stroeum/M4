@@ -1077,15 +1077,14 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
   svi            s = user->s;
   
   PetscInt       mx = user->mx, my = user->my, mz = user->mz;
-  PetscReal      n0 = user->n0, v0 = user->v0, p0 = user->p0;
+  PetscReal      n0 = user->n0, v0 = user->v0, p0 = user->p0, T0 = user->T0;
   PetscReal      un[3] = {user->un[0]/v0, user->un[1]/v0, user->un[2]/v0};       // neutral wind
   PetscInt       rank;
   PetscInt       i,j,k,m,xs,ys,zs,xm,ym,zm;
   PetscReal      vi[3][3],ve[3]; // velocity of i,e
   PetscReal      E[3];  // E-field
   PetscReal      J[3];  // total conduction current
-  PetscReal      nu_en[2] = {0.0, 0.0};  // electron-neutral collisions
-
+  PetscReal      nu[6] = {0.0,0.0,0.0,0.0,0.0,0.0}; // electron-neutral collisions
   dvi            d = user->d;
   PetscReal      L = user->L;
   PetscReal      Lz;
@@ -1221,10 +1220,20 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
         B[1]        = u[k][j][i][d.B[1]];        // By
         B[2]        = u[k][j][i][d.B[2]];        // Bz
 
-        Te          = pe*p0/(ne*n0*kB);
 
+        /*
+        Te          = pe*p0/(ne*n0*kB);
         nn[CO2]     = Interpolate(user->RefProf, 5 ,Z, lin_flat);
         nn[O]       = Interpolate(user->RefProf, 4 ,Z, lin_flat);
+        nu[CO2]     = Ven(CO2, nn[CO2], Te);
+        nu[O]       = Ven(O  , nn[O]  , Te);
+        */
+
+        Te          = pe/ne;
+        nn[CO2]     = Interpolate(user->RefProf, 5 ,Z, lin_flat)/n0;
+        nn[O]       = Interpolate(user->RefProf, 4 ,Z, lin_flat)/n0;
+        nu[0]       = v41(nn[CO2] *n0 , Te      *T0);                // e    CO2
+        nu[1]       = v42(nn[O]   *n0 , Te      *T0);                // e    O
 
         // Intermediate calculations //
         dpe.dx = D1.x[0]*u[k][j][id.x[0]][d.pe] + D1.x[1]*u[k][j][id.x[1]][d.pe] + D1.x[2]*u[k][j][id.x[2]][d.pe]; //dpe.dx 
@@ -1237,9 +1246,6 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
           dB[m].dy = D1.y[0]*u[k][id.y[0]][i][d.B[m]] + D1.y[1]*u[k][id.y[1]][i][d.B[m]] + D1.y[2]*u[k][id.y[2]][i][d.B[m]]; //dB[m].dy 
           dB[m].dz = D1.z[0]*u[id.z[0]][j][i][d.B[m]] + D1.z[1]*u[id.z[1]][j][i][d.B[m]] + D1.z[2]*u[id.z[2]][j][i][d.B[m]]; //dB[m].dz 
         }
-
-        nu_en[CO2] = Ven(CO2, nn[CO2], Te);
-        nu_en[O]   = Ven(O  , nn[O]  , Te);
 
         // Current //
         J[0] = dB[2].dy - dB[1].dz; 
@@ -1257,7 +1263,7 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
             PetscPrintf(PETSC_COMM_WORLD,"HERE is the PROBLEM\n");
           }
         */
-        //if (i==0 && j==0 && k==0) printf("dz=%2.1e km, nu_en=%2.5e ve=[%2.3e %2.3e %2.3e] un=[%2.3e %2.3e %2.3e]\n", dh.z[0],nu_en[CO2]+nu_en[O], ve[0]*v0,ve[1]*v0,ve[2]*v0,un[0]*v0,un[1]*v0,un[2]*v0);
+        //if (i==0 && j==0 && k==0) printf("dz=%2.1e km, nu=%2.5e ve=[%2.3e %2.3e %2.3e] un=[%2.3e %2.3e %2.3e]\n", dh.z[0],nu[CO2]+nu[O], ve[0]*v0,ve[1]*v0,ve[2]*v0,un[0]*v0,un[1]*v0,un[2]*v0);
         
         // E-field //
         if (vDamping) { //((1.0-tanh(Z-Lz)/(Lz/12.0))/2.0);
@@ -1268,9 +1274,9 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
               .5*(1+erf((Z-ZL)/lambda)) * .5*(1-erf((Z-ZU)/lambda)) ;
           }
         }
-        E[0] = -CrossP(ve,B,0) - dpe.dx/ne + (nu_en[CO2] + nu_en[O]) * tau * (un[0] - ve[0]);
-        E[1] = -CrossP(ve,B,1) - dpe.dy/ne + (nu_en[CO2] + nu_en[O]) * tau * (un[1] - ve[1]);
-        E[2] = -CrossP(ve,B,2) - dpe.dz/ne + (nu_en[CO2] + nu_en[O]) * tau * (un[2] - ve[2]);
+        E[0] = -CrossP(ve,B,0) - dpe.dx/ne + (nu[CO2] + nu[O]) * tau * (un[0] - ve[0]);
+        E[1] = -CrossP(ve,B,1) - dpe.dy/ne + (nu[CO2] + nu[O]) * tau * (un[1] - ve[1]);
+        E[2] = -CrossP(ve,B,2) - dpe.dz/ne + (nu[CO2] + nu[O]) * tau * (un[2] - ve[2]);
 
         // Store data //
         for (m=0; m<3; m++) { 
@@ -1302,7 +1308,7 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 {
   AppCtx         *user = (AppCtx*)ctx;
-  PetscReal      n0 = user->n0, v0 = user->v0, p0 = user->p0;
+  PetscReal      n0 = user->n0, v0 = user->v0, p0 = user->p0, T0 = user->T0;
   DM             da = (DM)user->da;
   DM             db = (DM)user->db;
   PetscInt       mx = user->mx, my = user->my, mz = user->mz;
@@ -1387,10 +1393,10 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
   PetscReal      T_cr[4] = {0.0,0.0,0.0,0.0};
   PetscErrorCode ierr;
   PetscReal      t,dt,dt_CFL,h[3];
-  PetscReal      nu[4][2];                                                       // ion-neutral collision frequency
+  PetscReal      nu[4][6];                                                       // ion-neutral collision frequency
   PetscReal      E[3],B[3];                                                      // E-field, B-field
   PetscReal      ne,ni[3],nn[2];                                                 // [O2+], [CO2+], [O+], ne in m^-3
-  PetscReal      Ti[3],Te,Tn;                                                    // Temperature of e, O2+, CO2+, O+, CO2, 0 in K
+  PetscReal      Ti[3],Te,Tn[2];                                                 // Temperature of e, O2+, CO2+, O+, CO2, 0 in K
   PetscReal      pe,pi[3];                                                       // pressure of O2+, CO2+, O+, e in J/m^3
   Vec            V;
   PetscReal      ****u,****v,****f;
@@ -1537,20 +1543,69 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
         E[1]        = v[k][j][i][s.E[1]];        // Ey
         E[2]        = v[k][j][i][s.E[2]];        // Ez
 
-        nn[CO2] = Interpolate(user->RefProf, 5,Z,lin_exp );
+        /*
+        nn[CO2] = Interpolate(user->RefProf, 5,Z,lin_exp ); 
         nn[O]   = Interpolate(user->RefProf, 4,Z,lin_exp );
-        Tn      = Interpolate(user->RefProf,10,Z,lin_flat);
-        
+        Tn[CO2] = Interpolate(user->RefProf,10,Z,lin_flat);
+        Tn[O]   = Interpolate(user->RefProf,10,Z,lin_flat);
         for (l=0; l<3; l++) {
           Ti[l] = pi[l]*p0/(ni[l]*n0*kB);
           for (n=0; n<2; n++) {
-            nu[l][n] = Vin(l,n,nn[n],Ti[l],Tn);
+            nu[l][n] = Vin(l,n,nn[n],Ti[l],Tn[n]);
           }
         }
         Te = pe*p0/(ne*n0*kB);
         for (n=0; n<2; n++) 
           nu[e][n] = Ven(n,nn[n],Te);
 
+        for (l=0; l<4; l++)
+          for (n=0; n<2; n++)
+            PetscPrintf(PETSC_COMM_WORLD,"nu[%d,%d]=%e\n",l,n,nu[l][n]);
+        */
+        nn[CO2] = Interpolate(user->RefProf, 5,Z,lin_exp )/n0; 
+        nn[O]   = Interpolate(user->RefProf, 4,Z,lin_exp )/n0;
+        for (l=0; l<3; l++)
+          Ti[l] = pi[l]/ni[l];
+        Tn[CO2] = Interpolate(user->RefProf,10,Z,lin_flat)/T0;
+        Tn[O]   = Interpolate(user->RefProf,10,Z,lin_flat)/T0;
+        Te      = pe/ne;
+
+        // collisions //
+        nu[0][0] = v11(nn[CO2] *n0);                              // O2+  CO2
+        nu[0][1] = v12(nn[O]   *n0);                              // O2+  O
+        nu[0][2] = v13(ni[O2p] *n0 , Ti[O2p] *T0);                // O2+  O2+
+        nu[0][3] = v14(ni[CO2p]*n0 , Ti[CO2p]*T0);                // O2+  CO2+
+        nu[0][4] = v15(ni[Op]  *n0 , Ti[Op]  *T0);                // O2+  O+
+        nu[0][5] = v16();                                         // O2+  e
+
+        nu[1][0] = v21(nn[CO2] *n0 , Tn[CO2] *T0 , Ti[CO2p] *T0); // CO2+ CO2
+        nu[1][1] = v22(nn[O]   *n0);                              // CO2+ O
+        nu[1][2] = v23(ni[O2p] *n0 , Ti[O2p] *T0);                // CO2+ O2+
+        nu[1][3] = v24(ni[CO2p]*n0 , Ti[CO2p]*T0);                // CO2+ CO2+
+        nu[1][4] = v25(ni[Op]  *n0 , Ti[Op]  *T0);                // CO2+ O+
+        nu[1][5] = v26();                                         // CO2+ e
+
+        nu[2][0] = v31(nn[CO2] *n0);                              // O+   CO2
+        nu[2][1] = v32(nn[O]   *n0 , Tn[O]   *T0 , Ti[Op]   *T0); // O+   O
+        nu[2][2] = v33(ni[O2p] *n0 , Ti[O2p] *T0);                // O+   O2+
+        nu[2][3] = v34(ni[CO2p]*n0 , Ti[CO2p]*T0);                // O+   CO2+
+        nu[2][4] = v35(ni[Op]  *n0 , Ti[Op]  *T0);                // O+   O+
+        nu[2][5] = v36();                                         // O+   e
+
+        nu[3][0] = v41(nn[CO2] *n0 , Te      *T0);                // e    CO2
+        nu[3][1] = v42(nn[O]   *n0 , Te      *T0);                // e    O
+        nu[3][2] = v43(ni[O2p] *n0 , Te      *T0);                // e    O2+
+        nu[3][3] = v44(ni[CO2p]*n0 , Te      *T0);                // e    CO2+
+        nu[3][4] = v45(ni[Op]  *n0 , Te      *T0);                // e    O+
+        nu[3][5] = v46(ne      *n0 , Te      *T0);                // e    e
+
+        /*
+        for (l=0; l<4; l++)
+          for (n=0; n<2; n++)
+            PetscPrintf(PETSC_COMM_WORLD,"nu[%d,%d]=%e\n",l,n,nu[l][n]);
+        exit(1);
+        */
+         
         //if (i==mx-1 && j==my-1 && k==mz-1) printf("nu.O2pn=%+14.7e; nu.CO2pn=%+14.7e; nu.Opn=%+14.7e; nu.en=%+14.7e;\n",nu[O2p][CO2]+nu[O2p][O],nu[CO2p][CO2]+nu[CO2p][O],nu[Op][CO2]+nu[Op][O],nu[e][CO2]+nu[e][O]);
 
         // Intermediate calculations //

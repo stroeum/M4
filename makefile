@@ -5,8 +5,9 @@ CFLAGS = $(FLAGS)
 FOLDER = $(CURDIR)
 NAME = $(notdir $(CURDIR))
 MYDIR=/nv/hp5/jriousset6/data/M4/${NAME}
-NODES=1
+NODES=2
 PPN=64
+RUNTIME=30:00:00
 PROCS= $(shell echo ${NODES}*${PPN} | bc)
 
 include ${PETSC_DIR}/conf/variables
@@ -14,7 +15,7 @@ include ${PETSC_DIR}/conf/rules
 
 #SOURCES = $(wildcard *.c)
 
-SOURCES = MyProfiles.c MyCtx.c MyMonitor.c MyPDEs.c
+SOURCES = MyProfiles.c MyCollisions.c MyChemistry.c MyCtx.c MyMonitor.c MyPDEs.c
 
 OBJECTS = $(SOURCES:.c=.o)
 
@@ -29,7 +30,7 @@ conv_exe: convert.o chkopts ${OBJECTS}
 run:
 	#cp ~/M4_RK.5 ~/${NAME}.sh
 	cp ~/M4_RK.6 ~/${NAME}.sh
-	qsub -N log${NAME} -l nodes=${NODES}:ppn=${PPN} -l walltime=40:00:00 -l pmem=3gb -v MYDIR=${MYDIR},MYPROCS=${PROCS} -z ~/${NAME}.sh 
+	qsub -N log${NAME} -l nodes=${NODES}:ppn=${PPN} -l walltime=${RUNTIME} -l pmem=3gb -v MYDIR=${MYDIR},MYPROCS=${PROCS} -z ~/${NAME}.sh 
 	#mpirun -n 8 ./main -options_file input/main.in # > viz_dir/log.out
 	
 conv:

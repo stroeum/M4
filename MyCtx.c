@@ -371,6 +371,7 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
   user->n0  = user->me/(qe*qe*user->L*user->L*mu0);
   user->v0  = PetscSqrtScalar(user->gM*user->L);
   user->p0  = (user->me*user->me*user->gM)/(qe*qe*user->L*mu0);
+  user->T0  = user->p0/(kB*user->n0 );
   user->B0  = user->me/(qe*user->tau);
   
   /* dt = min(dt,CFL) */

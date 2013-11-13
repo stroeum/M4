@@ -17,13 +17,15 @@
 #ifndef MYCTX_H
 #define MYCTX_H
 
-#include "MyProfiles.h"
 #include "petsctime.h"
 #include "petscdmda.h"
 #include "petscts.h"
 #include <petsc-private/tsimpl.h>
 #include <unistd.h>
 #include <assert.h>
+
+enum chargedspecies {O2p, CO2p, Op, e};
+enum neutrals {CO2, O};
 
 // For JAR RK method personalization //
 extern PetscFunctionList TSSSPList;
@@ -112,9 +114,10 @@ typedef struct {
     PetscReal      ui[3];                         // Initial x-, y-, and z-component of the ions
     PetscReal      n0;                            // no[O2+,CO2+,O+,e], reference particule number densities
     PetscReal      gama[4];                       // Specific heat ratio (O2+,CO2+,O+,e)
-    PetscReal      v0;                            // vo[O2+,CO2+,O+,e]=sqrt(3kT/m) --reference velocity (thermal velocity)
-    PetscReal      p0;                            // po[O2+,CO2+,O+,e]=no[O2+,CO2+,O+,e]*kB*T[i,e], reference kinectic pressures
-    PetscReal      B0;                            // reference magnetic field
+    PetscReal      v0;                            // Reference velocity (thermal velocity)
+    PetscReal      p0;                            // Reference kinectic pressure
+    PetscReal      T0;                            // Reference temperature
+    PetscReal      B0;                            // Reference magnetic field
     svi            s;                             // Definition of indices for "static" variables (defined by an algebraic equation)
     dvi            d;                             // Definition of indices for "dynamic" variables (defined by a partial differential equaiton)
     PetscBool      isInputFile;                   // Input file: 1, and 0, no input file
