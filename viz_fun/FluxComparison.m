@@ -14,7 +14,7 @@ cd ..
 cd viz_fun
 
 %% Load Cusp data
-raw = importdata('../../NewCusp/viz_dir/diagnostics.dat');
+raw = importdata('../../ExtendedFullCollCusp/viz_dir/diagnostics.dat');
 
 %% Resize data
 % S.N = size(N.data);
@@ -50,7 +50,7 @@ Cusp.Fe.b(1,:) = raw.data(:,7+(l-1)*7);
 Cusp.Fe.t(1,:) = raw.data(:,8+(l-1)*7);
 
 %% Load Arcades data
-raw = importdata('../../NewArcades/viz_dir/diagnostics.dat');
+raw = importdata('../../ExtendedFullCollArcades/viz_dir/diagnostics.dat');
 
 %% Resize data
 % S.N = size(N.data);
@@ -84,6 +84,7 @@ Arca.Fe.s(1,:) = raw.data(:,5+(l-1)*7);
 Arca.Fe.n(1,:) = raw.data(:,6+(l-1)*7);
 Arca.Fe.b(1,:) = raw.data(:,7+(l-1)*7);
 Arca.Fe.t(1,:) = raw.data(:,8+(l-1)*7);
+
 
 %% Load Loop data
 raw = importdata('../../NewLoop/viz_dir/diagnostics.dat');
@@ -205,18 +206,18 @@ set(gca,'TickDir','Out','FontSize',FS)
 
 figure(2)
 set(gcf,'Units','normalized','OuterPosition',[.25 0 .25 .5],'Color',[1 1 1])
-plot(...
+semilogy(...
     Arca.t,Arca.Fi.t(1,:),'b--',Arca.t,Arca.Fi.t(2,:),'r--',Arca.t,Arca.Fi.t(3,:),'g--' ...%,Arca.t,Arca.Fe.t,'k--' ...
     ,...
     Cusp.t,Cusp.Fi.t(1,:),'b-' ,Cusp.t,Cusp.Fi.t(2,:),'r-' ,Cusp.t,Cusp.Fi.t(3,:),'g-'  ...%,Cusp.t,Cusp.Fe.t,'k-' ...
     );
 
 minF = -1e23;
-maxF = 2.5e23;
+maxF = 5e23;
 
 ylim([minF maxF])
 
-xlim([0 30])
+xlim([0 27])
 xlabel('t (s)','FontSize',FS);
 ylabel('F_\alpha^{top} (#/s)','FontSize',FS);
 % legend('O_2^+','CO_2^+','O^+','e','location','best')
@@ -224,4 +225,4 @@ ylabel('F_\alpha^{top} (#/s)','FontSize',FS);
 set(gca,'TickDir','Out','FontSize',FS)
 %axis tight
 
-print(2,'-depsc','FluxThruTop.eps')
+print(2,'FluxThruTop.ps','-dpsc')

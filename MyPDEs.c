@@ -1281,7 +1281,7 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
         // Elastic collisions term //
         for (m=0;m<3;m++) {
             el_coll[m] = 0;
-            for (b=0;b<2;b++) {
+            for (b=0;b<6;b++) {
               el_coll[m] += nu[b]*tau*(vb[b][m]-ve[m]);
           }
         }
@@ -1644,7 +1644,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
         for (m=0;m<3;m++) {
           for (l=0;l<3;l++) { 
             el_coll[l][m] = 0;
-            for (b=0;b<2;b++) {
+            for (b=0;b<6;b++) {
               el_coll[l][m] += tau*nu[l][b]*(vb[b][m]-vi[l][m]);
             }
           }

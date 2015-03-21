@@ -402,9 +402,9 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
       user->istep = atoi(pstep);
 
       /*
-       * Retrieve initial time from step number and file t.dat containing all the time sequence.
+       * Retrieve initial time from step number and file t.out containing all the time sequence.
        * 1. Retrieve the line number
-       * 2. Scan the file t.dat until this line
+       * 2. Scan the file t.out until this line
        * 3. Store the time in the variable t
        * 4. Store the initial time in user->ti
        */
@@ -413,7 +413,7 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
       tg_line = 1 + user->istep/user->viz_dstep;
       FILE *pFile;
       float t; 
-      pFile = fopen("output/t.dat","r");
+      pFile = fopen("output/t.out","r");
       while(pFile && line<=tg_line) {
         fscanf(pFile,"%e",&t);
         line++;
@@ -422,7 +422,7 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
       fclose(pFile);
       user->ti = t/user->tau; 
 
-      PetscPrintf(PETSC_COMM_WORLD,"Resuming simulation from:\n * File: %s\n * Step: %d\n * Time: %e s\n * Line: %d in output/t.dat\n", user->InputFile, user->istep, user->ti, line);
+      PetscPrintf(PETSC_COMM_WORLD,"Resuming simulation from:\n * File: %s\n * Step: %d\n * Time: %e s\n * Line: %d in output/t.out\n", user->InputFile, user->istep, user->ti, line);
       //user->ti = user->istep*user->dt;
     } else {
       PetscPrintf(PETSC_COMM_WORLD,"Unreadable input file\n");
@@ -510,7 +510,7 @@ PetscErrorCode OutputData(void* ptr)
   // Store total number of charge carriers in a file named diagnotics.dat //
   int kTop=0;
   Z = Zmin + z[kTop]*L;
-  while(Z<400e3) {
+  while(Z<300e3) {
     kTop++;
     Z = Zmin + z[kTop]*L;
   }
@@ -894,6 +894,7 @@ PetscErrorCode CFL(TS ts)
   ierr = TSGetApplicationContext(ts,(void *)&user);CHKERRQ(ierr);
   ierr = TSSetTimeStep(ts,user->dt);CHKERRQ(ierr);
   if (user->dt*user->tau < 1e-12) { 
+    ierr = PetscPrintf(PETSC_COMM_WORLD,"Time step is < 1 ps.\n");
     ierr = TSSetConvergedReason(ts,TS_CONVERGED_USER);CHKERRQ(ierr);
   };
   PetscFunctionReturn(0);
@@ -943,7 +944,7 @@ PetscReal MultiArcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m)
   PetscInt  i,j,k,s;
   PetscReal B = 0., mu = 1e16;
   PetscReal xs[3] = {-100e3,0e3,100e3};
-  PetscReal ys[3] = {-100e3,0e3,100e3};
+  PetscReal ys[3] = {-250e3,0e3,250e3};
   PetscReal zs[1] = {-20e3};
   PetscInt Ms=sizeof(xs)/sizeof(xs[0]), Ns=sizeof(ys)/sizeof(ys[0]), Ps=sizeof(zs)/sizeof(zs[0]);
   B = 0;

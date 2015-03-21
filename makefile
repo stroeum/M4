@@ -1,5 +1,5 @@
 DATE  = `date +%Y%m%d-%H%M`
-FLAGS =-Wall -m64 -Os # -wd981 -g -Werror -wd593 -Wwrite-strings -Wmissing-declarations -Wuninitialized -Wstrict-prototypes -Wmissing-prototypes -std=c99 -Wshadow
+FLAGS = -g -Wall -m64 -O1 # -wd981 -g -Werror -wd593 -Wwrite-strings -Wmissing-declarations -Wuninitialized -Wstrict-prototypes -Wmissing-prototypes -std=c99 -Wshadow
 CFLAGS = $(FLAGS)
 
 FOLDER = $(CURDIR)
@@ -29,9 +29,9 @@ conv_exe: convert.o chkopts ${OBJECTS}
 
 run:
 	#cp ~/M4_RK.5 ~/${NAME}.sh
-	cp ~/M4_RK.6 ~/${NAME}.sh
-	qsub -N log${NAME} -l nodes=${NODES}:ppn=${PPN} -l walltime=${RUNTIME} -l pmem=3gb -v MYDIR=${MYDIR},MYPROCS=${PROCS} -z ~/${NAME}.sh 
-	#mpirun -n 8 ./main -options_file input/main.in # > viz_dir/log.out
+	#cp ~/M4_RK.6 ~/${NAME}.sh
+	#qsub -N log${NAME} -l nodes=${NODES}:ppn=${PPN} -l walltime=${RUNTIME} -l pmem=3gb -v MYDIR=${MYDIR},MYPROCS=${PROCS} -z ~/${NAME}.sh 
+	mpirun -n 8 ./main -options_file input/main.in # > viz_dir/log.out
 	
 conv:
 	./convert -options_file input/main.in

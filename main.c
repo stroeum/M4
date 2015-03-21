@@ -32,8 +32,8 @@ int main(int argc,char **argv)
      Create distributed array (DMDA) to manage parallel grid and vectors
    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
   PetscPrintf(PETSC_COMM_WORLD,"mx = %i my = %i mz = %i\n",user.mx,user.my,user.mz);
-  ierr = DMDACreate3d(PETSC_COMM_WORLD,DMDA_BOUNDARY_GHOSTED,DMDA_BOUNDARY_GHOSTED,DMDA_BOUNDARY_GHOSTED,DMDA_STENCIL_STAR,user.mx,user.my,user.mz,PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,19,1,PETSC_NULL,PETSC_NULL,PETSC_NULL,&user.da);CHKERRQ(ierr);
-  ierr = DMDACreate3d(PETSC_COMM_WORLD,DMDA_BOUNDARY_GHOSTED,DMDA_BOUNDARY_GHOSTED,DMDA_BOUNDARY_GHOSTED,DMDA_STENCIL_STAR,user.mx,user.my,user.mz,PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,9,1,PETSC_NULL,PETSC_NULL,PETSC_NULL,&user.db);CHKERRQ(ierr);
+  ierr = DMDACreate3d(PETSC_COMM_WORLD,DM_BOUNDARY_GHOSTED,DM_BOUNDARY_GHOSTED,DM_BOUNDARY_GHOSTED,DMDA_STENCIL_STAR,user.mx,user.my,user.mz,PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,19,1,PETSC_NULL,PETSC_NULL,PETSC_NULL,&user.da);CHKERRQ(ierr);
+  ierr = DMDACreate3d(PETSC_COMM_WORLD,DM_BOUNDARY_GHOSTED,DM_BOUNDARY_GHOSTED,DM_BOUNDARY_GHOSTED,DMDA_STENCIL_STAR,user.mx,user.my,user.mz,PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,9,1,PETSC_NULL,PETSC_NULL,PETSC_NULL,&user.db);CHKERRQ(ierr);
 
   /*  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      Extract global vectors from DMDA; then duplicate for remaining
@@ -47,7 +47,7 @@ int main(int argc,char **argv)
      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
   ierr = TSCreate(PETSC_COMM_WORLD,&ts);CHKERRQ(ierr);
   ierr = TSSetType(ts,TSSSP);CHKERRQ(ierr);CHKERRQ(ierr);
-  ierr = DMCreateMatrix(user.da,MATAIJ,&J);CHKERRQ(ierr);
+  ierr = DMCreateMatrix(user.da,&J);CHKERRQ(ierr);
   ierr = TSGetSNES(ts,&snes);CHKERRQ(ierr);
 
   char version[255];
