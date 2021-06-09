@@ -1,7 +1,0 @@
-#ignore everything in this directory
-*
-#except this file
-!.gitignore
-#!*.in #uncomment if one wishes to update main.in
-!*.dat
-!*.m
