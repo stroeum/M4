@@ -57,7 +57,6 @@ PetscErrorCode TSSSPStep_LAX(TS ts,PetscReal t0,PetscReal dt,Vec sol)
 	ierr = VecDuplicate(sol,&W);CHKERRQ(ierr);
 	ierr = VecDuplicate(sol,&F);CHKERRQ(ierr);
 	ierr = VecCopy(sol,W);CHKERRQ(ierr);
-	
 	ierr = TSComputeRHSFunction(ts,t0,W,F);CHKERRQ(ierr);
 	
 	ierr = Average(W,user); CHKERRQ(ierr);
@@ -160,7 +159,7 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 	MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
 	
 	ierr = PetscTime(&user->t0);CHKERRQ(ierr);
-	user->ldName = sprintf(user->dName,"ouput/");
+	user->ldName = sprintf(user->dName,"output/");
 	ierr = PetscOptionsGetString(PETSC_NULL,PETSC_NULL,"-output_folder",user->dName,PETSC_MAX_PATH_LEN-1,PETSC_NULL);CHKERRQ(ierr);
 	user->ldName = sprintf(user->vName,"viz_dir/");
 	ierr = PetscOptionsGetString(PETSC_NULL,PETSC_NULL,"-visualization_folder",user->vName,PETSC_MAX_PATH_LEN-1,PETSC_NULL);CHKERRQ(ierr);
@@ -261,12 +260,14 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 	if(user->outZmin >= user->inZmin) user->outZmin = user->inZmin;
 	if(user->outZmax <= user->inZmax) user->outZmax = user->inZmax;
 	
+	/* Commented by Kellen to remove vizbox
 	ierr = PetscOptionsGetReal(PETSC_NULL,PETSC_NULL,"-vizbox_x_min",&user->vizbox[0],PETSC_NULL);CHKERRQ(ierr);
 	ierr = PetscOptionsGetReal(PETSC_NULL,PETSC_NULL,"-vizbox_x_max",&user->vizbox[1],PETSC_NULL);CHKERRQ(ierr);
 	ierr = PetscOptionsGetReal(PETSC_NULL,PETSC_NULL,"-vizbox_y_min",&user->vizbox[2],PETSC_NULL);CHKERRQ(ierr);
 	ierr = PetscOptionsGetReal(PETSC_NULL,PETSC_NULL,"-vizbox_y_max",&user->vizbox[3],PETSC_NULL);CHKERRQ(ierr);
 	ierr = PetscOptionsGetReal(PETSC_NULL,PETSC_NULL,"-vizbox_z_min",&user->vizbox[4],PETSC_NULL);CHKERRQ(ierr);
 	ierr = PetscOptionsGetReal(PETSC_NULL,PETSC_NULL,"-vizbox_z_max",&user->vizbox[5],PETSC_NULL);CHKERRQ(ierr);
+	*/
 	
 	user->viz_dstep = 0;
 	ierr = PetscOptionsGetInt(PETSC_NULL,PETSC_NULL,"-viz_dstep",&user->viz_dstep,PETSC_NULL);CHKERRQ(ierr);
@@ -282,7 +283,7 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 	ierr = PetscOptionsGetReal(PETSC_NULL,PETSC_NULL,"-ts_init_time",&user->ti,PETSC_NULL);CHKERRQ(ierr);
 	user->tf = 1.0;
 	ierr = PetscOptionsGetReal(PETSC_NULL,PETSC_NULL,"-ts_max_time",&user->tf,PETSC_NULL);CHKERRQ(ierr);
-    
+
     user->chemswitch = 0;
     ierr = PetscOptionsGetInt(PETSC_NULL,PETSC_NULL,"-chem_switch",&user->chemswitch,PETSC_NULL);CHKERRQ(ierr);
     user->collswitch = 0;
@@ -437,6 +438,7 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 	
 		//for (i=0; i<6; i++) PetscPrintf(PETSC_COMM_WORLD,"outer box dim %d = %f\n", i, user->vizbox[i]);
 	
+	/* Commented by Kellen to remove vizbox
 	if(user->vizbox[0]<user->outXmin || user->vizbox[1]>user->outXmax || user->vizbox[2]<user->outYmin || user->vizbox[3]>user->outYmax || user->vizbox[4]<user->outZmin || user->vizbox[5]>user->outZmax){
 		PetscPrintf(PETSC_COMM_WORLD,"WARNING: Visualization area greater than simulation domain:\n---> the vizualization box is adjusted to fit the maximum dimension of the simulation domain.\n");
 		if (user->vizbox[0]<user->outXmin) user->vizbox[0] = user->outXmin;
@@ -446,20 +448,24 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 		if (user->vizbox[4]<user->outZmin) user->vizbox[4] = user->outZmin;
 		if (user->vizbox[5]>user->outZmax) user->vizbox[5] = user->outZmax;
 	}
+	*/
 	
 		// Read input files //
 	if(rank==0) {
-		ReadTable(user->RefProf,Np_REF,"../input/Profiles.in");
-		ReadTable(user->RefPart,4,"../input/Partition.in");
+		//Changed by Kellen so that the program is run from parent directory (M4s), not M4s/bin
+		//ReadTable(user->RefProf,Np_REF,"../input/Profiles.in");
+		//ReadTable(user->RefPart,4,"../input/Partition.in");
+		ReadTable(user->RefProf,Np_REF,"./input/Profiles.in");
+		ReadTable(user->RefPart,4,"./input/Partition.in");
 	}
 	MPI_Bcast(&(user->RefProf[0][0]),Np_REF*Nz_REF, MPIU_REAL, 0, PETSC_COMM_WORLD);
 	MPI_Bcast(&(user->RefPart[0][0]),     4*Nz_REF, MPIU_REAL, 0, PETSC_COMM_WORLD);
 	
 		// Display diagnostics //
-	PetscPrintf(PETSC_COMM_WORLD,"mx = [%i %i %i]:%i\nmy = [%i %i %i]:%i\nmz = [%i %i %i]:%i\n",mx_lo,mx_in,mx_hi,user->mx, my_lo,my_in,my_hi,user->my, mz_lo,mz_in,mz_hi,user->mz); 
+	PetscPrintf(PETSC_COMM_WORLD,"\nmx = [%i %i %i]:%i\nmy = [%i %i %i]:%i\nmz = [%i %i %i]:%i\n\n",mx_lo,mx_in,mx_hi,user->mx, my_lo,my_in,my_hi,user->my, mz_lo,mz_in,mz_hi,user->mz); 
 	PetscPrintf(PETSC_COMM_WORLD,"      O2+\t\tCO2+\t\tO+\t\te\n");
 	PetscPrintf(PETSC_COMM_WORLD,"m   = [%12.6e\t%12.6e\t%12.6e\t%12.6e]\n",user->mi[0],user->mi[1],user->mi[2],user->me);
-	PetscPrintf(PETSC_COMM_WORLD,"vo  = [%12.6e]\n",user->v0);
+	PetscPrintf(PETSC_COMM_WORLD,"v0  = [%12.6e]\n",user->v0);
 	PetscPrintf(PETSC_COMM_WORLD,"tau = [%12.6e]\n",user->tau);
 	PetscPrintf(PETSC_COMM_WORLD,"n0  = [%12.6e]\n",user->n0);
 	PetscPrintf(PETSC_COMM_WORLD,"p0  = [%12.6e]\n",user->p0);
@@ -490,11 +496,13 @@ PetscErrorCode OutputData(void* ptr)
 	float          t;
 	dvi            d        = user->d;
 	svi            s        = user->s;
+	/* Commented by Kellen to remove vizbox
 	PetscReal      vizbox[6]= {
 		user->vizbox[0],user->vizbox[1],
 		user->vizbox[2],user->vizbox[3],
 		user->vizbox[4],user->vizbox[5]
 	};
+	*/
 	
 	Vec            U        = NULL;
 	Vec            V        = NULL;
@@ -513,7 +521,9 @@ PetscErrorCode OutputData(void* ptr)
 	
 	MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
 	
+	/* Commented by Kellen to remove vizbox
 	PetscPrintf(PETSC_COMM_WORLD,"box: [%2.1f,%2.1f,%2.1f] to [%2.1f,%2.1f,%2.1f] (km)\n",vizbox[0]/1e3,vizbox[2]/1e3,vizbox[4]/1e3,vizbox[1]/1e3,vizbox[3]/1e3,vizbox[5]/1e3);
+	*/
 	
 		// Store total number of charge carriers in a file named diagnotics.dat //
 	int kTop=0;
@@ -524,6 +534,8 @@ PetscErrorCode OutputData(void* ptr)
 	}
 	PetscPrintf(PETSC_COMM_WORLD,"kTop=%d, fluxAlt=%f\n", kTop, Z*1e-3);
 	
+	// Commented by Kellen to remove .dat
+	/*
 	sprintf(fName,"%s/diagnostics.dat",user->vName);
 	flag  = access(fName,W_OK);
 	if (flag==0) nFile = fopen(fName,"a");
@@ -535,8 +547,10 @@ PetscErrorCode OutputData(void* ptr)
 	if (flag==0) NFile = fopen(fName,"a");
 	else         NFile = fopen(fName,"w");
 	ierr = PetscFPrintf(PETSC_COMM_WORLD,NFile,"Z (m)       \tn.O2+  (m-3)\tn.CO2+ (m-3)\tn.O+   (m-3)\tn.e    (m-3)\n");CHKERRQ(ierr);
+	*/
 	
-	tFile = fopen("../output/t.out","r");
+	tFile = fopen("./output/t.out","r");
+	//tFile = fopen("../output/t.out","r");
 	
 		// Get local grid boundaries //
 	ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
@@ -575,6 +589,9 @@ PetscErrorCode OutputData(void* ptr)
 			if(xtra_out) {ierr = DMDAVecGetArrayDOF(db,V,&v);CHKERRQ(ierr);}
 			
 				// Store the solution limited to the visualization box into an ascii file //
+
+			// Commented by Kellen to remove .dat
+			/*
 			sprintf(fName,"%s/X%d.dat",user->vName,step);
 			flag  = access(fName,W_OK);
 			if (flag==0) pFile = fopen(fName,"a");
@@ -695,6 +712,7 @@ PetscErrorCode OutputData(void* ptr)
 				}
 			}
 			fclose(pFile);
+			*/
 			
 				// Find the global values of imin, jmin, kmin, imax, jmax, kmax//
 				// The next lines are useless since the conversion is single-proc //
@@ -847,11 +865,17 @@ PetscErrorCode OutputData(void* ptr)
 			}
 			ierr = PetscFPrintf(PETSC_COMM_WORLD,nFile,"\n");CHKERRQ(ierr);
 			*/
+
+
+
+			// Commented by Kellen to remove .dat and .general
+			/*
 				// Create the X.general file // 
 			sprintf(fName,"%s/X%d.general",user->vName,step);
 			flag  = access(fName,W_OK);
 			if (flag==0) pFile = fopen(fName,"a");
 			else         pFile = fopen(fName,"w");
+			
 			
 			if(!xtra_out){
 				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"file = X%d.dat\n",step);CHKERRQ(ierr);
@@ -885,6 +909,7 @@ PetscErrorCode OutputData(void* ptr)
 				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"\n\nend");CHKERRQ(ierr);
 			}
 			fclose(pFile);
+			*/
 			ierr = DMDAVecRestoreArrayDOF(da,U,&u);CHKERRQ(ierr);
 			ierr = VecDestroy(&U);CHKERRQ(ierr);
 			if(xtra_out) {

@@ -1,20 +1,19 @@
 #Command line options
--output_folder ../output
--visualization_folder ../viz_dir
+-output_folder ./output
+-visualization_folder ./viz_dir
+#-output_folder ../output			//Changed by Kellen so that the program is run from parent directory, not M4s/bin
+#-visualization_folder ../viz_dir		//Changed by Kellen so that the program is run from parent directory, not M4s/bin
 #-input_file X2900000.bin
 #
--bc_type 10 # 0: 1st order Neumann, 1: 2nd order Neumann, 2: zero'ed 2nd derivatives, 3: Non-symmetric "exact" solution, 10: combination of df/dn=0 amd d2f/dn2=0
+-bc_type 0 # 0: 1st order Neumann, 1: 2nd order Neumann, 2: zero'ed 2nd derivatives, 3: Non-symmetric "exact" solution, 10: combination of df/dn=0 amd d2f/dn2=0
 -limiters
 #-blockers
 #-smoothing
 #
--dt 1.0e-8                     # Initial time step
--ts_max_steps 1
-#-ts_max_steps 100000        # maximum number of time steps
--viz_dstep 1
-#-viz_dstep 1000           # plot every dstep
--ts_max_time 50000
--ts_final_time 50000
+-dt 1.0e-4                     # Initial time step
+-ts_max_steps 1000000000        # maximum number of time steps
+-viz_dstep 5000          # plot every dstep
+-ts_max_time 3600
 #-mi0 5.3135e-26        #_kg, mass of O2+, only single charged ions allowed!
 #-mi1 5.3135e-26        #_kg, mass of O2+, only single charged ions allowed!
 #-mi2 5.3135e-26        #_kg, mass of O2+, only single charged ions allowed!
@@ -22,16 +21,16 @@
 -mi1 7.3079e-26        #_kg, mass of CO2+
 -mi2 2.6567e-26        #_kg, mass of O+
 -me 9.1093e-31         #_kg, electron mass
--WindNS 1e2            #_m/_s, x-component of neutral wind
+-WindNS 0e2            #_m/_s, x-component of neutral wind
 -WindEW 0e2            #_m/_s, y-component of neutral wind
 -WindUD 0e2            #_m/_s, z-component of neutral wind
--iWindNS 0e2          #_m/_s, initial x-component of ion wind
+-iWindNS 0e2           #_m/_s, initial x-component of ion wind
 -iWindEW 0e2           #_m/_s, initial y-component of ion wind
 -iWindUD 0e2           #_m/_s, initial z-component of ion wind
 -ExtraDiagnostics
 -B_field_type 3        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical, 7: Arcades, 8: Three lines of dipoles giving parallel arcades
 -B0 1e16               #_A_m2, magnitude of the magnetic dipole moment
--B1 0e3              #_m, geometry parameter a
+-B1 0e3                #_m, geometry parameter a
 -B2 0e3                #_m, geometry parameter b
 -B3 0e3                #_m, geometry parameter c
 -Mmars 6.4185e23       #_kg, Mars' mass
@@ -62,7 +61,7 @@
 -out_x_max 200.0e+3       #_m
 -out_y_min -200.0e+3      #_m
 -out_y_max 200.0e+3       #_m
--out_z_min 100.0e+3         #_m
+-out_z_min 100.0e+3       #_m
 -out_z_max 400.0e+3       #_m
 
 #-vDamping 
@@ -71,12 +70,12 @@
 #-Damping_scaleheight 10.0e3 #_m
 
 #Visualization parameters
--vizbox_x_min -1000.0e+3  #_m
--vizbox_x_max 1000.0e+3   #_m
--vizbox_y_min -500.0e+3  #_m
--vizbox_y_max 500.0e+3   #_m
--vizbox_z_min 0.0e+3     #_m
--vizbox_z_max 1000.0e+3 #_m
+#-vizbox_x_min -1000.0e+3  #_m
+#-vizbox_x_max 1000.0e+3   #_m
+#-vizbox_y_min -500.0e+3   #_m
+#-vizbox_y_max 500.0e+3    #_m
+#-vizbox_z_min 0.0e+3      #_m
+#-vizbox_z_max 1000.0e+3   #_m
 
 #Chemistry
 -chem_switch 1           # 1: chemistry off, 1: chemistry on
@@ -85,4 +84,4 @@
 -coll_switch 1           # 0: collisions off, 1: collisions on
 
 #Gravity
--grav_switch 1          # 0: gravity off, 1:gravity on
+-grav_switch 1           # 0: gravity off, 1:gravity on

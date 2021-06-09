@@ -23,25 +23,35 @@ int main(int argc,char **argv)
 	AppCtx         user;
 		// For JAR RK method personalization //
 	PetscFunctionList TSSSPList;
+
+	PetscInitialize(&argc,&argv,PETSC_NULL,help);
 	
+	char cwd[PATH_MAX];
+	if (getcwd(cwd, sizeof(cwd)) != NULL) {
+		// Changed by Kellen to make it only print one per execution, not once per task/process
+		//printf("Current working dir: %s\n", cwd);
+		PetscPrintf(PETSC_COMM_WORLD,"Current working dir: %s\n", cwd);
+	} else {
+		perror("getcwd() error");
+		return 1;
+	}
 
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	 Initialize program
 	 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-	PetscInitialize(&argc,&argv,PETSC_NULL,help);
 	ierr = InitCtx(&user,&usermonitor);CHKERRQ(ierr);
     if(user.gravswitch==1)
-        PetscPrintf(PETSC_COMM_WORLD,"\nGravity is ON\n");
+        PetscPrintf(PETSC_COMM_WORLD,"\nGravity\t\t= ON\n");
     else
-        PetscPrintf(PETSC_COMM_WORLD,"\nGravity is OFF\n");
+        PetscPrintf(PETSC_COMM_WORLD,"\nGravity\t\t= OFF\n");
     if(user.chemswitch==1)
-        PetscPrintf(PETSC_COMM_WORLD,"\nChemistry is ON\n");
+        PetscPrintf(PETSC_COMM_WORLD,"Chemistry\t= ON\n");
     else
-        PetscPrintf(PETSC_COMM_WORLD,"\nChemistry is OFF\n");
+        PetscPrintf(PETSC_COMM_WORLD,"Chemistry\t= OFF\n");
     if(user.collswitch==1)
-        PetscPrintf(PETSC_COMM_WORLD,"Collisions are ON\n\n");
+        PetscPrintf(PETSC_COMM_WORLD,"Collisions\t= ON\n\n");
     else
-        PetscPrintf(PETSC_COMM_WORLD,"Collisions are OFF\n\n");
+        PetscPrintf(PETSC_COMM_WORLD,"Collisions\t= OFF\n\n");
         
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	 Create distributed array (DMDA) to manage parallel grid and vectors

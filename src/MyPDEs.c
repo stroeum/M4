@@ -50,7 +50,7 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 	PetscBool      flag;
 	
 	PetscFunctionBegin;
-	PetscPrintf(PETSC_COMM_WORLD,"Form Initial Conditions: ...\n");
+	PetscPrintf(PETSC_COMM_WORLD,"\nForm Initial Conditions: ...\n");
 	MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
 	Lz = user->outZmax-user->inZmin;
 	if (user->isInputFile) {
@@ -1596,8 +1596,9 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 
     if(step==0 || ceilf((step+1)/user->viz_dstep) == (float)(step+1)/user->viz_dstep)
         if(rank==0){
-            sprintf(fName,"%s/Rates%d.dat",user->vName,step+1);
-            fp = fopen(fName,"w");
+	    // Commented by Kellen to remove .dat
+            //sprintf(fName,"%s/Rates%d.dat",user->vName,step+1);
+            //fp = fopen(fName,"w");
         }
 
 		// Compute function over the locally owned part of the grid //

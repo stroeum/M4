@@ -34,7 +34,7 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
 	
 	if((istep+step)%vizdstep==0) { // || (step>=9400) ) {
 		ierr = PetscTime(&t1);CHKERRQ(ierr);
-		ierr = PetscPrintf(PETSC_COMM_WORLD,"Elapsed_time=%2.1e\ttimestep %D\tt %2.3e\tdt %2.3e\n",t1-t0,istep+step,ptime*tau,user->dt*tau);CHKERRQ(ierr);
+		ierr = PetscPrintf(PETSC_COMM_WORLD,"Elapsed_time=%2.1e(%2.1fhr)\ttimestep %D\tt %2.3e\tdt %2.3e\n",t1-t0,(t1-t0)/3600,istep+step,ptime*tau,user->dt*tau);CHKERRQ(ierr);
         
 //        // Trying to track density at center...
 //        PetscPrintf(PETSC_COMM_WORLD,"U[1] = %e\n",U[1]);
