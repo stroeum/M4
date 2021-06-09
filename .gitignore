@@ -2,7 +2,7 @@ bin/
 build/
 output/*
 SaveData/
-viz_dir/
+viz_dir/*
 
 *.bin
 *.txt
