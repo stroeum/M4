@@ -1,0 +1,53 @@
+<center><a href="UFgetPetscMat.m">Actual source code: UFgetPetscMat.m</a></center><br>
+
+<html>
+<head> <link rel="canonical" href="http://www.mcs.anl.gov/petsc/petsc-current/share/petsc/matlab/UFgetPetscMat.m.html" />
+<title></title>
+<meta name="generator" content="c2html 0.9.4">
+<meta name="date" content="2020-02-04T17:38:37+00:00">
+</head>
+
+<body bgcolor="#FFFFFF">
+   <div id="version" align=right><b>petsc-3.12.4 2020-02-04</b></div>
+   <div id="bugreport" align=right><a href="mailto:petsc-maint@mcs.anl.gov?subject=Typo or Error in Documentation &body=Please describe the typo or error in the documentation: petsc-3.12.4 v3.12.4 share/petsc/matlab/UFgetPetscMat.m.html "><small>Report Typos and Errors</small></a></div>
+<pre width="80">
+<a name="line1">  1: </a>% UFgetPetscMat.m
+<a name="line2">  2: </a>% modified from UFget_example.m
+<a name="line3">  3: </a>%   This script
+<a name="line4">  4: </a>%     (1) gets the selected index file of the UF sparse matrix collection,
+<a name="line5">  5: </a>%     (2) loads in matrices in matlab format in increasing order of
+<a name="line6">  6: </a>%         number of rows in the selected matrices,
+<a name="line7">  7: </a>%     (3) writes into PETSc binary format in the given directory with
+<a name="line8">  8: </a>%         each matrix named as A_{id}
+<a name="line9">  9: </a>%
+<a name="line10"> 10: </a>%   See also UFget_example.m
+<a name="line11"> 11: </a>%   Copyright 2009, PETSc Team.
+
+<a name="line13"> 13: </a>index = UFget;
+
+<a name="line15"> 15: </a>% sets selection here
+<a name="line16"> 16: </a>f = find (index.nrows == index.ncols &amp; index.nrows &gt; 940000 &amp; index.isReal) ;
+<a name="line17"> 17: </a>[y, j] = sort (index.nrows (f)) ;
+<a name="line18"> 18: </a>f = f (j) ;
+
+<a name="line20"> 20: </a><font color="#4169E1">for</font> i = f
+<a name="line21"> 21: </a>    %loads in matrix in matlab format
+<a name="line22"> 22: </a>    %---------------------------------
+<a name="line23"> 23: </a>    fprintf ('Loading %s%s%s, please wait ...\n', ...
+<a name="line24"> 24: </a>        index.Group {i}, filesep, index.Name {i}) ;
+<a name="line25"> 25: </a>    Problem = UFget (i,index) ;
+<a name="line26"> 26: </a>    disp (Problem) ;
+<a name="line27"> 27: </a>    title (sprintf ('%s:%s', Problem.name, Problem.title')) ;
+
+<a name="line29"> 29: </a>    % convets to PETSc binary format and writes into ~mat/A_{id}
+<a name="line30"> 30: </a>    %-----------------------------------------------------------
+<a name="line31"> 31: </a>    fname = ['mat/A',num2str(i)];
+<a name="line32"> 32: </a>    fprintf ('write matrix into petsc binary file %s ...\n',fname);
+<a name="line33"> 33: </a>    <a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a>(fname,Problem.A);
+<a name="line34"> 34: </a>    %input ('hit enter to continue:') ;
+<a name="line35"> 35: </a>end
+
+</pre>
+</body>
+
+</html>
