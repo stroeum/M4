@@ -1,5 +1,5 @@
 /*  usage:  mpiexec -n <procs> ./main [-help] [all PETSc options] */
-//
+
 /* useless comment! */
 
 static char help[] = "Nonlinear, time-dependent PDE in 3d.\n";
