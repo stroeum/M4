@@ -1,0 +1,21 @@
+#!/bin/bash
+
+#PBS -q normalq
+# module load gcc/4.8.4
+# module load petsc/openmpi/gcc/3.5.4
+# module load openmpi/gcc/1.8.4
+# module load torque/4.2.10
+module load mpich2/gcc/3.2
+
+echo "================================================"
+echo "Time is         : `date`"
+echo "Case name is    : $MYCASE"
+echo "execution folder: $EXEDIR"
+echo "execution file  : $EX"
+echo "================================================"
+
+
+BIN=./$EX
+# cd $EXEDIR
+	
+mpirun $EX -options_file input/main.in > $EXEDIR/log_$MYCASE.log

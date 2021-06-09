@@ -1,0 +1,749 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+ <key>clang_version</key>
+<string>Apple LLVM version 9.0.0 (clang-900.0.39.2)</string>
+ <key>files</key>
+ <array>
+  <string>/Users/jeremy/Gdrive/Academic/0-Projects/4-M4/0-Codes/M4s/src/MyPDEs.c</string>
+ </array>
+ <key>diagnostics</key>
+ <array>
+  <dict>
+   <key>path</key>
+   <array>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>32</integer>
+      <key>col</key><integer>46</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>ranges</key>
+     <array>
+       <array>
+        <dict>
+         <key>line</key><integer>32</integer>
+         <key>col</key><integer>46</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>32</integer>
+         <key>col</key><integer>46</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+       <array>
+        <dict>
+         <key>line</key><integer>32</integer>
+         <key>col</key><integer>48</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>32</integer>
+         <key>col</key><integer>57</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+     </array>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Value stored to &apos;b&apos; during its initialization is never read</string>
+     <key>message</key>
+     <string>Value stored to &apos;b&apos; during its initialization is never read</string>
+    </dict>
+   </array>
+   <key>description</key><string>Value stored to &apos;b&apos; during its initialization is never read</string>
+   <key>category</key><string>Dead store</string>
+   <key>type</key><string>Dead initialization</string>
+   <key>check_name</key><string>deadcode.DeadStores</string>
+   <!-- This hash is experimental and going to change! -->
+   <key>issue_hash_content_of_line_in_context</key><string>8a6fedea7d8c1283984a4b80043d592c</string>
+  <key>issue_context_kind</key><string>function</string>
+  <key>issue_context</key><string>FormInitialSolution</string>
+  <key>issue_hash_function_offset</key><string>14</string>
+  <key>location</key>
+  <dict>
+   <key>line</key><integer>32</integer>
+   <key>col</key><integer>46</integer>
+   <key>file</key><integer>0</integer>
+  </dict>
+  </dict>
+  <dict>
+   <key>path</key>
+   <array>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>32</integer>
+      <key>col</key><integer>60</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>ranges</key>
+     <array>
+       <array>
+        <dict>
+         <key>line</key><integer>32</integer>
+         <key>col</key><integer>60</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>32</integer>
+         <key>col</key><integer>60</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+       <array>
+        <dict>
+         <key>line</key><integer>32</integer>
+         <key>col</key><integer>62</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>32</integer>
+         <key>col</key><integer>71</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+     </array>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Value stored to &apos;c&apos; during its initialization is never read</string>
+     <key>message</key>
+     <string>Value stored to &apos;c&apos; during its initialization is never read</string>
+    </dict>
+   </array>
+   <key>description</key><string>Value stored to &apos;c&apos; during its initialization is never read</string>
+   <key>category</key><string>Dead store</string>
+   <key>type</key><string>Dead initialization</string>
+   <key>check_name</key><string>deadcode.DeadStores</string>
+   <!-- This hash is experimental and going to change! -->
+   <key>issue_hash_content_of_line_in_context</key><string>f00eb5b0a252d0b22198689f05093f78</string>
+  <key>issue_context_kind</key><string>function</string>
+  <key>issue_context</key><string>FormInitialSolution</string>
+  <key>issue_hash_function_offset</key><string>14</string>
+  <key>location</key>
+  <dict>
+   <key>line</key><integer>32</integer>
+   <key>col</key><integer>60</integer>
+   <key>file</key><integer>0</integer>
+  </dict>
+  </dict>
+  <dict>
+   <key>path</key>
+   <array>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>55</integer>
+      <key>col</key><integer>2</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>ranges</key>
+     <array>
+       <array>
+        <dict>
+         <key>line</key><integer>55</integer>
+         <key>col</key><integer>7</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>55</integer>
+         <key>col</key><integer>32</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+     </array>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Value stored to &apos;Lz&apos; is never read</string>
+     <key>message</key>
+     <string>Value stored to &apos;Lz&apos; is never read</string>
+    </dict>
+   </array>
+   <key>description</key><string>Value stored to &apos;Lz&apos; is never read</string>
+   <key>category</key><string>Dead store</string>
+   <key>type</key><string>Dead assignment</string>
+   <key>check_name</key><string>deadcode.DeadStores</string>
+   <!-- This hash is experimental and going to change! -->
+   <key>issue_hash_content_of_line_in_context</key><string>1fd0467035ad5cfe370c04dd1eee556f</string>
+  <key>issue_context_kind</key><string>function</string>
+  <key>issue_context</key><string>FormInitialSolution</string>
+  <key>issue_hash_function_offset</key><string>37</string>
+  <key>location</key>
+  <dict>
+   <key>line</key><integer>55</integer>
+   <key>col</key><integer>2</integer>
+   <key>file</key><integer>0</integer>
+  </dict>
+  </dict>
+  <dict>
+   <key>path</key>
+   <array>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>874</integer>
+      <key>col</key><integer>65</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>ranges</key>
+     <array>
+       <array>
+        <dict>
+         <key>line</key><integer>874</integer>
+         <key>col</key><integer>65</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>874</integer>
+         <key>col</key><integer>68</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+       <array>
+        <dict>
+         <key>line</key><integer>874</integer>
+         <key>col</key><integer>72</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>874</integer>
+         <key>col</key><integer>84</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+     </array>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Value stored to &apos;Zmin&apos; during its initialization is never read</string>
+     <key>message</key>
+     <string>Value stored to &apos;Zmin&apos; during its initialization is never read</string>
+    </dict>
+   </array>
+   <key>description</key><string>Value stored to &apos;Zmin&apos; during its initialization is never read</string>
+   <key>category</key><string>Dead store</string>
+   <key>type</key><string>Dead initialization</string>
+   <key>check_name</key><string>deadcode.DeadStores</string>
+   <!-- This hash is experimental and going to change! -->
+   <key>issue_hash_content_of_line_in_context</key><string>2270653fa74556f8fb4e24c8dbcb7d4a</string>
+  <key>issue_context_kind</key><string>function</string>
+  <key>issue_context</key><string>CalculateFluxes</string>
+  <key>issue_hash_function_offset</key><string>4</string>
+  <key>location</key>
+  <dict>
+   <key>line</key><integer>874</integer>
+   <key>col</key><integer>65</integer>
+   <key>file</key><integer>0</integer>
+  </dict>
+  </dict>
+  <dict>
+   <key>path</key>
+   <array>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>1117</integer>
+      <key>col</key><integer>2</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>ranges</key>
+     <array>
+       <array>
+        <dict>
+         <key>line</key><integer>1117</integer>
+         <key>col</key><integer>7</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>1117</integer>
+         <key>col</key><integer>35</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+     </array>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Value stored to &apos;Lz&apos; is never read</string>
+     <key>message</key>
+     <string>Value stored to &apos;Lz&apos; is never read</string>
+    </dict>
+   </array>
+   <key>description</key><string>Value stored to &apos;Lz&apos; is never read</string>
+   <key>category</key><string>Dead store</string>
+   <key>type</key><string>Dead assignment</string>
+   <key>check_name</key><string>deadcode.DeadStores</string>
+   <!-- This hash is experimental and going to change! -->
+   <key>issue_hash_content_of_line_in_context</key><string>60075c75780082e93bace0b681bd0387</string>
+  <key>issue_context_kind</key><string>function</string>
+  <key>issue_context</key><string>FormIntermediateFunction</string>
+  <key>issue_hash_function_offset</key><string>46</string>
+  <key>location</key>
+  <dict>
+   <key>line</key><integer>1117</integer>
+   <key>col</key><integer>2</integer>
+   <key>file</key><integer>0</integer>
+  </dict>
+  </dict>
+  <dict>
+   <key>path</key>
+   <array>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>1338</integer>
+      <key>col</key><integer>47</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>ranges</key>
+     <array>
+       <array>
+        <dict>
+         <key>line</key><integer>1338</integer>
+         <key>col</key><integer>47</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>1338</integer>
+         <key>col</key><integer>48</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+       <array>
+        <dict>
+         <key>line</key><integer>1338</integer>
+         <key>col</key><integer>52</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>1338</integer>
+         <key>col</key><integer>59</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+     </array>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Value stored to &apos;p0&apos; during its initialization is never read</string>
+     <key>message</key>
+     <string>Value stored to &apos;p0&apos; during its initialization is never read</string>
+    </dict>
+   </array>
+   <key>description</key><string>Value stored to &apos;p0&apos; during its initialization is never read</string>
+   <key>category</key><string>Dead store</string>
+   <key>type</key><string>Dead initialization</string>
+   <key>check_name</key><string>deadcode.DeadStores</string>
+   <!-- This hash is experimental and going to change! -->
+   <key>issue_hash_content_of_line_in_context</key><string>a9c4bb9ef20476acf4eabf5e0b0e08fa</string>
+  <key>issue_context_kind</key><string>function</string>
+  <key>issue_context</key><string>FormFunction</string>
+  <key>issue_hash_function_offset</key><string>2</string>
+  <key>location</key>
+  <dict>
+   <key>line</key><integer>1338</integer>
+   <key>col</key><integer>47</integer>
+   <key>file</key><integer>0</integer>
+  </dict>
+  </dict>
+  <dict>
+   <key>path</key>
+   <array>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>1455</integer>
+      <key>col</key><integer>2</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>ranges</key>
+     <array>
+       <array>
+        <dict>
+         <key>line</key><integer>1455</integer>
+         <key>col</key><integer>7</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>1455</integer>
+         <key>col</key><integer>35</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+     </array>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Value stored to &apos;Lz&apos; is never read</string>
+     <key>message</key>
+     <string>Value stored to &apos;Lz&apos; is never read</string>
+    </dict>
+   </array>
+   <key>description</key><string>Value stored to &apos;Lz&apos; is never read</string>
+   <key>category</key><string>Dead store</string>
+   <key>type</key><string>Dead assignment</string>
+   <key>check_name</key><string>deadcode.DeadStores</string>
+   <!-- This hash is experimental and going to change! -->
+   <key>issue_hash_content_of_line_in_context</key><string>45e73c1920f5eb83e8706bf5816717e5</string>
+  <key>issue_context_kind</key><string>function</string>
+  <key>issue_context</key><string>FormFunction</string>
+  <key>issue_hash_function_offset</key><string>119</string>
+  <key>location</key>
+  <dict>
+   <key>line</key><integer>1455</integer>
+   <key>col</key><integer>2</integer>
+   <key>file</key><integer>0</integer>
+  </dict>
+  </dict>
+  <dict>
+   <key>path</key>
+   <array>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>1496</integer>
+      <key>col</key><integer>2</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>ranges</key>
+     <array>
+       <array>
+        <dict>
+         <key>line</key><integer>1496</integer>
+         <key>col</key><integer>11</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>1496</integer>
+         <key>col</key><integer>21</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+     </array>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Value stored to &apos;flag&apos; is never read</string>
+     <key>message</key>
+     <string>Value stored to &apos;flag&apos; is never read</string>
+    </dict>
+   </array>
+   <key>description</key><string>Value stored to &apos;flag&apos; is never read</string>
+   <key>category</key><string>Dead store</string>
+   <key>type</key><string>Dead assignment</string>
+   <key>check_name</key><string>deadcode.DeadStores</string>
+   <!-- This hash is experimental and going to change! -->
+   <key>issue_hash_content_of_line_in_context</key><string>2ce0e7c227eb2724eb7d1bd72d62eb13</string>
+  <key>issue_context_kind</key><string>function</string>
+  <key>issue_context</key><string>FormFunction</string>
+  <key>issue_hash_function_offset</key><string>160</string>
+  <key>location</key>
+  <dict>
+   <key>line</key><integer>1496</integer>
+   <key>col</key><integer>2</integer>
+   <key>file</key><integer>0</integer>
+  </dict>
+  </dict>
+  <dict>
+   <key>path</key>
+   <array>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>1818</integer>
+      <key>col</key><integer>2</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>ranges</key>
+     <array>
+       <array>
+        <dict>
+         <key>line</key><integer>1818</integer>
+         <key>col</key><integer>6</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>1818</integer>
+         <key>col</key><integer>84</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+     </array>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Value stored to &apos;m&apos; is never read</string>
+     <key>message</key>
+     <string>Value stored to &apos;m&apos; is never read</string>
+    </dict>
+   </array>
+   <key>description</key><string>Value stored to &apos;m&apos; is never read</string>
+   <key>category</key><string>Dead store</string>
+   <key>type</key><string>Dead assignment</string>
+   <key>check_name</key><string>deadcode.DeadStores</string>
+   <!-- This hash is experimental and going to change! -->
+   <key>issue_hash_content_of_line_in_context</key><string>33d11f480e2984dc55851da5c8b59c6f</string>
+  <key>issue_context_kind</key><string>function</string>
+  <key>issue_context</key><string>FormFunction</string>
+  <key>issue_hash_function_offset</key><string>482</string>
+  <key>location</key>
+  <dict>
+   <key>line</key><integer>1818</integer>
+   <key>col</key><integer>2</integer>
+   <key>file</key><integer>0</integer>
+  </dict>
+  </dict>
+  <dict>
+   <key>path</key>
+   <array>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>1819</integer>
+      <key>col</key><integer>2</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>ranges</key>
+     <array>
+       <array>
+        <dict>
+         <key>line</key><integer>1819</integer>
+         <key>col</key><integer>6</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>1819</integer>
+         <key>col</key><integer>84</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+     </array>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Value stored to &apos;m&apos; is never read</string>
+     <key>message</key>
+     <string>Value stored to &apos;m&apos; is never read</string>
+    </dict>
+   </array>
+   <key>description</key><string>Value stored to &apos;m&apos; is never read</string>
+   <key>category</key><string>Dead store</string>
+   <key>type</key><string>Dead assignment</string>
+   <key>check_name</key><string>deadcode.DeadStores</string>
+   <!-- This hash is experimental and going to change! -->
+   <key>issue_hash_content_of_line_in_context</key><string>3058292ef5101e45485f4cf9fb50a614</string>
+  <key>issue_context_kind</key><string>function</string>
+  <key>issue_context</key><string>FormFunction</string>
+  <key>issue_hash_function_offset</key><string>483</string>
+  <key>location</key>
+  <dict>
+   <key>line</key><integer>1819</integer>
+   <key>col</key><integer>2</integer>
+   <key>file</key><integer>0</integer>
+  </dict>
+  </dict>
+  <dict>
+   <key>path</key>
+   <array>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>1820</integer>
+      <key>col</key><integer>2</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>ranges</key>
+     <array>
+       <array>
+        <dict>
+         <key>line</key><integer>1820</integer>
+         <key>col</key><integer>6</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>1820</integer>
+         <key>col</key><integer>84</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+     </array>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Value stored to &apos;m&apos; is never read</string>
+     <key>message</key>
+     <string>Value stored to &apos;m&apos; is never read</string>
+    </dict>
+   </array>
+   <key>description</key><string>Value stored to &apos;m&apos; is never read</string>
+   <key>category</key><string>Dead store</string>
+   <key>type</key><string>Dead assignment</string>
+   <key>check_name</key><string>deadcode.DeadStores</string>
+   <!-- This hash is experimental and going to change! -->
+   <key>issue_hash_content_of_line_in_context</key><string>cddd8d5518bcd8ae9a89758c7234e1a9</string>
+  <key>issue_context_kind</key><string>function</string>
+  <key>issue_context</key><string>FormFunction</string>
+  <key>issue_hash_function_offset</key><string>484</string>
+  <key>location</key>
+  <dict>
+   <key>line</key><integer>1820</integer>
+   <key>col</key><integer>2</integer>
+   <key>file</key><integer>0</integer>
+  </dict>
+  </dict>
+  <dict>
+   <key>path</key>
+   <array>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>1821</integer>
+      <key>col</key><integer>2</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>ranges</key>
+     <array>
+       <array>
+        <dict>
+         <key>line</key><integer>1821</integer>
+         <key>col</key><integer>6</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>1821</integer>
+         <key>col</key><integer>84</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+     </array>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Value stored to &apos;m&apos; is never read</string>
+     <key>message</key>
+     <string>Value stored to &apos;m&apos; is never read</string>
+    </dict>
+   </array>
+   <key>description</key><string>Value stored to &apos;m&apos; is never read</string>
+   <key>category</key><string>Dead store</string>
+   <key>type</key><string>Dead assignment</string>
+   <key>check_name</key><string>deadcode.DeadStores</string>
+   <!-- This hash is experimental and going to change! -->
+   <key>issue_hash_content_of_line_in_context</key><string>d1cfb4d248b074085bbadf00ac8ed44d</string>
+  <key>issue_context_kind</key><string>function</string>
+  <key>issue_context</key><string>FormFunction</string>
+  <key>issue_hash_function_offset</key><string>485</string>
+  <key>location</key>
+  <dict>
+   <key>line</key><integer>1821</integer>
+   <key>col</key><integer>2</integer>
+   <key>file</key><integer>0</integer>
+  </dict>
+  </dict>
+  <dict>
+   <key>path</key>
+   <array>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>1822</integer>
+      <key>col</key><integer>2</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>ranges</key>
+     <array>
+       <array>
+        <dict>
+         <key>line</key><integer>1822</integer>
+         <key>col</key><integer>6</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>1822</integer>
+         <key>col</key><integer>84</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+     </array>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Value stored to &apos;m&apos; is never read</string>
+     <key>message</key>
+     <string>Value stored to &apos;m&apos; is never read</string>
+    </dict>
+   </array>
+   <key>description</key><string>Value stored to &apos;m&apos; is never read</string>
+   <key>category</key><string>Dead store</string>
+   <key>type</key><string>Dead assignment</string>
+   <key>check_name</key><string>deadcode.DeadStores</string>
+   <!-- This hash is experimental and going to change! -->
+   <key>issue_hash_content_of_line_in_context</key><string>309bfeafd3a1b2ba8e5411a864521c8c</string>
+  <key>issue_context_kind</key><string>function</string>
+  <key>issue_context</key><string>FormFunction</string>
+  <key>issue_hash_function_offset</key><string>486</string>
+  <key>location</key>
+  <dict>
+   <key>line</key><integer>1822</integer>
+   <key>col</key><integer>2</integer>
+   <key>file</key><integer>0</integer>
+  </dict>
+  </dict>
+  <dict>
+   <key>path</key>
+   <array>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>1843</integer>
+      <key>col</key><integer>2</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>ranges</key>
+     <array>
+       <array>
+        <dict>
+         <key>line</key><integer>1843</integer>
+         <key>col</key><integer>6</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>1843</integer>
+         <key>col</key><integer>80</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+     </array>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Value stored to &apos;m&apos; is never read</string>
+     <key>message</key>
+     <string>Value stored to &apos;m&apos; is never read</string>
+    </dict>
+   </array>
+   <key>description</key><string>Value stored to &apos;m&apos; is never read</string>
+   <key>category</key><string>Dead store</string>
+   <key>type</key><string>Dead assignment</string>
+   <key>check_name</key><string>deadcode.DeadStores</string>
+   <!-- This hash is experimental and going to change! -->
+   <key>issue_hash_content_of_line_in_context</key><string>a0d46de14161827967ce2a83a0e5dea0</string>
+  <key>issue_context_kind</key><string>function</string>
+  <key>issue_context</key><string>FormFunction</string>
+  <key>issue_hash_function_offset</key><string>507</string>
+  <key>location</key>
+  <dict>
+   <key>line</key><integer>1843</integer>
+   <key>col</key><integer>2</integer>
+   <key>file</key><integer>0</integer>
+  </dict>
+  </dict>
+ </array>
+</dict>
+</plist>
