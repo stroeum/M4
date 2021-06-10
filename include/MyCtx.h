@@ -28,9 +28,6 @@
 enum chargedspecies {O2p, CO2p, Op, e};
 enum neutrals {CO2, O};
 
-	// For JAR RK method personalization //
-	//extern PetscFunctionList TSSSPList;
-
 typedef struct {
 	PetscErrorCode (*onestep)(TS,PetscReal,PetscReal,Vec);
 	char *type_name;
@@ -39,12 +36,6 @@ typedef struct {
 	PetscInt nwork;
 	PetscBool workout;
 } TS_SSP;
-
-/*
- typedef struct{
- PetscInt s,n,e,w,d,u;        // index of the north, south, west, east, up, and down points
- } stencil;
- */
 
 typedef struct{
 	PetscReal n,p,v;
@@ -130,9 +121,9 @@ typedef struct {
 	DM             da,db;
 	PetscInt       jacType;
 	PetscInt       bcType;
-    PetscInt       chemswitch;                    // Turn chemistry on/off
-    PetscInt       collswitch;                    // Turn collisions on/off
-    PetscInt       gravswitch;                    // Turn gravity on/off
+	PetscInt       chemswitch;                    // Turn chemistry on/off
+	PetscInt       collswitch;                    // Turn collisions on/off
+	PetscInt       gravswitch;                    // Turn gravity on/off
 	PetscReal      RefProf[Np_REF][Nz_REF];       // Table of reference Profiles
 	PetscReal      RefPart[4][Nz_REF];            // Table of reference Partition
 } AppCtx;

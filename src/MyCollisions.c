@@ -35,10 +35,8 @@ PetscReal Vin(PetscInt i, PetscInt n, PetscReal nn, PetscReal Ti, PetscReal Tn)
 {
 	PetscReal  Tr,nu;
 	
-	/* Formulas from Schunk and Nagy, 2000, pp. 97--99, Tables 4.4, 4.5, 4.6 */
+	// Formulas from Schunk and Nagy, 2000, pp. 97--99, Tables 4.4, 4.5, 4.6
 	Tr = (Ti+Tn)/2.0;
-		//if (c==CO2p && n==CO2) printf( "Tr = %f\n", Tr);
-		//if (c==Op   && n==O)   printf( "Tr = %f\n", Tr);
 	if      (i==O2p  && n==CO2) {nu = 5.63e-10*nn*1e-6;}
 	else if (i==CO2p && n==CO2) {nu = (Tr>850)*2.85e-11*(nn*1e-6)*sqrt(Tr)*(1-0.083*log10(Tr))*(1-0.083*log10(Tr));}
 	else if (i==Op   && n==CO2) {nu = 8.95e-10*nn*1e-6;}
@@ -47,7 +45,7 @@ PetscReal Vin(PetscInt i, PetscInt n, PetscReal nn, PetscReal Ti, PetscReal Tn)
 	else if (i==Op   && n==O)   {nu = (Tr>235)*3.67e-11*(nn*1e-6)*sqrt(Tr)*(1-0.064*log10(Tr))*(1-0.064*log10(Tr));}
 	else    {printf("Warning: unknown collision\n\tAssuming null collision frequency.\n"); nu=0.0;}
 	
-	if(!(nu>=0)) nu = 0.0; //printf("h=%f, n=%d,Te=%f,Tn=%f, nn=%f,ne=%f,nu=%f\n",h,n,Te,Tn,nn,ne,nu);
+	if(!(nu>=0)) nu = 0.0;
 	
 	return nu;
 }
@@ -111,12 +109,12 @@ PetscReal Ven(PetscInt n, PetscReal nn, PetscReal Te)
 {
 	PetscReal  nu;
 	
-		// Formulas from Schunk and Nagy, 2000, pp. 97--99, Tables 4.4, 4.5, 4.6 //
+	// Formulas from Schunk and Nagy, 2000, pp. 97--99, Tables 4.4, 4.5, 4.6
 	if      (n==CO2) {nu = 3.68e-8*(nn*1e-6)*(1+4.1e-11*pow(fabs(4500 - Te),2.93));}
 	else if (n==O)   {nu = 8.9e-11*(nn*1e-6)*(1+5.7e-4*Te)*sqrt(Te);}
 	else    {printf("Warning: unknown collision\n\tAssuming null collision frequency.\n"); nu=0.0;}
 	
-	if(!(nu>=0)) nu = 0.0; //printf("h=%f, n=%d,Te=%f,Tn=%f, nn=%f,ne=%f,nu=%f\n",h,n,Te,Tn,nn,ne,nu);
+	if(!(nu>=0)) nu = 0.0;
 	
 	return nu;
 }
@@ -429,4 +427,3 @@ PetscReal v46(PetscReal ne   , PetscReal Te   ){
 	return v; // _s^-1
 	return 0;
 }
-

@@ -22,15 +22,12 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 	DM             da = user->da;
 	dvi            d = user->d;
 	PetscInt       Btype = user->BfieldType;
-		//PetscInt       mx = user->mx, my = user->my, mz = user->mz;
 	PetscReal      *x=user->x, *y=user->y, *z=user->z;
 	PetscReal      L=user->L,Lz;
 	PetscReal      Xmin=user->outXmin, Ymin=user->outYmin, Zmin=user->outZmin;
 	PetscReal      inZmax=user->inZmax;
-		//PetscReal      /*me = user->me,*/ mi[3] = {user->mi[O2p], user->mi[CO2p], user->mi[Op]};
 	PetscReal      n0=user->n0, v0=user->v0, p0=user->p0, B0=user->B0;
 	PetscReal      Bo=user->B[0], a=user->B[1], b=user->B[2], c=user->B[3];
-		//PetscReal      un[3]={user->un[0],user->un[1],user->un[2]}; // neutral wind
 	PetscReal      ui[3]={user->ui[0],user->ui[1],user->ui[2]}; // neutral wind
 	
 	PetscBool      vDamping = user->vDamping;
@@ -43,7 +40,7 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 	PetscReal      ****u;
 	PetscReal      X,Y,Z;
 	PetscReal      Te,Ti;
-	PetscReal      nio[3],neo/*,vio[3]*/,pio[3],peo;
+	PetscReal      nio[3],neo,pio[3],peo;
 	PetscInt       rank;
 	PetscViewer    fViewer;
 	char           fName[PETSC_MAX_PATH_LEN];
@@ -54,7 +51,7 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 	MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
 	Lz = user->outZmax-user->inZmin;
 	if (user->isInputFile) {
-			// Read binary file containing the solution //
+		// Read binary file containing the solution
 		sprintf(fName,"%s/%s",user->dName,user->InputFile);
 		PetscPrintf(PETSC_COMM_WORLD,"Init from %s: ...\n",fName);
 		flag = access(fName,F_OK);
@@ -67,10 +64,10 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 		ierr = PetscViewerDestroy(&fViewer);CHKERRQ(ierr);   
 		PetscPrintf(PETSC_COMM_WORLD,"Init from %s: DONE\n",fName);
 	} else { 
-			// Map U //
+		// Map U
 		ierr = DMDAVecGetArrayDOF(da,U,&u);CHKERRQ(ierr);
 		
-			// Get local grid boundaries //
+		// Get local grid boundaries
 		ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
 		
 		for (k=zs; k<zs+zm; k++) {
@@ -80,49 +77,27 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 				for (i=xs; i<xs+xm; i++) {
 					X = Xmin + x[i]*L;
 					
-                    Te = Interpolate(user->RefProf, 8 ,Z, lin_flat);
-                    Ti = Interpolate(user->RefProf, 9 ,Z, lin_flat);
-                    neo = Interpolate(user->RefProf, 7 ,Z, lin_exp);
-                    assert(Te>0);
-                    assert(Ti>0);
-                    assert(neo>0);
-                    
-                    nio[O2p]  = Interpolate(user->RefPart, O2p ,Z, lin_flat)*neo;
-                    nio[CO2p] = Interpolate(user->RefPart, CO2p,Z, lin_flat)*neo;
-                    nio[Op]   = Interpolate(user->RefPart, Op  ,Z, lin_flat)*neo;
-                    if(nio[Op] <10)
-                        nio[Op] = 10;
-                    
-//                    Te = 1000;
-//                    Ti = 1000;
-//                    nio[O2p]  = 1e12;
-//                    nio[CO2p] = 1e12;
-//                    nio[Op]   = 1e12;
-//                    neo = nio[O2p] + nio[CO2p] + nio[Op];
-//                    neo         = 3e12;
-					
-					/*
-					 Te = 2000;
-					 Ti = 2000;
-					 neo = 1e11;
-					 nio[O2p]  = .71*neo;
-					 nio[CO2p] = .25*neo;
-					 nio[Op]   = .04*neo;
-					 //if(!(neo>0)) neo = eps.n*n0;
-					 */
-					
+					Te = Interpolate(user->RefProf, 8 ,Z, lin_flat);
+					Ti = Interpolate(user->RefProf, 9 ,Z, lin_flat);
+					neo = Interpolate(user->RefProf, 7 ,Z, lin_exp);
+					assert(Te>0);
+					assert(Ti>0);
+					assert(neo>0);
+
+					nio[O2p]  = Interpolate(user->RefPart, O2p ,Z, lin_flat)*neo;
+					nio[CO2p] = Interpolate(user->RefPart, CO2p,Z, lin_flat)*neo;
+					nio[Op]   = Interpolate(user->RefPart, Op  ,Z, lin_flat)*neo;
+
+					if(nio[Op] <10) nio[Op] = 10;
+
 					for (l=0; l<3; l++) {
 						if (!(nio[l] > 0)) nio[l] = eps.n*n0;
-							//vio[l] = 100.0;
-							//vio[l] = PetscSqrtScalar(3*kB*Ti/mi[l]);
                         
-                        pio[l] = nio[l]*kB*Ti;
-							//pio[l] = Profile(13+l,Z);
+						pio[l] = nio[l]*kB*Ti;
 						assert(pio[l]>0);
 					}
-						//veo = PetscSqrtScalar(3*kB*Te/me)/v0;
-                    peo = neo*kB*Te;
-						//peo = Profile(12,Z);
+
+					peo = neo*kB*Te;
 					assert(peo>0);
 					if(Btype==0) {
 						u[k][j][i][d.B[0]] = Interpolate(user->RefProf, 0 ,Z, lin_flat)/B0;
@@ -174,7 +149,6 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 						u[k][j][i][d.B[2]] = MultiArcades(X,Y,Z,2)/B0;
 					}
 					
-						//if (k==13) if (j==24) PetscPrintf(PETSC_COMM_SELF,"@%d [%+12.6f %+12.6f %+12.6f] %f\n",rank,X,Y,Z,ui[m]);
 					for (l=0; l<3; l++) {
 						u[k][j][i][d.ni[l]] = nio[l]/n0;
 						for (m=0; m<3; m++) {
@@ -187,27 +161,15 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 								u[k][j][i][d.vi[l][m]] = ui[m]/v0;
 							}
 						}
-						if (Btype==2 && ui[2]==0) {
-								//PetscPrintf(PETSC_COMM_WORLD,"[%i %i %i], It worked... so far.\n",i,j,k);
-								//SETERRQ(PETSC_COMM_WORLD,62,"For a horizontal field, an initial vertical velocity is preferred.");
-						}
-							//vmax  = PetscMax(vmax,vio[l]/v0);
 						u[k][j][i][d.pi[l]] = pio[l]/p0;
-//                        PetscPrintf(PETSC_COMM_SELF,"pi %e\n",u[k][j][i][d.pi[l]]);
 					}
-						//vmax = PetscMax(vmax,veo/v0);
 					u[k][j][i][d.pe] = peo/p0;
-//                    PetscPrintf(PETSC_COMM_SELF,"pe %e\n",u[k][j][i][d.pe]);
 				}
 			}
 		}
 		
 		ierr = DMDAVecRestoreArrayDOF(da,U,&u);CHKERRQ(ierr);
 	}
-	
-		//PetscPrintf(PETSC_COMM_WORLD,"ARE WE THERE YET?\n");
-		// Compute initial BC for u //
-		//ierr = FormBCu(U,user);CHKERRQ(ierr);
 	
 	PetscPrintf(PETSC_COMM_WORLD,"Form Initial Conditions: DONE\n");
 	PetscFunctionReturn(0); 
@@ -242,7 +204,6 @@ PetscErrorCode FormBCu(PetscReal ****u, void*ctx)
 	PetscReal      Zmin=user->outZmin,Z;
 	PetscInt       bcType = user->bcType;
 	
-		//PetscReal      vi[3][3],ve[3]; // velocity of i,e
 	PetscInt       i,j,k,l,m,xs,ys,zs,xm,ym,zm;
 	PetscInt       rank;
 	coeff2         dh;
@@ -251,14 +212,14 @@ PetscErrorCode FormBCu(PetscReal ****u, void*ctx)
 	
 	PetscFunctionBegin;
 	MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
-		// Get local grid boundaries //
+	// Get local grid boundaries
 	ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
 	
 	
 	for (k=zs; k<zs+zm; k++) {
 		Z = Zmin + z[k]*L;
 		for (j=ys; j<ys+ym; j++) {
-			if(xs==0) {                     // S-boundary //
+			if(xs==0) {		// S-boundary //
 				id.x[0] = -1;
 				id.x[1] = 0;
 				id.x[2] = 1;
@@ -298,7 +259,7 @@ PetscErrorCode FormBCu(PetscReal ****u, void*ctx)
 					for (l=3; l<19; l++) u[k][j][id.x[0]][l] = u[k][j][id.x[1]][l];
 				}
 			}
-			if(xs+xm==mx) {                 // N-boundary //
+			if(xs+xm==mx) {		// N-boundary //
 				id.x[0] = mx;
 				id.x[1] = mx-1;
 				id.x[2] = mx-2;
@@ -443,10 +404,9 @@ PetscErrorCode FormBCu(PetscReal ****u, void*ctx)
 				D2.z[2] =   2.0/(dh.z[1] * (dh.z[1]-dh.z[0]));
 				
 				if (bcType==0) { // 1st order Neumann BC
-                    for (l=0; l<19; l++){
-                    u[id.z[0]][j][i][l] = u[id.z[1]][j][i][l];
-//                    printf("nx: %d, ny: %d, nz: %d, l: %d, u = %e\n",i,j,id.z[0],u[id.z[0]][j][i][l]);
-                    }
+					for (l=0; l<19; l++){
+						u[id.z[0]][j][i][l] = u[id.z[1]][j][i][l];
+					}
 				}
 				if (bcType==1) { // 2nd Order Neumann BC
 					for (l=0; l<19; l++) u[id.z[0]][j][i][l] = -D1.z[1]/D1.z[0]*u[id.z[1]][j][i][l]-D1.z[2]/D1.z[0]*u[id.z[2]][j][i][l];
@@ -516,16 +476,6 @@ PetscErrorCode FormBCu(PetscReal ****u, void*ctx)
 			}
 		}
 	}
-	/*
-	 if (rank == 0) {
-	 PetscPrintf(PETSC_COMM_WORLD,"step = %d\n",user->cnt);
-	 for (k=-1;k<=1;k++) for (j=-1;j<=1;j++) for (i=-1;i<=1;i++) 
-	 if (! ( (i==-1 && j==-1) || (i==-1 && k==-1) || (j==-1 && k==-1) ) ) {
-	 PetscPrintf(PETSC_COMM_SELF,"@[%2d][%2d][%2d] nO2+=%2.5e; nCO2+=%2.5e; nO+=%2.5e; vO2+=[%2.5e %2.5e %2.5e]; vCO2+=[%2.5e %2.5e %2.5e]; vO+=[%2.5e %2.5e %2.5e]; pO2+=%2.5e; pCO2+=%2.5e; pO+=%2.5e; pe=%2.5e; B=[%2.5e %2.5e %2.5e]\n",i,j,k,u[k][j][i][0]*user->n0,u[k][j][i][1]*user->n0,u[k][j][i][2]*user->n0,u[k][j][i][3]*user->v0,u[k][j][i][4]*user->v0,u[k][j][i][5]*user->v0,u[k][j][i][6]*user->v0,u[k][j][i][7]*user->v0,u[k][j][i][8]*user->v0,u[k][j][i][9]*user->v0,u[k][j][i][10]*user->v0,u[k][j][i][11]*user->v0,u[k][j][i][12]*user->p0,u[k][j][i][13]*user->p0,u[k][j][i][14]*user->p0,u[k][j][i][15]*user->p0,u[k][j][i][16]*user->B0,u[k][j][i][17]*user->B0,u[k][j][i][18]*user->B0);
-	 }
-	 }
-     */
-	 
 	PetscFunctionReturn(0);
 }
 
@@ -573,7 +523,7 @@ PetscErrorCode FormBCv(PetscReal ****v, void *ctx)
 	dh.x[0] = 0; dh.y[0] = 0; dh.z[0] = 0;
 	dh.x[1] = 0; dh.y[1] = 0; dh.z[1] = 0;
 	
-		// Get local grid boundaries //
+	// Get local grid boundaries
 	ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
 	
 	for (j=ys; j<ys+ym; j++) {
@@ -769,15 +719,6 @@ PetscErrorCode FormBCv(PetscReal ****v, void *ctx)
 			}
 		}
 	}   
-	/*
-	 if (rank == 7) { 
-	 for (k=mz-2;k<=mz;k++) for (j=my-2;j<=my;j++) for (i=mx-2;i<=mx;i++) 
-	 if (! ( (i==mx && j==my) || (i==mx && k==mz) || (j==my && k==mz) ) ) {
-	 PetscPrintf(PETSC_COMM_SELF,"@[%2d][%2d][%2d] ve=[%2.5e %2.5e %2.5e]; J=[%2.5e %2.5e %2.5e]; E=[%2.5e %2.5e %2.5e]\n",i,j,k,v[k][j][i][0]*user->v0,v[k][j][i][1]*user->v0,v[k][j][i][2]*user->v0,v[k][j][i][3]*qe*user->n0*user->v0,v[k][j][i][4]*qe*user->n0*user->v0,v[k][j][i][5]*qe*user->n0*user->v0,v[k][j][i][6]*user->v0*user->B0,v[k][j][i][7]*user->v0*user->B0,v[k][j][i][8]*user->v0*user->B0);
-	 }
-	 }
-	 */
-	
 	PetscFunctionReturn(0); 
 }
 
@@ -817,10 +758,10 @@ PetscErrorCode CheckValues(PetscReal ****u,PetscReal ****v,void *ctx)
 	PetscFunctionBegin;
 	MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
 	
-		// Get local grid boundaries //
+	// Get local grid boundaries
 	ierr = DMDAGetGhostCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
 	
-		// Check values //
+	// Check values
 	for (k=zs; k<zs+zm; k++) {
 		Z = Zmin + z[k]*L; 
 		for (j=ys; j<ys+ym; j++) {
@@ -828,18 +769,15 @@ PetscErrorCode CheckValues(PetscReal ****u,PetscReal ****v,void *ctx)
 				if (limiters) {
 					if(!(u[k][j][i][d.pe]>=eps.p)) {
 						u[k][j][i][d.pe]=eps.p;
-							//PetscPrintf(PETSC_COMM_SELF, "pe=%2.3e @ [%d,%d,%d] (Z=%f km)\n",u[k][j][i][d.pe]*p0, i,j,k, Z*1e-3);
 					}
 					assert(u[k][j][i][d.pe]>=eps.p); // check pe>=0
 					for (l=0; l<3; l++) {
 						if(!(u[k][j][i][d.ni[l]]>=eps.n)) {
 							u[k][j][i][d.ni[l]]=eps.n;
-								//PetscPrintf(PETSC_COMM_SELF, "ni[%d]=%2.3e @ [%d,%d,%d] (Z=%f km)\n",l,u[k][j][i][d.ni[l]]*n0, i,j,k, Z*1e-3);
 						}
 						assert(u[k][j][i][d.ni[l]]>=eps.n); // check ni>0
 						if(!(u[k][j][i][d.pi[l]]>=eps.p)) {
 							u[k][j][i][d.pi[l]]=eps.p;
-								//PetscPrintf(PETSC_COMM_SELF, "pi[%d]=%2.3e @ [%d,%d,%d] (Z=%f km)\n",l,u[k][j][i][d.pi[l]]*p0, i,j,k, Z*1e-3);
 							assert(u[k][j][i][d.pi[l]]>=eps.p); // check pi>=0
 						}
 					}
@@ -865,7 +803,6 @@ PetscErrorCode CheckValues(PetscReal ****u,PetscReal ****v,void *ctx)
 			}
 		}
 	}
-	
 	PetscFunctionReturn(0);
 }
 
@@ -888,7 +825,7 @@ PetscErrorCode CalculateFluxes(PetscReal t, PetscInt step, PetscReal ****u, Pets
 	
 	PetscErrorCode ierr;
 	AppCtx         *user = (AppCtx*)ctx;
-	PetscReal      /*Xmin = user->outXmin, Ymin = user->outYmin,*/ Zmin = user->outZmin;
+	PetscReal      Zmin = user->outZmin;
 	PetscReal      n0 = user->n0, v0 = user->v0;
 	PetscReal      *x = user->x, *y = user->y, *z = user->z;
 	PetscReal      DX,DY,DZ;
@@ -906,13 +843,13 @@ PetscErrorCode CalculateFluxes(PetscReal t, PetscInt step, PetscReal ****u, Pets
 	PetscReal      ne=0,ni[3]={0.0,0.0,0.0},ve[3],vi[3][3];
 	PetscReal      Fe[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 	PetscReal      Fi[3][6] = { {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}};
-	PetscReal      /*X,Y,*/Z;
+	PetscReal      Z;
 	
 	PetscFunctionBegin;
 	
 	MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
 	
-		// Get local grid boundaries //
+	// Get local grid boundaries
 	ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
 	
 	imin = 0;
@@ -922,22 +859,22 @@ PetscErrorCode CalculateFluxes(PetscReal t, PetscInt step, PetscReal ****u, Pets
 	kmin = 0;
 	kmax = mz-1;
 	
-		// Calculate the flows through the boundaries of the PLOTTED domain //
+	// Calculate the flows through the boundaries of the PLOTTED domain
 	PetscPrintf(PETSC_COMM_WORLD,"START FLUX CALCULATIONS.\n");
-		// W-E flows //
+	// W-E flows
 	for (j=ys; j<ys+ym; j++) {
-			// Define y-space increment //
+		// Define y-space increment
 		if (j==0)         DY = (y[   1]-y[   0])*L    ;
 		else if (j==my-1) DY = (y[my-1]-y[my-2])*L    ;
 		else              DY = (y[ j+1]-y[ j-1])*L/2.0;
 		
 		for (k=zs; k<zs+zm; k++) {
-				// Define z-space increment //
+			// Define z-space increment
 			if (k==0)         DZ = (z[   1]-z[   0])*L    ;
 			else if (k==mz-1) DZ = (z[mz-1]-z[mz-2])*L    ;
 			else              DZ = (z[ k+1]-z[ k-1])*L/2.0;
 			
-				// W-flow //
+			// W-flow
 			i = imin;
 			ne = 0.0;
 			for (l=0; l<3; l++) {
@@ -949,7 +886,7 @@ PetscErrorCode CalculateFluxes(PetscReal t, PetscInt step, PetscReal ****u, Pets
 			ve[0] = v[k][j][i][s.ve[0]];
 			Fe[0] -= ne*n0 * ve[0]*v0 * DY*DZ;
 			
-				// E-flow //
+			// E-flow
 			i = imax;
 			ne = 0.0;
 			for (l=0; l<3; l++) {
@@ -963,21 +900,21 @@ PetscErrorCode CalculateFluxes(PetscReal t, PetscInt step, PetscReal ****u, Pets
 		}
 	}
 	
-		// S-N flows //
+	// S-N flows
 	for (k=zs; k<zs+zm; k++) {
-			// Define z-space increment //
+		// Define z-space increment
 		if (k==0)         DZ = (z[   1]-z[   0])*L    ;
 		else if (k==mz-1) DZ = (z[mz-1]-z[mz-2])*L    ;
 		else              DZ = (z[ k+1]-z[ k-1])*L/2.0;
 		
 		for (i=xs; i<xs+xm; i++) {
 			
-				// Define x-space increment //
+			// Define x-space increment
 			if (i==0)         DX = (x[   1]-x[   0])*L    ;
 			else if (i==mx-1) DX = (x[mx-1]-x[mx-2])*L    ;
 			else              DX = (x[ i+1]-x[ i-1])*L/2.0;
 			
-				// S-flow //
+			// S-flow
 			j = jmin;
 			ne = 0.0;
 			for (l=0; l<3; l++) {
@@ -988,9 +925,8 @@ PetscErrorCode CalculateFluxes(PetscReal t, PetscInt step, PetscReal ****u, Pets
 			}
 			ve[1] = v[k][j][i][s.ve[1]];
 			Fe[2] -= ne*n0 * ve[1]*v0 * DZ*DX;
-				// if(i==0) printf("@%d z=%12.6e\tnO2+=%12.6e\tvO2+=%12.6e\tDY=%12.6e\tDZ=%12.6e\n", rank, Zmin + z[k]*L, u[k][j][i][d.ni[0]]*n0,u[k][j][i][d.vi[0][1]]*v0,DY,DZ);
 			
-				// N-flow //
+			// N-flow
 			j = jmax;
 			ne = 0.0;
 			for (l=0; l<3; l++) {
@@ -1005,20 +941,20 @@ PetscErrorCode CalculateFluxes(PetscReal t, PetscInt step, PetscReal ****u, Pets
 		}
 	}
 	
-		// B-T flows //
+	// B-T flows
 	for (i=xs; i<xs+xm; i++) {
-			// Define x-space increment //
+		// Define x-space increment
 		if (i==0)         DX = (x[   1]-x[   0])*L    ;
 		else if (i==mx-1) DX = (x[mx-1]-x[mx-2])*L    ;
 		else              DX = (x[ i+1]-x[ i-1])*L/2.0;
 		
 		for (j=ys; j<ys+ym; j++) {
-				// Define y-space increment //
+			// Define y-space increment
 			if (j==0)         DY = (y[   1]-y[   0])*L    ;
 			else if (j==my-1) DY = (y[my-1]-y[my-2])*L    ;
 			else              DY = (y[ j+1]-y[ j-1])*L/2.0;
 			
-				// B-flow //
+			// B-flow
 			k = kmin;
 			ne = 0.0;
 			for (l=0; l<3; l++) {
@@ -1030,7 +966,7 @@ PetscErrorCode CalculateFluxes(PetscReal t, PetscInt step, PetscReal ****u, Pets
 			ve[2] = v[k][j][i][s.ve[2]];
 			Fe[4] -= ne*n0 *ve[2]*v0 * DX*DY;
 			
-				// T-flow //
+			// T-flow
 			k = kmax;
 			ne = 0.0;
 			for (l=0; l<3; l++) {
@@ -1043,31 +979,6 @@ PetscErrorCode CalculateFluxes(PetscReal t, PetscInt step, PetscReal ****u, Pets
 			Fe[5] += ne*n0 * ve[2]*v0 * DX*DY;
 		}
 	}
-	
-		// Summing subdomain values //
-	/*
-	 m = MPI_Allreduce(MPI_IN_PLACE,&Fi[0][0],3*6,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
-	 m = MPI_Allreduce(MPI_IN_PLACE,&Fe      ,6  ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
-	 */
-	
-		// Fill the diagnotics.dat file //
-	/*
-	 if (rank==0) {
-	 sprintf(fName,"%s/diagnostics.dat",user->vName);
-	 nFile = fopen(fName,"w");
-	 if (step==0) 
-	 fprintf(nFile,"t           \tF.w(O2+)    \tF.e(O2+)    \tF.s(O2+)    \tF.n(O2+)    \tF.b(O2+)    \tF.t(O2+)    \tF.w(CO2+)   \tF.e(CO2+)   \tF.s(CO2+)   \tF.n(CO2+)   \tF.b(CO2+)   \tF.t(CO2+)   \tF.w(O+)     \tF.e(O+)     \tF.s(O+)     \tF.n(O+)     \tF.b(O+)     \tF.t(O+)     \tF.w(e)      \tF.e(e)      \tF.s(e)      \tF.n(e)      \tF.b(e)      \tF.t(e)      \n");
-	 
-	 fprintf(nFile,"%12.6e\t",t);
-	 for (l=0; l<3; l++) 
-	 for (m=0; m<6; m++) 
-	 fprintf(nFile,"%12.6e\t",Fi[l][m]);
-	 for (m=0; m<6; m++)
-	 fprintf(nFile,"%12.6e\t",Fe[m]);
-	 fprintf(nFile,"\n");
-	 fclose(nFile);
-	 }
-	 */
 	PetscFunctionReturn(0);
 }
 
@@ -1088,7 +999,6 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 {
 	PetscErrorCode ierr;
 	AppCtx         *user = (AppCtx*)ctx;
-		//tolerance      eps = user->eps;
 	DM             da = (DM)user->da;
 	DM             db = (DM)user->db;
 	svi            s = user->s;
@@ -1144,21 +1054,8 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 	dh.x[0] = 0; dh.y[0] = 0; dh.z[0] = 0;
 	dh.x[1] = 0; dh.y[1] = 0; dh.z[1] = 0;
 	
-		// Get local grid boundaries //
+	// Get local grid boundaries
 	ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
-	
-		//printf("@%d, xs=%d\txs+xm=%d\tys=%d\tys+ym=%d\tzs=%d\tzs+zm=%d\n",rank,xs,xs+xm,ys,ys+ym,zs,zs+zm);
-		//exit(1);
-	
-	/*
-	 if (rank == 0) { 
-	 printf("step == %d\n",user->cnt);
-	 i=0;
-	 j=0;
-	 k=0;
-	 PetscPrintf(PETSC_COMM_SELF,"@[%2d][%2d][%2d] B=[%2.5e %2.5e %2.5e];\n",i,j,k,u[k][j][i][d.B[0]]*user->B0,u[k-1][j][i][d.B[0]]*user->B0, u[k+1][j][i][d.B[0]]*user->B0);
-	 }
-	 */
 	
 	for (k=zs; k<zs+zm; k++) {
 		Z = Zmin + z[k]*L;
@@ -1167,12 +1064,12 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 			for (i=xs; i<xs+xm; i++) {
 				X = Xmin + x[i]*L;
 				if (bcType == 0 || bcType == 1 || bcType == 2 || bcType == 10 || bcType == 11) {
-						// Defines upper and lower indices for the differenciation //
+					// Defines upper and lower indices for the differenciation
 					id.x[0] = i; id.x[1] = i-1; id.x[2] = i+1; 
 					id.y[0] = j; id.y[1] = j-1; id.y[2] = j+1;
 					id.z[0] = k; id.z[1] = k-1; id.z[2] = k+1;
 					
-						// Defines helpful coefficients for the differenciation //
+					// Defines helpful coefficients for the differenciation
 					if (i==0)         {dh.x[0] = -(x[id.x[2]] - x[id.x[0]]); dh.x[1] =   x[id.x[2]] - x[id.x[0]] ;}
 					else if (i==mx-1) {dh.x[0] =   x[id.x[1]] - x[id.x[0]] ; dh.x[1] = -(x[id.x[1]] - x[id.x[0]]);}
 					else              {dh.x[0] =   x[id.x[1]] - x[id.x[0]] ; dh.x[1] =   x[id.x[2]] - x[id.x[0]] ;}
@@ -1184,7 +1081,7 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 					else              {dh.z[0] =   z[id.z[1]] - z[id.z[0]] ; dh.z[1] =   z[id.z[2]] - z[id.z[0]] ;}
 				}
 				if (bcType == 3) {
-						// Defines upper and lower indices for the differenciation //
+					// Defines upper and lower indices for the differenciation
 					if (i==0)         {id.x[0] = i; id.x[1] = i+1; id.x[2] = i+2;}
 					else if (i==mx-1) {id.x[0] = i; id.x[1] = i-2; id.x[2] = i-1;}
 					else              {id.x[0] = i; id.x[1] = i-1; id.x[2] = i+1;}
@@ -1195,13 +1092,13 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 					else if (k==mz-1) {id.z[0] = k; id.z[1] = k-2; id.z[2] = k-1;}
 					else              {id.z[0] = k; id.z[1] = k-1; id.z[2] = k+1;}
 					
-						// Defines helpful coefficients for the differenciation //
+					// Defines helpful coefficients for the differenciation
 					dh.x[0] = x[id.x[1]] - x[id.x[0]]; dh.x[1] = x[id.x[2]] - x[id.x[0]];
 					dh.y[0] = y[id.y[1]] - y[id.y[0]]; dh.y[1] = y[id.y[2]] - y[id.y[0]];
 					dh.z[0] = z[id.z[1]] - z[id.z[0]]; dh.z[1] = z[id.z[2]] - z[id.z[0]];
 				}
 				
-					// Calculate v on all interior points applies to all BC cases for v //
+				// Calculate v on all interior points applies to all BC cases for v
 				D1.x[0] = - 1.0/dh.x[0] - 1.0/dh.x[1]; 
 				D1.x[1] =   1.0/dh.x[0] - 1.0/(dh.x[0]-dh.x[1]); 
 				D1.x[2] =   1.0/dh.x[1] + 1.0/(dh.x[0]-dh.x[1]);
@@ -1221,7 +1118,7 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 				D2.z[1] =   2.0/(dh.z[0] * (dh.z[0]-dh.z[1])); 
 				D2.z[2] =   2.0/(dh.z[1] * (dh.z[1]-dh.z[0]));
 				
-					// Calculate ne, ve, vi, J, E //
+				// Calculate ne, ve, vi, J, E
 				ni[O2p]     = u[k][j][i][d.ni[O2p]];     // nO2+
 				ni[CO2p]    = u[k][j][i][d.ni[CO2p]];    // nCO2+
 				ni[Op]      = u[k][j][i][d.ni[Op]];      // nO+
@@ -1241,42 +1138,30 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 				B[1]        = u[k][j][i][d.B[1]];        // By
 				B[2]        = u[k][j][i][d.B[2]];        // Bz
 				
-					// Intermediate calculations //
+				// Intermediate calculations
 				dpe.dx = D1.x[0]*u[k][j][id.x[0]][d.pe] + D1.x[1]*u[k][j][id.x[1]][d.pe] + D1.x[2]*u[k][j][id.x[2]][d.pe]; //dpe.dx 
 				dpe.dy = D1.y[0]*u[k][id.y[0]][i][d.pe] + D1.y[1]*u[k][id.y[1]][i][d.pe] + D1.y[2]*u[k][id.y[2]][i][d.pe]; //dpe.dy 
 				dpe.dz = D1.z[0]*u[id.z[0]][j][i][d.pe] + D1.z[1]*u[id.z[1]][j][i][d.pe] + D1.z[2]*u[id.z[2]][j][i][d.pe]; //dpe.dz 
-				
-                /*
-                 * Something will probably need to be modded here to ensure div B = 0
-                 */
+
 				for (m=0; m<3; m++) {
-						//dB[m].dz = (u[idx.z[2]][j][i][d.B[m]]-u[idx.z[0]][j][i][d.B[m]])/(z[idx.z[2]]-z[idx.z[0]]); //dBy.dz 
 					dB[m].dx = D1.x[0]*u[k][j][id.x[0]][d.B[m]] + D1.x[1]*u[k][j][id.x[1]][d.B[m]] + D1.x[2]*u[k][j][id.x[2]][d.B[m]]; //dB[m].dx 
 					dB[m].dy = D1.y[0]*u[k][id.y[0]][i][d.B[m]] + D1.y[1]*u[k][id.y[1]][i][d.B[m]] + D1.y[2]*u[k][id.y[2]][i][d.B[m]]; //dB[m].dy 
 					dB[m].dz = D1.z[0]*u[id.z[0]][j][i][d.B[m]] + D1.z[1]*u[id.z[1]][j][i][d.B[m]] + D1.z[2]*u[id.z[2]][j][i][d.B[m]]; //dB[m].dz
                     
-                    // check the values of these
+                    			// check the values of these
 				}
 				
-					// Current //
+				// Current
 				J[0] = dB[2].dy - dB[1].dz; 
 				J[1] = dB[0].dz - dB[2].dx;
 				J[2] = dB[1].dx - dB[0].dy;
 				
-					// Electron velocity //
+				// Electron velocity
 				ve[0] = ( (ni[O2p]*vi[O2p][0] + ni[CO2p]*vi[CO2p][0] + ni[Op]*vi[Op][0]) - J[0] )/ ne;
 				ve[1] = ( (ni[O2p]*vi[O2p][1] + ni[CO2p]*vi[CO2p][1] + ni[Op]*vi[Op][1]) - J[1] )/ ne;
 				ve[2] = ( (ni[O2p]*vi[O2p][2] + ni[CO2p]*vi[CO2p][2] + ni[Op]*vi[Op][2]) - J[2] )/ ne;
-				/*
-				 for (m=0; m<3; m++)
-				 if (ne<=user->eps.n){
-				 ve[m] = 0.0;
-				 PetscPrintf(PETSC_COMM_WORLD,"HERE is the PROBLEM\n");
-				 }
-				 */
-					//if (i==0 && j==0 && k==0) printf("dz=%2.1e km, nu=%2.5e ve=[%2.3e %2.3e %2.3e] un=[%2.3e %2.3e %2.3e]\n", dh.z[0],nu[CO2]+nu[O], ve[0]*v0,ve[1]*v0,ve[2]*v0,un[0]*v0,un[1]*v0,un[2]*v0);
-				
-					// projectiles velocities //
+
+				// projectiles velocities
 				for (m=0;m<3;m++) {
 					vb[0][m] = un[m];    // CO2
 					vb[1][m] = un[m];    // O
@@ -1286,57 +1171,45 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 					vb[5][m] = ve[m];    // e
 				}
 				
-					// Temperature //
-                Te = Interpolate(user->RefProf, 8 ,Z, lin_flat);
-//                Te          = pe*p0/(ne*n0*kB);
-//                Te          = 1000;
-                nn[CO2]     = Interpolate(user->RefProf, 5 ,Z, lin_flat);
-//                nn[CO2]     = 1e15;
-                nn[O]       = Interpolate(user->RefProf, 4 ,Z, lin_flat);
-//                nn[O]       = 1e15;
+				// Temperature
+				Te = Interpolate(user->RefProf, 8 ,Z, lin_flat);
+				nn[CO2]     = Interpolate(user->RefProf, 5 ,Z, lin_flat);
+				nn[O]       = Interpolate(user->RefProf, 4 ,Z, lin_flat);
 				nu[CO2]     = Ven(CO2, nn[CO2], Te);
 				nu[O]       = Ven(O  , nn[O]  , Te);
-				
-//                Te          = pe/ne;
-                Te = Interpolate(user->RefProf, 8 ,Z, lin_flat)/T0;
-//                Te          = 10s00/n0;
-                nn[CO2]     = Interpolate(user->RefProf, 5 ,Z, lin_flat)/n0;
-//                nn[CO2]     = 1e15/n0;
-                nn[O]       = Interpolate(user->RefProf, 4 ,Z, lin_flat)/n0;
-//                nn[O]       = 1e15/n0;
+
+				Te = Interpolate(user->RefProf, 8 ,Z, lin_flat)/T0;
+				nn[CO2]     = Interpolate(user->RefProf, 5 ,Z, lin_flat)/n0;
+				nn[O]       = Interpolate(user->RefProf, 4 ,Z, lin_flat)/n0;
                 
-				nu[0]       = v41(nn[CO2] *n0 , Te      *T0);                // e    CO2
-				nu[1]       = v42(nn[O]   *n0 , Te      *T0);                // e    O
-				nu[2]       = v43(ni[O2p] *n0 , Te      *T0);                // e    O2+
-				nu[3]       = v44(ni[CO2p]*n0 , Te      *T0);                // e    CO2+
-				nu[4]       = v45(ni[Op]  *n0 , Te      *T0);                // e    O+
-				nu[5]       = v46(ne      *n0 , Te      *T0);                // e    e
+				nu[0]       = v41(nn[CO2] *n0 , Te      *T0);	// e    CO2
+				nu[1]       = v42(nn[O]   *n0 , Te      *T0);	// e    O
+				nu[2]       = v43(ni[O2p] *n0 , Te      *T0);	// e    O2+
+				nu[3]       = v44(ni[CO2p]*n0 , Te      *T0);	// e    CO2+
+				nu[4]       = v45(ni[Op]  *n0 , Te      *T0);	// e    O+
+				nu[5]       = v46(ne      *n0 , Te      *T0);	// e    e
 				
-					// Elastic collisions term //
+				// Elastic collisions term
 				for (m=0;m<3;m++) {
 					el_coll[m] = 0;
 					for (b=0;b<6;b++) {
 						el_coll[m] += nu[b]*tau*(vb[b][m]-ve[m]);
 					}
 				}
-                
-                    // chemistry for Gen Ohms Law//
-                chem_nuS[e][0] = v1();                              // CO2 + hv
-//                chem_nuS[e][0] = 0;                              // CO2 + hv
-                //chem_nuS[e][1] = 2*v2(nn[CO2]*n0 , Te    *T0);                   /* WORK IN PROGRESS */
-                chem_nuS[e][1] = 0;
-                chem_nuS[e][2] = v3();                              // O + hv
-//                chem_nuS[e][2] = 0;                              // O + hv
-                chem_nuS[e][3] = 2*v4(nn[O]     *n0 , Te    *T0);   // O + e
-//                chem_nuS[e][3] = 0;   // O + e
-                for (m=0;m<3;m++) {
-                    E_chem_S[m]   = tau   *(chem_nuS[e][0]   *(un[m] - vi[e][m])
-                                          + chem_nuS[e][1]   *(un[m] - vi[e][m])
-                                          + chem_nuS[e][2]   *(un[m] - vi[e][m])
-                                          + chem_nuS[e][3]   *(un[m] - vi[e][m]));
-                }
+
+				// chemistry for Gen Ohms Law
+				chem_nuS[e][0] = v1();                              // CO2 + hv
+				chem_nuS[e][1] = 0;
+				chem_nuS[e][2] = v3();                              // O + hv
+				chem_nuS[e][3] = 2*v4(nn[O]     *n0 , Te    *T0);   // O + e
+				for (m=0;m<3;m++) {
+					E_chem_S[m]   = tau   *(chem_nuS[e][0]   *(un[m] - vi[e][m])
+					+ chem_nuS[e][1]   *(un[m] - vi[e][m])
+					+ chem_nuS[e][2]   *(un[m] - vi[e][m])
+					+ chem_nuS[e][3]   *(un[m] - vi[e][m]));
+				}
 				
-					// E-field //
+				// E-field
 				if (vDamping) { //((1.0-tanh(Z-Lz)/(Lz/12.0))/2.0);
 					for (m=0; m<3; m++) { 
 						un[m]*=
@@ -1345,28 +1218,24 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 						.5*(1+erf((Z-ZL)/lambda)) * .5*(1-erf((Z-ZU)/lambda)) ;
 					}
 				}
-				/*
-				 E[0] = -CrossP(ve,B,0) - dpe.dx/ne + (nu[CO2] + nu[O]) * tau * (un[0] - ve[0]);
-				 E[1] = -CrossP(ve,B,1) - dpe.dy/ne + (nu[CO2] + nu[O]) * tau * (un[1] - ve[1]);
-				 E[2] = -CrossP(ve,B,2) - dpe.dz/ne + (nu[CO2] + nu[O]) * tau * (un[2] - ve[2]);
-				 */
-				
-                    // Gen Ohms Law //
+
+				// Gen Ohms Law
 				E[0] = -CrossP(ve,B,0) - dpe.dx/ne;
 				E[1] = -CrossP(ve,B,1) - dpe.dy/ne;
 				E[2] = -CrossP(ve,B,2) - dpe.dz/ne;
-                if(user->chemswitch==1){
-                    E[0] += E_chem_S[0];
-                    E[1] += E_chem_S[1];
-                    E[2] += E_chem_S[2];
-                }
-                if(user->collswitch==1){
-                    E[0] += el_coll[0];
-                    E[1] += el_coll[1];
-                    E[2] += el_coll[2];
-                }
+
+				if(user->chemswitch==1){
+					E[0] += E_chem_S[0];
+					E[1] += E_chem_S[1];
+					E[2] += E_chem_S[2];
+				}
+				if(user->collswitch==1){
+					E[0] += el_coll[0];
+					E[1] += el_coll[1];
+					E[2] += el_coll[2];
+				}
 				
-					// Store data //
+				// Store data
 				for (m=0; m<3; m++) { 
 					v[k][j][i][s.ve[m]] = ve[m];
 					v[k][j][i][s.J[m]]  = J[m];
@@ -1426,67 +1295,67 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 		0.0,                                                         // * 
 		0.0,                                                         // * for a GIVEN species l
 		0.0                                                          // * in ANY direction m
-	};                                                              // * at the CURRENT point (k,j,i)
+	};                                                                   // * at the CURRENT point (k,j,i)
 	
 	PetscReal      vA_max[3] = {                                                   // Maximum Alfven speed
 		0.0,                                                         // * 
 		0.0,                                                         // * for a GIVEN species l
 		0.0                                                          // * in ANY direction m
-	};                                                              // * at the ENTIRE SUBDOMAIN
+	};                                                                   // * at the ENTIRE SUBDOMAIN
 	
 	PetscReal      vs[3] = {                                                       // Sonic speed
 		0.0,                                                         // * 
 		0.0,                                                         // * for a GIVEN species l
 		0.0                                                          // * in ANY direction m
-	};                                                              // * at the CURRENT point (k,j,i)
+	};                                                                   // * at the CURRENT point (k,j,i)
 	
 	PetscReal      vs_max[3] = {                                                   // Maximum Sonic speed
 		0.0,                                                         // * 
 		0.0,                                                         // * for a GIVEN species l
 		0.0                                                          // * in ANY direction m
-	};                                                              // * at the ENTIRE SUBDOMAIN
+	};                                                                   // * at the ENTIRE SUBDOMAIN
 	
 	PetscReal      vf[3] = {                                                       // Fast magnetosonic wave speed
 		0.0,                                                         // * 
 		0.0,                                                         // * for a GIVEN species l
 		0.0                                                          // * in ANY direction m
-	};                                                              // * at the CURRENT point (k,j,i)
+	};                                                                   // * at the CURRENT point (k,j,i)
 	
 	PetscReal      vf_max[3] = {                                                   // Maximum Fast magnetosonic wave speed
 		0.0,                                                         // * 
 		0.0,                                                         // * for a GIVEN species l
 		0.0                                                          // * in ANY direction m
-	};                                                              // * at the ENTIRE SUBDOMAIN
+	};                                                                   // * at the ENTIRE SUBDOMAIN
 	
 	PetscReal      ve_max[3] = {                                                   // Maximum speed of the hydrodynamic electron flow
 		0.0,                                                         // * 
 		0.0,                                                         // * 
 		0.0                                                          // * in ANY direction m
-	};                                                              // * at the ENTIRE SUBDOMAIN
+	};                                                                   // * at the ENTIRE SUBDOMAIN
 	
 	PetscReal      vcr[3][3] = {                                                   // Critical speed
 		{0.0, 0.0, 0.0},                                             // * sum of the hydrodynamic and fast magnetoacoustic wave speeds
 		{0.0, 0.0, 0.0},                                             // * for a GIVEN species l
 		{0.0, 0.0, 0.0}                                              // * in the GIVEN direction m
-	};                                                              // * at the CURRENT point (k,j,i)
+	};                                                                   // * at the CURRENT point (k,j,i)
 	
 	PetscReal      el_coll[3][3] = {                                               // Elastic collision term
 		{0.0, 0.0, 0.0},                                             // * 
 		{0.0, 0.0, 0.0},                                             // * for a GIVEN species l
 		{0.0, 0.0, 0.0}                                              // * in the GIVEN direction m
-	};                                                              // * at the CURRENT point (k,j,i)
+	};                                                                   // * at the CURRENT point (k,j,i)
 	
 	PetscReal      vcr_max[3][3] = {                                               // Critical speed 
 		{0.0, 0.0, 0.0},                                             // * sum of the hydro-dynamic and fast magnetoacoustic wave speeds
 		{0.0, 0.0, 0.0},                                             // * for a GIVEN species l
 		{0.0, 0.0, 0.0}                                              // * in the GIVEN direction m
-	};                                                              // * in the SUBDOMAIN (at the end of the space scanning of the subdomain)
+	};                                                                   // * in the SUBDOMAIN (at the end of the space scanning of the subdomain)
 	
-    PetscReal      vi_cr[3][3] = {                                                    // max physical ion speed
-        {0.0, 0.0, 0.0},                                                         // *
-        {0.0, 0.0, 0.0},                                                         // * for a GIVEN species l
-        {0.0, 0.0, 0.0}                                                          // * in ANY direction m
-    };
+	PetscReal      vi_cr[3][3] = {                                                 // max physical ion speed
+		{0.0, 0.0, 0.0},                                             // *
+		{0.0, 0.0, 0.0},                                             // * for a GIVEN species l
+		{0.0, 0.0, 0.0}                                              // * in ANY direction m
+	};
     
 	PetscReal      vth = 0.0;                                                      // Thermal velocity
 	
@@ -1494,15 +1363,15 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 	PetscErrorCode ierr;
 	PetscReal      t,dt,dt_CFL,h[3];
 	PetscReal      nu[4][6];                                                       // ion-neutral collision frequency
-    PetscReal      cont_chem_S[4];
-    PetscReal      cont_chem_L[4];
-    PetscReal      mom_chem_S[3][3];
-    PetscReal      ene_chem_S[4];
-    PetscReal      ene_chem_L[4];
-    PetscReal      chem_nuS[7][5];
-    PetscReal      chem_nuL[7][5];
-    PetscReal      gaman[2];                                                       // Specific heat of neutrals
-    PetscReal      mn[2];                                                          // Mass of neutrals, kg
+	PetscReal      cont_chem_S[4];
+	PetscReal      cont_chem_L[4];
+	PetscReal      mom_chem_S[3][3];
+	PetscReal      ene_chem_S[4];
+	PetscReal      ene_chem_L[4];
+	PetscReal      chem_nuS[7][5];
+	PetscReal      chem_nuL[7][5];
+	PetscReal      gaman[2];                                                       // Specific heat of neutrals
+	PetscReal      mn[2];                                                          // Mass of neutrals, kg
 	PetscReal      E[3],B[3];                                                      // E-field, B-field
 	PetscReal      ne,ni[3],nn[2];                                                 // [O2+], [CO2+], [O+], ne in m^-3
 	PetscReal      Ti[3],Te,Tn[2];                                                 // Temperature of e, O2+, CO2+, O+, CO2, 0 in K
@@ -1513,19 +1382,19 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 	PetscInt       rank,numranks,step;
 	PetscInt       b,i,j,k,l,m,n,xs,ys,zs,xm,ym,zm;
 	PetscReal      ve[3],vi[3][3],vb[6][3];                                        // electron and ion velocities
-    PetscReal      vdiffO2p[3],vdiffCO2p[3],vdiffOp[3],vdiffe[3];
+	PetscReal      vdiffO2p[3],vdiffCO2p[3],vdiffOp[3],vdiffe[3];
 	diff           dE[3],dpe,dve[3],dni[3],dpi[3],dvi[3][3];                       // Other derivatives 
 	stencil        id;
 	coeff3         D1;
 	coeff2         dh;
 	PetscBool      flag = PETSC_FALSE;
-    FILE           *fp = NULL, *fp2 = NULL;
-    char           fName[PETSC_MAX_PATH_LEN];
-    char           fName2[PETSC_MAX_PATH_LEN];
-    PetscInt       root = 0;
-    PetscInt       tag;
-    PetscInt       msgsource;
-    PetscInt       kk;
+	FILE           *fp = NULL, *fp2 = NULL;
+	char           fName[PETSC_MAX_PATH_LEN];
+	char           fName2[PETSC_MAX_PATH_LEN];
+	PetscInt       root = 0;
+	PetscInt       tag;
+	PetscInt       msgsource;
+	PetscInt       kk;
     
 	PetscFunctionBegin;
 	id.x[0] = 0; id.y[0] = 0; id.z[0] = 0;
@@ -1536,72 +1405,56 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 	dh.x[1] = 0; dh.y[1] = 0; dh.z[1] = 0;
 	
 	MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
-    MPI_Comm_size(PETSC_COMM_WORLD, &numranks);
+	MPI_Comm_size(PETSC_COMM_WORLD, &numranks);
 	Lz = user->outZmax - user->outZmin;
 	
-		// Get current iteration t, dt, step //
+	// Get current iteration t, dt, step
 	ierr = TSGetTimeStep(ts,&dt);CHKERRQ(ierr);
 	ierr = TSGetTime(ts,&t);CHKERRQ(ierr);
 	ierr = TSGetStepNumber(ts,&step);CHKERRQ(ierr);
 	
 	ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
     
-    /* VALUES FOR DIAGNOSTIC TESTING */
-//    PetscReal       SO2pdata[mz*my*mx],LO2pdata[mz*my*mx],SCO2pdata[mz*my*mx],LCO2pdata[mz*my*mx],SOpdata[mz*my*mx],LOpdata[mz*my*mx],Tedata[mz*my*mx],
-//                    vO2p[mz*my*mx],vCO2p[mz*my*mx],vOp[mz*my*mx],dNdtO2p[mz*my*mx],dNdtCO2p[mz*my*mx],dNdtOp[mz*my*mx];
-//    memset (SO2pdata,   0, sizeof(SO2pdata));
-//    memset (LO2pdata,   0, sizeof(LO2pdata));
-//    memset (SCO2pdata,  0, sizeof(SCO2pdata));
-//    memset (LCO2pdata,  0, sizeof(LCO2pdata));
-//    memset (SOpdata,    0, sizeof(SOpdata));
-//    memset (LOpdata,    0, sizeof(LOpdata));
-//    memset (Tedata,     0, sizeof(Tedata));
-//    memset (vO2p,       0, sizeof(vO2p));
-//    memset (vCO2p,      0, sizeof(vCO2p));
-//    memset (vOp,        0, sizeof(vOp));
-//    memset (dNdtO2p,    0, sizeof(dNdtO2p));
-//    memset (dNdtCO2p,   0, sizeof(dNdtCO2p));
-//    memset (dNdtOp,     0, sizeof(dNdtOp));
-    
 	ierr = DMGetGlobalVector(db,&V);CHKERRQ(ierr);
 	
-		// Create and fill ****u inner cells proc ghosts //
+	// Create and fill ****u inner cells proc ghosts
 	ierr = DMGetLocalVector(da,&localU);CHKERRQ(ierr);
 	
 	ierr = DMGlobalToLocalBegin(da,U,INSERT_VALUES,localU);CHKERRQ(ierr);
 	ierr = DMGlobalToLocalEnd(da,U,INSERT_VALUES,localU);CHKERRQ(ierr);
 	
-		// Fill ****u domain ghosts //
+	// Fill ****u domain ghosts
 	ierr = DMDAVecGetArrayDOF(da,localU,&u);CHKERRQ(ierr);
 	ierr = FormBCu(u,user);CHKERRQ(ierr);
 	
-		// Create and fill ****v inner cells//
+	// Create and fill ****v inner cells
 	ierr = FormIntermediateFunction(u,V,user);CHKERRQ(ierr);
 	
-		// Create and fill ****v inner cells proc ghosts //
+	// Create and fill ****v inner cells proc ghosts
 	ierr = DMGetLocalVector(db,&localV);CHKERRQ(ierr);
 	
 	ierr = DMGlobalToLocalBegin(db,V,INSERT_VALUES,localV);CHKERRQ(ierr);
 	ierr = DMGlobalToLocalEnd(db,V,INSERT_VALUES,localV);CHKERRQ(ierr);
 	
-		// Fill ****v domain ghosts //
+	// Fill ****v domain ghosts
 	ierr = DMDAVecGetArrayDOF(db,localV,&v);CHKERRQ(ierr);
 	ierr = FormBCv(v,user);CHKERRQ(ierr);
 	
-		// Check values sanity //
+	// Check values sanity
 	ierr = CheckValues(u,v,user);CHKERRQ(ierr);
 	
-		// Form F(u,v) = Udot //
+	// Form F(u,v) = Udot
 	ierr = DMDAVecGetArrayDOF(da,F,&f);CHKERRQ(ierr);
 
-    if(step==0 || ceilf((step+1)/user->viz_dstep) == (float)(step+1)/user->viz_dstep)
-        if(rank==0){
-	    // Commented by Kellen to remove .dat
-            //sprintf(fName,"%s/Rates%d.dat",user->vName,step+1);
-            //fp = fopen(fName,"w");
-        }
+	if(step==0 || ceilf((step+1)/user->viz_dstep) == (float)(step+1)/user->viz_dstep){
+		if(rank==0){
+			// Commented by Kellen to remove .dat
+			//sprintf(fName,"%s/Rates%d.dat",user->vName,step+1);
+			//fp = fopen(fName,"w");
+		}
+	}
 
-		// Compute function over the locally owned part of the grid //
+	// Compute function over the locally owned part of the grid
 
 	dt_CFL = 1e300;
 	flag   = PETSC_FALSE;
@@ -1612,12 +1465,12 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 			for (i=xs; i<xs+xm; i++) {
 				X = Xmin + x[i]*L;
 				if (bcType == 0 || bcType == 1 || bcType == 2 || bcType == 10 || bcType == 11) {
-						// Defines upper and lower indices for the differenciation //
+					// Defines upper and lower indices for the differenciation
 					id.x[0] = i; id.x[1] = i-1; id.x[2] = i+1; 
 					id.y[0] = j; id.y[1] = j-1; id.y[2] = j+1;
 					id.z[0] = k; id.z[1] = k-1; id.z[2] = k+1;
 					
-						// Defines helpful coefficients for the differenciation //
+					// Defines helpful coefficients for the differenciation
 					if (i==0)         {dh.x[0] = -(x[id.x[2]] - x[id.x[0]]); dh.x[1] =   x[id.x[2]] - x[id.x[0]] ;}
 					else if (i==mx-1) {dh.x[0] =   x[id.x[1]] - x[id.x[0]] ; dh.x[1] = -(x[id.x[1]] - x[id.x[0]]);}
 					else              {dh.x[0] =   x[id.x[1]] - x[id.x[0]] ; dh.x[1] =   x[id.x[2]] - x[id.x[0]] ;}
@@ -1629,7 +1482,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 					else              {dh.z[0] =   z[id.z[1]] - z[id.z[0]] ; dh.z[1] =   z[id.z[2]] - z[id.z[0]] ;}
 				}
 				if (bcType == 3) {
-						// Defines upper and lower indices for the differenciation //
+					// Defines upper and lower indices for the differenciation
 					if (i==0)         {id.x[0] = i; id.x[1] = i+1; id.x[2] = i+2;}
 					else if (i==mx-1) {id.x[0] = i; id.x[1] = i-2; id.x[2] = i-1;}
 					else              {id.x[0] = i; id.x[1] = i-1; id.x[2] = i+1;}
@@ -1640,14 +1493,14 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 					else if (k==mz-1) {id.z[0] = k; id.z[1] = k-2; id.z[2] = k-1;}
 					else              {id.z[0] = k; id.z[1] = k-1; id.z[2] = k+1;}
 					
-						// Defines helpful coefficients for the differenciation //
+					// Defines helpful coefficients for the differenciation
 					dh.x[0] = x[id.x[1]] - x[id.x[0]]; dh.x[1] = x[id.x[2]] - x[id.x[0]];
 					dh.y[0] = y[id.y[1]] - y[id.y[0]]; dh.y[1] = y[id.y[2]] - y[id.y[0]];
 					dh.z[0] = z[id.z[1]] - z[id.z[0]]; dh.z[1] = z[id.z[2]] - z[id.z[0]];
 				}
                 
 				
-					// Coefficients for differenciation //
+				// Coefficients for differenciation
 				D1.x[0]  = - 1.0/dh.x[0] - 1.0/dh.x[1]; 
 				D1.x[1]  =   1.0/dh.x[0] - 1.0/(dh.x[0]-dh.x[1]); 
 				D1.x[2]  =   1.0/dh.x[1] + 1.0/(dh.x[0]-dh.x[1]);
@@ -1658,7 +1511,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				D1.z[1]  =   1.0/dh.z[0] - 1.0/(dh.z[0]-dh.z[1]); 
 				D1.z[2]  =   1.0/dh.z[1] + 1.0/(dh.z[0]-dh.z[1]);
 				
-					// For readability, we distribute the components of u onto the variable n, v, p, B //
+				// For readability, we distribute the components of u onto the variable n, v, p, B
 				ni[O2p]     = u[k][j][i][d.ni[O2p]];     // nO2+
 				ni[CO2p]    = u[k][j][i][d.ni[CO2p]];    // nCO2+
 				ni[Op]      = u[k][j][i][d.ni[Op]];      // nO+
@@ -1688,40 +1541,16 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				E[1]        = v[k][j][i][s.E[1]];        // Ey
 				E[2]        = v[k][j][i][s.E[2]];        // Ez
 				
-				/*
-				 nn[CO2] = Interpolate(user->RefProf, 5,Z,lin_exp ); 
-				 nn[O]   = Interpolate(user->RefProf, 4,Z,lin_exp );
-				 Tn[CO2] = Interpolate(user->RefProf,10,Z,lin_flat);
-				 Tn[O]   = Interpolate(user->RefProf,10,Z,lin_flat);
-				 for (l=0; l<3; l++) {
-				 Ti[l] = pi[l]*p0/(ni[l]*n0*kB);
-				 for (n=0; n<2; n++) {
-				 nu[l][n] = Vin(l,n,nn[n],Ti[l],Tn[n]);
-				 }
-				 }
-				 Te = pe*p0/(ne*n0*kB);
-				 for (n=0; n<2; n++) 
-				 nu[e][n] = Ven(n,nn[n],Te);
-				 
-				 for (l=0; l<4; l++)
-				 for (n=0; n<2; n++)
-				 PetscPrintf(PETSC_COMM_WORLD,"nu[%d,%d]=%e\n",l,n,nu[l][n]);
-				 */
                 
-                nn[CO2] = Interpolate(user->RefProf, 5,Z,lin_exp )/n0;
-                nn[O]   = Interpolate(user->RefProf, 4,Z,lin_exp )/n0;
-                for (l=0; l<3; l++)
-                    Ti[l] = Interpolate(user->RefProf, 9 ,Z, lin_flat)/T0;
-//                    Ti[l] = pi[l]/ni[l];
+				nn[CO2] = Interpolate(user->RefProf, 5,Z,lin_exp )/n0;
+				nn[O]   = Interpolate(user->RefProf, 4,Z,lin_exp )/n0;
+				for (l=0; l<3; l++)
+					Ti[l] = Interpolate(user->RefProf, 9 ,Z, lin_flat)/T0;
 				Tn[CO2] = Interpolate(user->RefProf,10,Z,lin_flat)/T0;
 				Tn[O]   = Interpolate(user->RefProf,10,Z,lin_flat)/T0;
-//                Te      = pe/ne;
-                Te = Interpolate(user->RefProf, 8 ,Z, lin_flat)/T0;
-//                Te = 1000/T0;
+				Te = Interpolate(user->RefProf, 8 ,Z, lin_flat)/T0;
                 
-//                if(i==4&&j==4) PetscPrintf(PETSC_COMM_WORLD, "%d %e %e\n",k,nn[O]*n0,Tn[O]*T0);
-                
-					// projectiles velocities //
+				// projectiles velocities
 				for (m=0;m<3;m++) {
 					vb[0][m] = un[m];    // CO2
 					vb[1][m] = un[m];    // O
@@ -1731,7 +1560,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 					vb[5][m] = ve[m];    // e
 				}
 				
-					// collisions //
+				// collisions
 				nu[0][0] = v11(nn[CO2] *n0);                              // O2+  CO2
 				nu[0][1] = v12(nn[O]   *n0);                              // O2+  O
 				nu[0][2] = v13(ni[O2p] *n0 , Ti[O2p] *T0);                // O2+  O2+
@@ -1760,117 +1589,109 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				nu[3][4] = v45(ni[Op]  *n0 , Te      *T0);                // e    O+
 				nu[3][5] = v46(ne      *n0 , Te      *T0);                // e    e
                 
-                for (m=0;m<3;m++) {
-                    for (l=0;l<3;l++) {
-                        el_coll[l][m] = 0;
-                        for (b=0;b<6;b++) {
-                            el_coll[l][m] += tau*nu[l][b]*(vb[b][m]-vi[l][m]);  // Elastic Collisions for momentum,
-//                            if(k==10&&i==4&&j==4) PetscPrintf(PETSC_COMM_WORLD, "el_coll[%d][%d]: %e, vb[%d][%d]: %e, vi[%d][%d]: %e\n",l,m,el_coll[l][m],vb[b][m],b,m,vi[l][m],l,m);
-                        }
-                    }
-                }
+				for (m=0;m<3;m++) {
+					for (l=0;l<3;l++) {
+						el_coll[l][m] = 0;
+						for (b=0;b<6;b++) {
+							el_coll[l][m] += tau*nu[l][b]*(vb[b][m]-vi[l][m]);  // Elastic Collisions for momentum,
+						}
+					}
+				}
                 
- 
-                    // CHEMISTRY RATE CALCULATIONS //
-                chem_nuS[O2p][0] = v8(ni[CO2p]  *n0);               // CO2+ + O
-                chem_nuS[O2p][1] = v10(ni[Op]   *n0);               // O+ + CO2
-                chem_nuL[O2p][0] = v5(ne        *n0 , Te    *T0);   // O2+ + e
+ 				// CHEMISTRY RATE CALCULATIONS
+				chem_nuS[O2p][0] = v8(ni[CO2p]  *n0);               // CO2+ + O
+				chem_nuS[O2p][1] = v10(ni[Op]   *n0);               // O+ + CO2
+				chem_nuL[O2p][0] = v5(ne        *n0 , Te    *T0);   // O2+ + e
                 
-                chem_nuS[CO2p][0] = v1();                           // CO2 + hv
-//                chem_nuS[CO2p][1] = v2(ne       *n0 , Te    *T0);                 /* WORK IN PROGRESS */
-                chem_nuS[CO2p][1] = 0;
-                chem_nuL[CO2p][0] = v6(ne       *n0 , Te    *T0);   // CO2+ + e
-                chem_nuL[CO2p][1] = v8(nn[O]    *n0);               // CO2+ + O
-                chem_nuL[CO2p][2] = v9(nn[O]    *n0);               // CO2+ + O
+				chem_nuS[CO2p][0] = v1();                           // CO2 + hv
+				chem_nuS[CO2p][1] = 0;
+				chem_nuL[CO2p][0] = v6(ne       *n0 , Te    *T0);   // CO2+ + e
+				chem_nuL[CO2p][1] = v8(nn[O]    *n0);               // CO2+ + O
+				chem_nuL[CO2p][2] = v9(nn[O]    *n0);               // CO2+ + O
                 
-                chem_nuS[Op][0] = v3();                             // O + hv
-                chem_nuS[Op][1] = v4(ne         *n0 , Te    *T0);   // O + e
-                chem_nuS[Op][2] = v9(ni[CO2p]   *n0);               // O + CO2+
-                chem_nuL[Op][0] = v7(ne         *n0 , Te    *T0);   // O+ + e
-                chem_nuL[Op][1] = v10(nn[CO2]   *n0);               // O+ + CO2
+				chem_nuS[Op][0] = v3();                             // O + hv
+				chem_nuS[Op][1] = v4(ne         *n0 , Te    *T0);   // O + e
+				chem_nuS[Op][2] = v9(ni[CO2p]   *n0);               // O + CO2+
+				chem_nuL[Op][0] = v7(ne         *n0 , Te    *T0);   // O+ + e
+				chem_nuL[Op][1] = v10(nn[CO2]   *n0);               // O+ + CO2
                 
-                chem_nuS[e][0] = v1();                              // CO2 + hv
-//                chem_nuS[e][1] = 2*v2(nn[CO2]*n0 , Te    *T0);                   /* WORK IN PROGRESS */
-                chem_nuS[e][1] = 0;
-                chem_nuS[e][2] = v3();                              // O + hv
-                chem_nuS[e][3] = 2*v4(nn[O]     *n0 , Te    *T0);   // O + e
-//                chem_nuL[e][0] = v2(nn[CO2]  *n0 , Te    *T0);                    /* WORK IN PROGRESS */
-                chem_nuL[e][0] = 0;
-                chem_nuL[e][1] = v4(nn[O]       *n0 , Te    *T0);   // O + e
-                chem_nuL[e][2] = v5(ni[O2p]     *n0 , Te    *T0);   // O2+ + e
-                chem_nuL[e][3] = v6(ni[CO2p]    *n0 , Te    *T0);   // CO2+ + e
-                chem_nuL[e][4] = v7(ni[Op]      *n0 , Te    *T0);   // O+ + e
+				chem_nuS[e][0] = v1();                              // CO2 + hv
+				chem_nuS[e][1] = 0;
+				chem_nuS[e][2] = v3();                              // O + hv
+				chem_nuS[e][3] = 2*v4(nn[O]     *n0 , Te    *T0);   // O + e
+				chem_nuL[e][0] = 0;
+				chem_nuL[e][1] = v4(nn[O]       *n0 , Te    *T0);   // O + e
+				chem_nuL[e][2] = v5(ni[O2p]     *n0 , Te    *T0);   // O2+ + e
+				chem_nuL[e][3] = v6(ni[CO2p]    *n0 , Te    *T0);   // CO2+ + e
+				chem_nuL[e][4] = v7(ni[Op]      *n0 , Te    *T0);   // O+ + e
             
-//                if(k==10&&i==4&&j==4) PetscPrintf(PETSC_COMM_WORLD, "%d CO2p: %e O2p: %e Op: %e e: %e Te: %e Ti[Op]: %e CO2: %e O2: %e\n",k,ni[CO2p]*n0,ni[O2p]*n0,ni[Op]*n0,ne*n0,Te*T0,Ti[Op]*T0,nn[O]*n0,nn[CO2]*n0);
-            
-                    // CONSERVATION OF MASS SOURCES AND LOSSES //
-                cont_chem_S[O2p]  = tau     *(chem_nuS[O2p][0] *nn[O]    + chem_nuS[O2p][1] *nn[CO2]);
-                cont_chem_S[CO2p] = tau     *(chem_nuS[CO2p][0]*nn[CO2]  + chem_nuS[CO2p][1]*nn[CO2]);
-                cont_chem_S[Op]   = tau     *(chem_nuS[Op][0]  *nn[O]    + chem_nuS[Op][1]  *nn[O]     + chem_nuS[Op][2]  *nn[O]);
-                cont_chem_L[O2p]  = tau     *(chem_nuL[O2p][0] *ni[Op]);
-                cont_chem_L[CO2p] = tau     *(chem_nuL[CO2p][0]*ni[CO2p] + chem_nuL[CO2p][1]*ni[CO2p]  + chem_nuL[CO2p][2]*ni[CO2p]);
-                cont_chem_L[Op]   = tau     *(chem_nuL[Op][0]  *ni[Op]   + chem_nuL[Op][1]  *ni[Op]);
-//                if(step==0&&i==3&&j==3) PetscPrintf(PETSC_COMM_WORLD, "%d %e %e\n",k,chem_nuL[CO2p][1],nn[O]*n0);
+				// CONSERVATION OF MASS SOURCES AND LOSSES
+				cont_chem_S[O2p]  = tau     *(chem_nuS[O2p][0] *nn[O]    + chem_nuS[O2p][1] *nn[CO2]);
+				cont_chem_S[CO2p] = tau     *(chem_nuS[CO2p][0]*nn[CO2]  + chem_nuS[CO2p][1]*nn[CO2]);
+				cont_chem_S[Op]   = tau     *(chem_nuS[Op][0]  *nn[O]    + chem_nuS[Op][1]  *nn[O]     + chem_nuS[Op][2]  *nn[O]);
+				cont_chem_L[O2p]  = tau     *(chem_nuL[O2p][0] *ni[Op]);
+				cont_chem_L[CO2p] = tau     *(chem_nuL[CO2p][0]*ni[CO2p] + chem_nuL[CO2p][1]*ni[CO2p]  + chem_nuL[CO2p][2]*ni[CO2p]);
+				cont_chem_L[Op]   = tau     *(chem_nuL[Op][0]  *ni[Op]   + chem_nuL[Op][1]  *ni[Op]);
                 
-                    // CONSERVATION OF MOMENTUM SOURCES //
-                for (m=0;m<3;m++) {
-                mom_chem_S[O2p][m]  = tau   *(chem_nuS[O2p][0]  *(nn[O]/ni[O2p])    *(un[m] - vi[O2p][m])
-                                            + chem_nuS[O2p][1]  *(nn[CO2]/ni[O2p])  *(un[m] - vi[O2p][m]));
-                mom_chem_S[CO2p][m] = tau   *(chem_nuS[CO2p][0] *(nn[CO2]/ni[CO2p]) *(un[m] - vi[CO2p][m])
-                                            + chem_nuS[CO2p][1] *(nn[CO2]/ni[CO2p]) *(un[m] - vi[CO2p][m]));
-                mom_chem_S[Op][m]   = tau   *(chem_nuS[Op][0]   *(nn[O]/ni[Op])     *(un[m] - vi[Op][m])
-                                            + chem_nuS[Op][1]   *(nn[O]/ni[Op])     *(un[m] - vi[Op][m])
-                                            + chem_nuS[Op][2]   *(nn[O]/ni[Op])     *(un[m] - vi[Op][m]));
-                }
+				// CONSERVATION OF MOMENTUM SOURCES
+				for (m=0;m<3;m++) {
+					mom_chem_S[O2p][m]  = tau   *(chem_nuS[O2p][0]  *(nn[O]/ni[O2p])    *(un[m] - vi[O2p][m])
+						+ chem_nuS[O2p][1]  *(nn[CO2]/ni[O2p])  *(un[m] - vi[O2p][m]));
+					mom_chem_S[CO2p][m] = tau   *(chem_nuS[CO2p][0] *(nn[CO2]/ni[CO2p]) *(un[m] - vi[CO2p][m])
+						+ chem_nuS[CO2p][1] *(nn[CO2]/ni[CO2p]) *(un[m] - vi[CO2p][m]));
+					mom_chem_S[Op][m]   = tau   *(chem_nuS[Op][0]   *(nn[O]/ni[Op])     *(un[m] - vi[Op][m])
+						+ chem_nuS[Op][1]   *(nn[O]/ni[Op])     *(un[m] - vi[Op][m])
+						+ chem_nuS[Op][2]   *(nn[O]/ni[Op])     *(un[m] - vi[Op][m]));
+				}
                 
-                    // CONSERVATION OF ENERGY SOURCES AND LOSSES //
-                mn[CO2]      = 1.9944235E-26 + 2*2.6566962E-26;
-                mn[O]        = 2.6566962E-26;
-                pn[CO2]      = nn[CO2]*n0*kB*Tn[CO2]*T0/p0;
-                pn[O]        = nn[O]*n0*kB*Tn[O]*T0/p0;
-                gaman[CO2]   = 1.289;
-                gaman[O]     = 1.667;
-                for (m=0;m<3;m++) {
-                    vdiffO2p[m]  = un[m] - vi[O2p][m];
-                    vdiffCO2p[m] = un[m] - vi[CO2p][m];
-                    vdiffOp[m]   = un[m] - vi[Op][m];
-                    vdiffe[m]    = un[m] - ve[m];
-                }
-                ene_chem_S[O2p]     = tau   *(chem_nuS[O2p][0]      *(mi[O2p]/mn[O])    *(gama[O2p]-1)/(gaman[O]-1)     *pn[O]
-                                            + chem_nuS[O2p][1]      *(mi[O2p]/mn[CO2])  *(gama[O2p]-1)/(gaman[CO2]-1)   *pn[CO2]
-                                              + (gama[O2p]-1)   *chem_nuS[O2p][0]    *(mi[O2p]*nn[O])/me    *Norm2(vdiffCO2p)/2
-                                              + (gama[O2p]-1)   *chem_nuS[O2p][1]    *(mi[O2p]*nn[CO2])/me  *Norm2(vdiffCO2p)/2);
-                ene_chem_S[CO2p]    = tau   *(chem_nuS[CO2p][0]     *(mi[CO2p]/mn[CO2]) *(gama[CO2p]-1)/(gaman[O]-1)    *pn[CO2]
-                                            + chem_nuS[CO2p][1]     *(mi[CO2p]/mn[CO2]) *(gama[CO2p]-1)/(gaman[CO2]-1)  *pn[CO2]
-                                              + (gama[CO2p]-1)  *chem_nuS[CO2p][0]   *(mi[CO2p]*nn[CO2])/me *Norm2(vdiffCO2p)/2
-                                              + (gama[CO2p]-1)  *chem_nuS[CO2p][1]   *(mi[CO2p]*nn[CO2])/me *Norm2(vdiffCO2p)/2);
-                ene_chem_S[Op]      = tau   *(chem_nuS[Op][0]       *(mi[Op]/mn[O])     *(gama[Op]-1)/(gaman[O]-1)      *pn[O]
-                                            + chem_nuS[Op][1]       *(mi[Op]/mn[O])     *(gama[Op]-1)/(gaman[O]-1)    *pn[O]
-                                            + chem_nuS[Op][2]       *(mi[Op]/mn[O])     *(gama[Op]-1)/(gaman[O]-1)    *pn[O]
-                                              + (gama[Op]-1)    *chem_nuS[Op][0]     *(mi[Op]*nn[O])/me     *Norm2(vdiffOp)/2
-                                              + (gama[Op]-1)    *chem_nuS[Op][1]     *(mi[Op]*nn[O])/me     *Norm2(vdiffOp)/2
-                                              + (gama[Op]-1)    *chem_nuS[Op][2]     *(mi[Op]*nn[O])/me     *Norm2(vdiffOp)/2);
-                ene_chem_S[e]       = tau   *(chem_nuS[e][0]       *(mi[Op]/mn[CO2])   *(gama[e]-1)/(gaman[CO2]-1)    *pn[O]
-                                            + chem_nuS[e][1]       *(mi[Op]/mn[CO2])   *(gama[e]-1)/(gaman[CO2]-1)    *pn[O]
-                                            + chem_nuS[e][2]       *(mi[Op]/mn[O])     *(gama[e]-1)/(gaman[O]-1)      *pn[O]
-                                            + chem_nuS[e][3]       *(mi[Op]/mn[O])     *(gama[e]-1)/(gaman[O]-1)      *pn[O]
-                                              + (gama[e]-1)    *chem_nuS[e][0]     *(me*nn[CO2])/me         *Norm2(vdiffe)/2
-                                              + (gama[e]-1)    *chem_nuS[e][1]     *(me*nn[CO2])/me         *Norm2(vdiffe)/2
-                                              + (gama[e]-1)    *chem_nuS[e][2]     *(me*nn[O])/me           *Norm2(vdiffe)/2
-                                              + (gama[e]-1)    *chem_nuS[e][3]     *(me*nn[O])/me           *Norm2(vdiffe)/2);
-                ene_chem_L[O2p]     = tau   *(chem_nuL[O2p][0] *pi[Op]);
-                ene_chem_L[CO2p]    = tau   *(chem_nuL[CO2p][0]*pi[CO2p] + chem_nuL[CO2p][1]*pi[CO2p]  + chem_nuL[CO2p][2]*pi[CO2p]);
-                ene_chem_L[Op]      = tau   *(chem_nuL[Op][0]  *pi[Op]   + chem_nuL[Op][1]  *pi[Op]);
-                ene_chem_L[e]       = tau   *(chem_nuL[e][0]   *pe       + chem_nuL[e][1]   *pe        + chem_nuL[e][2]   *pe
-                                              + chem_nuL[e][3] *pe       + chem_nuL[e][4]   *pe);
+				// CONSERVATION OF ENERGY SOURCES AND LOSSES
+				mn[CO2]      = 1.9944235E-26 + 2*2.6566962E-26;
+				mn[O]        = 2.6566962E-26;
+				pn[CO2]      = nn[CO2]*n0*kB*Tn[CO2]*T0/p0;
+				pn[O]        = nn[O]*n0*kB*Tn[O]*T0/p0;
+				gaman[CO2]   = 1.289;
+				gaman[O]     = 1.667;
+				for (m=0;m<3;m++) {
+					vdiffO2p[m]  = un[m] - vi[O2p][m];
+					vdiffCO2p[m] = un[m] - vi[CO2p][m];
+					vdiffOp[m]   = un[m] - vi[Op][m];
+					vdiffe[m]    = un[m] - ve[m];
+				}
+				ene_chem_S[O2p]     = tau   *(chem_nuS[O2p][0]      *(mi[O2p]/mn[O])    *(gama[O2p]-1)/(gaman[O]-1)     *pn[O]
+					+ chem_nuS[O2p][1]      *(mi[O2p]/mn[CO2])  *(gama[O2p]-1)/(gaman[CO2]-1)   *pn[CO2]
+					+ (gama[O2p]-1)   *chem_nuS[O2p][0]    *(mi[O2p]*nn[O])/me    *Norm2(vdiffCO2p)/2
+					+ (gama[O2p]-1)   *chem_nuS[O2p][1]    *(mi[O2p]*nn[CO2])/me  *Norm2(vdiffCO2p)/2);
+				ene_chem_S[CO2p]    = tau   *(chem_nuS[CO2p][0]     *(mi[CO2p]/mn[CO2]) *(gama[CO2p]-1)/(gaman[O]-1)    *pn[CO2]
+					+ chem_nuS[CO2p][1]     *(mi[CO2p]/mn[CO2]) *(gama[CO2p]-1)/(gaman[CO2]-1)  *pn[CO2]
+					+ (gama[CO2p]-1)  *chem_nuS[CO2p][0]   *(mi[CO2p]*nn[CO2])/me *Norm2(vdiffCO2p)/2
+					+ (gama[CO2p]-1)  *chem_nuS[CO2p][1]   *(mi[CO2p]*nn[CO2])/me *Norm2(vdiffCO2p)/2);
+				ene_chem_S[Op]      = tau   *(chem_nuS[Op][0]       *(mi[Op]/mn[O])     *(gama[Op]-1)/(gaman[O]-1)      *pn[O]
+					+ chem_nuS[Op][1]       *(mi[Op]/mn[O])     *(gama[Op]-1)/(gaman[O]-1)    *pn[O]
+					+ chem_nuS[Op][2]       *(mi[Op]/mn[O])     *(gama[Op]-1)/(gaman[O]-1)    *pn[O]
+					+ (gama[Op]-1)    *chem_nuS[Op][0]     *(mi[Op]*nn[O])/me     *Norm2(vdiffOp)/2
+					+ (gama[Op]-1)    *chem_nuS[Op][1]     *(mi[Op]*nn[O])/me     *Norm2(vdiffOp)/2
+					+ (gama[Op]-1)    *chem_nuS[Op][2]     *(mi[Op]*nn[O])/me     *Norm2(vdiffOp)/2);
+				ene_chem_S[e]       = tau   *(chem_nuS[e][0]       *(mi[Op]/mn[CO2])   *(gama[e]-1)/(gaman[CO2]-1)    *pn[O]
+					+ chem_nuS[e][1]       *(mi[Op]/mn[CO2])   *(gama[e]-1)/(gaman[CO2]-1)    *pn[O]
+					+ chem_nuS[e][2]       *(mi[Op]/mn[O])     *(gama[e]-1)/(gaman[O]-1)      *pn[O]
+					+ chem_nuS[e][3]       *(mi[Op]/mn[O])     *(gama[e]-1)/(gaman[O]-1)      *pn[O]
+					+ (gama[e]-1)    *chem_nuS[e][0]     *(me*nn[CO2])/me         *Norm2(vdiffe)/2
+					+ (gama[e]-1)    *chem_nuS[e][1]     *(me*nn[CO2])/me         *Norm2(vdiffe)/2
+					+ (gama[e]-1)    *chem_nuS[e][2]     *(me*nn[O])/me           *Norm2(vdiffe)/2
+					+ (gama[e]-1)    *chem_nuS[e][3]     *(me*nn[O])/me           *Norm2(vdiffe)/2);
+				ene_chem_L[O2p]     = tau   *(chem_nuL[O2p][0] *pi[Op]);
+				ene_chem_L[CO2p]    = tau   *(chem_nuL[CO2p][0]*pi[CO2p] + chem_nuL[CO2p][1]*pi[CO2p]  + chem_nuL[CO2p][2]*pi[CO2p]);
+				ene_chem_L[Op]      = tau   *(chem_nuL[Op][0]  *pi[Op]   + chem_nuL[Op][1]  *pi[Op]);
+				ene_chem_L[e]       = tau   *(chem_nuL[e][0]   *pe       + chem_nuL[e][1]   *pe        + chem_nuL[e][2]   *pe
+					+ chem_nuL[e][3] *pe       + chem_nuL[e][4]   *pe);
 				
-					// Intermediate calculations //
+				// Intermediate calculations
 				for (m=0; m<3; m++) {
 					dE[m].dx = D1.x[0]*v[k][j][id.x[0]][s.E[m]] + D1.x[1]*v[k][j][id.x[1]][s.E[m]] + D1.x[2]*v[k][j][id.x[2]][s.E[m]]; //dE[m].dx 
 					dE[m].dy = D1.y[0]*v[k][id.y[0]][i][s.E[m]] + D1.y[1]*v[k][id.y[1]][i][s.E[m]] + D1.y[2]*v[k][id.y[2]][i][s.E[m]]; //dE[m].dy 
 					dE[m].dz = D1.z[0]*v[id.z[0]][j][i][s.E[m]] + D1.z[1]*v[id.z[1]][j][i][s.E[m]] + D1.z[2]*v[id.z[2]][j][i][s.E[m]]; //dE[m].dz 
 					
-                    // Do the same thing here for B as for E
+					// Do the same thing here for B as for E
                     
 					dve[m].dx = D1.x[0]*v[k][j][id.x[0]][s.ve[m]] + D1.x[1]*v[k][j][id.x[1]][s.ve[m]] + D1.x[2]*v[k][j][id.x[2]][s.ve[m]]; //dve[m].dx 
 					dve[m].dy = D1.y[0]*v[k][id.y[0]][i][s.ve[m]] + D1.y[1]*v[k][id.y[1]][i][s.ve[m]] + D1.y[2]*v[k][id.y[2]][i][s.ve[m]]; //dve[m].dy 
@@ -1896,13 +1717,13 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 					dpi[l].dz = D1.z[0]*u[id.z[0]][j][i][d.pi[l]] + D1.z[1]*u[id.z[1]][j][i][d.pi[l]] + D1.z[2]*u[id.z[2]][j][i][d.pi[l]]; //dpi.dz 
 				}
 				
-					// CFL //
+				// CFL
 				h[0] = MinAbs(dh.x[0],dh.x[1]);
 				h[1] = MinAbs(dh.y[0],dh.y[1]);
 				h[2] = MinAbs(dh.z[0],dh.z[1]);
 				
-					// Critical speed and time for ions //
-                // group v and phase v, wave is no physical? ask nykyri or ma
+				// Critical speed and time for ions
+				// group v and phase v, wave is no physical? ask nykyri or ma
 				for (l=0; l<3; l++) {
 					vs[l]       = PetscSqrtScalar( (gama[e]*pe + gama[l]*pi[l]) / (ni[l]*mi[l]/me) );   // Sonic speed
 					vs_max[l]   = MaxAbs( vs_max[l], vs[l] );                                           // Maximum Sonic speed
@@ -1914,29 +1735,27 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 					vf_max[l]   = MaxAbs( vf_max[l], vf[l] );                                           // Maximum Fast magnetosonic wave speed
 					
 					for (m=0; m<3; m++) {
-//                        vcr[l][m]       = PetscAbsScalar(vi[l][m]) + vf[l];     // Critical speed (sum of the ion hydrodynamic and magnetosonic wave speeds)
-                        
-//                        vcr_max[l][m]   = MaxAbs( vcr_max[l][m], vcr[l][m] );   // Max critical speed
-                        vcr_max[l][m]   = MaxAbs( vcr_max[l][m], PetscAbsScalar(vi[l][m]) );   // Max critical speed
+						vcr_max[l][m]   = MaxAbs( vcr_max[l][m], PetscAbsScalar(vi[l][m]) );   // Max critical speed
 					}
+
 					/* T_cr[l]:
 					 * critical time
 					 * in all the subdomain up to the current point (k,j,i)
 					 * for each species l
 					 * indepently from all the direction in space (usually denoted m)
 					 */
+
 					T_cr[l] = MinAbs(MinAbs(h[0]/vcr_max[l][0] , h[1]/vcr_max[l][1]),h[2]/vcr_max[l][2]);
 				}
 				
 				vth = sqrt(3.0/2.0*kB*Te/me)/v0;
-					// Critical speed and time for electrons //
+
+				// Critical speed and time for electrons
 				for (m=0; m<3; m++) {
 					ve_max[m] = MaxAbs(MaxAbs(ve_max[m], ve[m]),vth);
 					for (l=0; l<3; l++) {
 						if (ve_max[m] > vcr_max[l][m]) { 
-							/* 
-							 * Case when the electron related velocities are the critical velocities
-							 */
+							//Case when the electron related velocities are the critical velocities
 							if(blockers) {
 								/* 
 								 * If flag blockers is TRUE:
@@ -1971,28 +1790,17 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				 * indepently from ANY the direction in space (usually denoted m)
 				 */
 				dt_CFL = MinAbs(MinAbs(MinAbs(T_cr[O2p],T_cr[CO2p]),T_cr[Op]),T_cr[e]);
-                
-//                if(step==0||ceilf((step+1)/user->viz_dstep) == (float)(step+1)/user->viz_dstep&k==4&i==4&&j==4) PetscPrintf(PETSC_COMM_WORLD, "%d T_cr[O2p]: %e T_cr[CO2p]: %e T_cr[Op]: %e T_cr[e]: %e \n",k,T_cr[O2p],T_cr[CO2p],T_cr[Op],T_cr[e]);
 				
-				/*
-				 if(vp > vA) PetscPrintf(PETSC_COMM_SELF, "SuperAlfvenic speed @ [%d,%d,%d], |vloc|=%2.3e, vA=%2.3e (Z=%f km)\n",i,j,k,vp*v0,vA*v0, Z*1e-3);
-				 assert(vp <= v,,A); // Check sub-Alfvenic speeds
-				 if(vp > vs_n) PetscPrintf(PETSC_COMM_SELF, "Supersonic (neutral) speed @ [%d,%d,%d], |vloc|=%2.3e, vs_n=%2.3e (Z=%f km)\n",i,j,k,vp*v0,vs_n*v0, Z*1e-3);
-				 assert(vp <= vs_n); // Check subsonic speeds
-				 if(vp > vs_c) PetscPrintf(PETSC_COMM_SELF, "Supersonic (charged) speed @ [%d,%d,%d], |vloc|=%2.3e, vs_c=%2.3e (Z=%f km)\n",i,j,k,vp*v0,vs_c*v0, Z*1e-3);
-				 assert(vp <= vs_c); // Check subsonic speeds
-				 */
-				
-					// Equations //
-                    // Eq 0-2: Continuity equations for ions //
-                for (l=0; l<3; l++){
-                    f[k][j][i][d.ni[l]] = -ni[l]*(dvi[l][0].dx + dvi[l][1].dy + dvi[l][2].dz) - (vi[l][0]*dni[l].dx + vi[l][1]*dni[l].dy + vi[l][2]*dni[l].dz);
-//                    f[k][j][i][d.ni[O2p]] = 1e12*tau/n0;
-                    if(user->chemswitch==1)
-                        f[k][j][i][d.ni[l]] += cont_chem_S[l] - cont_chem_L[l];
-                }
+				// Equations
+				// Eq 0-2: Continuity equations for ions //
+				for (l=0; l<3; l++){
+					f[k][j][i][d.ni[l]] = -ni[l]*(dvi[l][0].dx + dvi[l][1].dy + dvi[l][2].dz) - (vi[l][0]*dni[l].dx + vi[l][1]*dni[l].dy + vi[l][2]*dni[l].dz);
+					if(user->chemswitch==1){
+						f[k][j][i][d.ni[l]] += cont_chem_S[l] - cont_chem_L[l];
+					}
+				}
         
-					// Eq 3-11: Ion momenta // NEGLECT O and e-n collisions FOR NOW (07-29-11) //
+				// Eq 3-11: Ion momenta // NEGLECT O and e-n collisions FOR NOW (07-29-11)
 				if (vDamping) { //((1.0-tanh(Z-Lz)/(Lz/12.0))/2.0);
 					for (m=0; m<3; m++) { 
 						un[m]*=
@@ -2001,171 +1809,69 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 						.5*(1+erf((Z-ZL)/lambda)) * .5*(1-erf((Z-ZU)/lambda)) ;
 					}
 				}
-				
-				/*
-				 for (l=0; l<3; l++) {
-				 f[k][j][i][d.vi[l][0]] = - (vi[l][0]*dvi[l][0].dx +vi[l][1]*dvi[l][0].dy +vi[l][2]*dvi[l][0].dz) + me/mi[l]*(E[0] +CrossP(vi[l],B,0) -dpi[l].dx/ni[l])                           +tau*(nu[l][CO2]+nu[l][O])*(un[0]-vi[l][0]);
-				 f[k][j][i][d.vi[l][1]] = - (vi[l][0]*dvi[l][1].dx +vi[l][1]*dvi[l][1].dy +vi[l][2]*dvi[l][1].dz) + me/mi[l]*(E[1] +CrossP(vi[l],B,1) -dpi[l].dy/ni[l])                           +tau*(nu[l][CO2]+nu[l][O])*(un[1]-vi[l][1]);
-				 f[k][j][i][d.vi[l][2]] = - (vi[l][0]*dvi[l][2].dx +vi[l][1]*dvi[l][2].dy +vi[l][2]*dvi[l][2].dz) + me/mi[l]*(E[2] +CrossP(vi[l],B,2) -dpi[l].dz/ni[l]) - 1.0/((1+Z/rM)*(1+Z/rM)) +tau*(nu[l][CO2]+nu[l][O])*(un[2]-vi[l][2]); 
-				 }
-				 */
                 
-                // Eq 3-11: Ion momenta //
-                for (l=0; l<3; l++) {
-                    f[k][j][i][d.vi[l][0]] = - (vi[l][0]*dvi[l][0].dx +vi[l][1]*dvi[l][0].dy +vi[l][2]*dvi[l][0].dz) + me/mi[l]*(E[0] +CrossP(vi[l],B,0) -dpi[l].dx/ni[l])                               ;
-                    f[k][j][i][d.vi[l][1]] = - (vi[l][0]*dvi[l][1].dx +vi[l][1]*dvi[l][1].dy +vi[l][2]*dvi[l][1].dz) + me/mi[l]*(E[1] +CrossP(vi[l],B,1) -dpi[l].dy/ni[l])                               ;
-                    f[k][j][i][d.vi[l][2]] = - (vi[l][0]*dvi[l][2].dx +vi[l][1]*dvi[l][2].dy +vi[l][2]*dvi[l][2].dz) + me/mi[l]*(E[2] +CrossP(vi[l],B,2) -dpi[l].dz/ni[l])
-                        ;
-                    if(user->gravswitch==1)
-                        f[k][j][i][d.vi[l][2]] += - PetscPowScalar(1+Z/rM,-2.0);
-                    if(user->chemswitch==1){
-                        f[k][j][i][d.vi[l][0]] += mom_chem_S[l][0];
-                        f[k][j][i][d.vi[l][1]] += mom_chem_S[l][1];
-                        f[k][j][i][d.vi[l][2]] += mom_chem_S[l][2];
-                    }
-                    if(user->collswitch==1){
-                        f[k][j][i][d.vi[l][0]] += el_coll[l][0];
-                        f[k][j][i][d.vi[l][1]] += el_coll[l][1];
-                        f[k][j][i][d.vi[l][2]] += el_coll[l][2];
-                    }
-                }
+				// Eq 3-11: Ion momenta //
+				for (l=0; l<3; l++) {
+					f[k][j][i][d.vi[l][0]] = - (vi[l][0]*dvi[l][0].dx +vi[l][1]*dvi[l][0].dy +vi[l][2]*dvi[l][0].dz) + me/mi[l]*(E[0] +CrossP(vi[l],B,0) -dpi[l].dx/ni[l]);
+					f[k][j][i][d.vi[l][1]] = - (vi[l][0]*dvi[l][1].dx +vi[l][1]*dvi[l][1].dy +vi[l][2]*dvi[l][1].dz) + me/mi[l]*(E[1] +CrossP(vi[l],B,1) -dpi[l].dy/ni[l]);
+					f[k][j][i][d.vi[l][2]] = - (vi[l][0]*dvi[l][2].dx +vi[l][1]*dvi[l][2].dy +vi[l][2]*dvi[l][2].dz) + me/mi[l]*(E[2] +CrossP(vi[l],B,2) -dpi[l].dz/ni[l]);
+					if(user->gravswitch==1)
+						f[k][j][i][d.vi[l][2]] += - PetscPowScalar(1+Z/rM,-2.0);
+					if(user->chemswitch==1){
+						f[k][j][i][d.vi[l][0]] += mom_chem_S[l][0];
+						f[k][j][i][d.vi[l][1]] += mom_chem_S[l][1];
+						f[k][j][i][d.vi[l][2]] += mom_chem_S[l][2];
+					}
+					if(user->collswitch==1){
+						f[k][j][i][d.vi[l][0]] += el_coll[l][0];
+						f[k][j][i][d.vi[l][1]] += el_coll[l][1];
+						f[k][j][i][d.vi[l][2]] += el_coll[l][2];
+					}
+				}
+
+				// Eq 12-14: Equations of state for ions
+				// Read more about heat transfer (Schunk and Nagy Book). Appendix I. page 518
+				for (l=0; l<3; l++){
+					f[k][j][i][d.pi[l]] = - gama[l] * pi[l] * (dvi[l][0].dx + dvi[l][1].dy + dvi[l][2].dz) - (vi[l][0]*dpi[l].dx + vi[l][1]*dpi[l].dy + vi[l][2]*dpi[l].dz);
+					if(user->chemswitch==1){
+						f[k][j][i][d.pi[l]] += ene_chem_S[l] - ene_chem_L[l];
+					}
+				}
 				
-					// Eq 12-14: Equations of state for ions //
-                /*
-                 * Read more about heat transfer (Schunk and Nagy Book). Appendix I. page 518
-                 */
-                for (l=0; l<3; l++){
-                        f[k][j][i][d.pi[l]] = - gama[l] * pi[l] * (dvi[l][0].dx + dvi[l][1].dy + dvi[l][2].dz) - (vi[l][0]*dpi[l].dx + vi[l][1]*dpi[l].dy + vi[l][2]*dpi[l].dz);
-                        if(user->chemswitch==1)
-                            f[k][j][i][d.pi[l]] += ene_chem_S[l] - ene_chem_L[l];
-                }
+				// Eq 15: Equation of state for electrons
+				f[k][j][i][d.pe] = - gama[l] * pe * (dve[0].dx + dve[1].dy + dve[2].dz ) - ( ve[0]*dpe.dx + ve[1]*dpe.dy + ve[2]*dpe.dz);
+
+				if(user->chemswitch==1){
+					f[k][j][i][d.pe] += ene_chem_S[e] - ene_chem_L[e];
+				}
 				
-					// Eq 15: Equation of state for electrons //
-				f[k][j][i][d.pe]    = - gama[l] * pe    * (dve[0].dx    + dve[1].dy    + dve[2].dz   ) - (   ve[0]*dpe.dx    +    ve[1]*dpe.dy    +    ve[2]*dpe.dz);
-                if(user->chemswitch==1)
-                    f[k][j][i][d.pe] += ene_chem_S[e] - ene_chem_L[e];
-				
-					// Eq 16-18: Faraday's law //
-                // Ensure div B = 0 needs to be modded here
+				// Eq 16-18: Faraday's law
+				// Ensure div B = 0 needs to be modded here
 				f[k][j][i][d.B[0]] = - (dE[2].dy - dE[1].dz); 
 				f[k][j][i][d.B[1]] = - (dE[0].dz - dE[2].dx);
 				f[k][j][i][d.B[2]] = - (dE[1].dx - dE[0].dy);
-                
-                /* STORE DATA FOR WRITING TO DIAGNOSTIC FILE */
-//                dNdtO2p     [k+j+i]     = f[k][j][i][d.ni[O2p]]/tau*n0;
-//                dNdtCO2p    [k+j+i]     = f[k][j][i][d.ni[CO2p]]/tau*n0;
-//                dNdtOp      [k+j+i]     = f[k][j][i][d.ni[Op]]/tau*n0;
-//                SO2pdata    [k+j+i]     = cont_chem_S[O2p]/tau*n0;
-//                LO2pdata    [k+j+i]     = cont_chem_L[O2p]/tau*n0;
-//                SCO2pdata   [k+j+i]     = cont_chem_S[CO2p]/tau*n0;
-//                LCO2pdata   [k+j+i]     = cont_chem_L[CO2p]/tau*n0;
-//                SOpdata     [k+j+i]     = cont_chem_S[Op]/tau*n0;
-//                LOpdata     [k+j+i]     = cont_chem_L[Op]/tau*n0;
 			}
 		}
 	}
-    
-    /*
-     * There are separate arrays storing the data, now need to gather them into one array
-     */
-//    m = MPI_Allreduce(MPI_IN_PLACE,&SO2pdata    ,mz*my*mx   ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
-//    m = MPI_Allreduce(MPI_IN_PLACE,&LO2pdata    ,mz*my*mx   ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
-//    m = MPI_Allreduce(MPI_IN_PLACE,&SCO2pdata   ,mz*my*mx   ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
-//    m = MPI_Allreduce(MPI_IN_PLACE,&LCO2pdata   ,mz*my*mx   ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
-//    m = MPI_Allreduce(MPI_IN_PLACE,&SOpdata     ,mz*my*mx   ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
-//    m = MPI_Allreduce(MPI_IN_PLACE,&LOpdata     ,mz*my*mx   ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
-//    m = MPI_Allreduce(MPI_IN_PLACE,&dNdtO2p     ,mz*my*mx   ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
-//    m = MPI_Allreduce(MPI_IN_PLACE,&dNdtCO2p    ,mz*my*mx   ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
-//    m = MPI_Allreduce(MPI_IN_PLACE,&dNdtOp      ,mz*my*mx   ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
-
-    /*
-     * PRINT SOURCES AND LOSSES TO FILE
-     * NEED TO ONLY PLOT EVERY VIZ_DSTEP INSTEAD OF ALL STEPS
-     */
-//    if(step==0||ceilf((step+1)/user->viz_dstep) == (float)(step+1)/user->viz_dstep){
-//        if(rank==root){
-//            for (k=zs; k<zs+zm; k++) {
-//                Z = Zmin + z[k]*L;
-//                for (j=ys; j<ys+ym; j++) {
-//                    Y = Ymin + y[j]*L;
-//                    for (i=xs; i<xs+xm; i++) {
-//                        X = Xmin + x[i]*L;
-//                        fprintf(fp,"%e %e %e %e %e %e %e %e %e ",dNdtO2p[k+j+i],dNdtCO2p[k+j+i],dNdtOp[k+j+i],SO2pdata[k+j+i],LO2pdata[k+j+i],SCO2pdata[k+j+i]
-//                                ,LCO2pdata[k+j+i],SOpdata[k+j+i],LOpdata[k+j+i]);
-////                        if(i==4&&j==5&&k==6)
-////                        PetscPrintf(PETSC_COMM_WORLD,"%e %e %e %e %e %e \n",X,Y,Z,dNdtO2p[k+j+i],dNdtCO2p[k+j+i],dNdtOp[k+j+i]);
-//                    }
-//                }
-//            }
-//            fclose(fp);
-//        }
-//    }
 
 	m = MPI_Allreduce(MPI_IN_PLACE,&vs_max[0]  ,3 ,MPIU_REAL,MPIU_MAX,PETSC_COMM_WORLD);
 	m = MPI_Allreduce(MPI_IN_PLACE,&vA_max[0]  ,3 ,MPIU_REAL,MPIU_MAX,PETSC_COMM_WORLD);
 	m = MPI_Allreduce(MPI_IN_PLACE,&vf_max[0]  ,3 ,MPIU_REAL,MPIU_MAX,PETSC_COMM_WORLD);
 	m = MPI_Allreduce(MPI_IN_PLACE,&ve_max[0]  ,3 ,MPIU_REAL,MPIU_MAX,PETSC_COMM_WORLD);
 	m = MPI_Allreduce(MPI_IN_PLACE,&vcr_max[0] ,9 ,MPIU_REAL,MPIU_MAX,PETSC_COMM_WORLD);
-	
-	/*
-	 for (m=0; m<3; m++) {
-	 for (l=0; l<3; l++) {
-	 if (ve_max[m] > vcr_max[l][m]) {
-	 if(blockers) {
-	 PetscPrintf(PETSC_COMM_WORLD,"The CFL criterion is not stringent enough!\n");
-	 exit(12);
-	 }
-	 }
-	 }
-	 }
-	 */
-	
-	/* dt_CFL:
-	 * critical time for CFL condition
-	 * in the ENTIRE domain (i.e., for all point (k,j,i))
-	 * for ALL species (usually denoted l)
-	 * indepently from ANY direction in space (usually denoted m)
-	 */
 	m = MPI_Allreduce(MPI_IN_PLACE,&dt_CFL ,1 ,MPIU_REAL,MPIU_MIN,PETSC_COMM_WORLD);
 	
-		// Adapt timestep to satisfy CFL //
-    user->dt = c_CFL*dt_CFL;
-//    user->dt = 1/tau;
-	/*
-	 * BELOW IS THE LIST OF DIAGNOSTIC TO ACTIVATE
-	 ierr = PetscPrintf(PETSC_COMM_WORLD,
-	 "\t==> t=%12.5e\t new dt=%12.5e\n\t==> O2+  max velocities: vs=%+14.7e, vA=%+14.7e, vf=%+14.7e, vcr=[%+14.7e,%+14.7e,%+14.7e]\n\t==> CO2+ max velocities: vs=%+14.7e, vA=%+14.7e, vf=%+14.7e, vcr=[%+14.7e,%+14.7e,%+14.7e]\n\t==> O+   max velocities: vs=%+14.7e, vA=%+14.7e, vf=%+14.7e, vcr=[%+14.7e,%+14.7e,%+14.7e]\n",
-	 ftime*tau,user->dt*tau,
-	 vs_max[O2p] *v0, vA_max[O2p] *v0, vf_max[O2p] *v0, vcr_max[O2p][0] *v0 ,vcr_max[O2p][1] *v0 ,vcr_max[O2p][2] *v0,
-	 vs_max[CO2p]*v0, vA_max[CO2p]*v0, vf_max[CO2p]*v0, vcr_max[CO2p][0]*v0 ,vcr_max[CO2p][1]*v0 ,vcr_max[CO2p][2]*v0,
-	 vs_max[Op]  *v0, vA_max[Op]  *v0, vf_max[Op]  *v0, vcr_max[Op][0]  *v0 ,vcr_max[Op][1]  *v0 ,vcr_max[Op][2]  *v0);
-	 */
-		// Calculates and write fluxes at the domain boundaries //
-	/*
-	 if(step%user->viz_dstep==0) {
-	 if(user->fluxRec) {
-	 ierr = CalculateFluxes(t,step,u,v,user);CHKERRQ(ierr);
-	 user->fluxRec = PETSC_FALSE;
-	 } else {
-	 user->fluxRec = PETSC_TRUE;
-	 }
-	 PetscPrintf(PETSC_COMM_WORLD,"%.6i %i\n",step,user->fluxRec);
-	 }
-	 */
+	// Adapt timestep to satisfy CFL
+	user->dt = c_CFL*dt_CFL;
 	
-	
-		// Restore vectors //
+	// Restore vectors
 	ierr = DMDAVecRestoreArrayDOF(db,localV,&v);CHKERRQ(ierr);
 	ierr = DMDAVecRestoreArrayDOF(da,localU,&u);CHKERRQ(ierr);
 	ierr = DMDAVecRestoreArrayDOF(da,F,&f);CHKERRQ(ierr);
 	
 	ierr = DMRestoreLocalVector(db,&localV);CHKERRQ(ierr);
-		//ierr = DMLocalToGlobalBegin(da,localU,INSERT_VALUES,U);CHKERRQ(ierr);
-		//ierr = DMLocalToGlobalEnd(da,localU,INSERT_VALUES,U);CHKERRQ(ierr);
 	ierr = DMRestoreLocalVector(da,&localU);CHKERRQ(ierr);
 	
-		// Destroy V //
 	ierr = DMRestoreGlobalVector(db,&V); CHKERRQ(ierr);
 	PetscFunctionReturn(0); 
 } 
-

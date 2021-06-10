@@ -62,7 +62,6 @@ PetscErrorCode TSSSPStep_LAX(TS ts,PetscReal t0,PetscReal dt,Vec sol)
 	ierr = Average(W,user); CHKERRQ(ierr);
 	ierr = VecWAXPY(sol,dt,F,W);CHKERRQ(ierr);
 	
-		// if (user->cnt == 0) exit(1);
 	ierr = VecDestroy(&W); CHKERRQ(ierr);
 	ierr = VecDestroy(&F); CHKERRQ(ierr);
 	user->cnt++;
@@ -161,8 +160,6 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 	ierr = PetscTime(&user->t0);CHKERRQ(ierr);
 	user->ldName = sprintf(user->dName,"output/");
 	ierr = PetscOptionsGetString(PETSC_NULL,PETSC_NULL,"-output_folder",user->dName,PETSC_MAX_PATH_LEN-1,PETSC_NULL);CHKERRQ(ierr);
-	user->ldName = sprintf(user->vName,"viz_dir/");
-	ierr = PetscOptionsGetString(PETSC_NULL,PETSC_NULL,"-visualization_folder",user->vName,PETSC_MAX_PATH_LEN-1,PETSC_NULL);CHKERRQ(ierr);
 	
 	user->isInputFile = PETSC_FALSE;
 	user->ldName = sprintf(user->InputFile,"X0.bin");
@@ -304,7 +301,7 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 	user->Lx = user->inXmax-user->inXmin;
 	user->Ly = user->inYmax-user->inYmin;
 	user->Lz = user->inZmax-user->inZmin;
-	user->L  = 1.0e3;//user->Lz;
+	user->L  = 1.0e3;
 	
 	dx = user->Lx/(PetscReal)(mx_in-1);
 	dy = user->Ly/(PetscReal)(my_in-1);
@@ -318,7 +315,7 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 	my_hi = (PetscInt)floor(log((pct-1.0)*(user->outYmax-user->inYmax)/(pct*dy) + 1)/log(pct));
 	mz_hi = (PetscInt)floor(log((pct-1.0)*(user->outZmax-user->inZmax)/(pct*dz) + 1)/log(pct));
 	
-		// Calculate dimension of the total system from outerbound to outerbound //
+	// Calculate dimension of the total system from outerbound to outerbound
 	X = user->inXmin - pct*dx * (pow(pct,mx_lo)-1) / (pct-1);
 	if (X > user->outXmin) mx_lo++;
 	X = user->inXmax + pct*dx * (pow(pct,mx_hi)-1) / (pct-1);
@@ -342,14 +339,13 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 	user->y = malloc(user->my*sizeof(PetscReal));
 	user->z = malloc(user->mz*sizeof(PetscReal));
 	
-		// Calculate the position 
+	// Calculate the position
 	user->outXmin = user->inXmin - pct*dx * (pow(pct,mx_lo)-1) / (pct-1);
 	for (i=0; i<user->mx; i++) {
 		if (i < mx_lo) X = user->inXmin - pct*dx * (pow(pct,mx_lo-i)-1) / (pct-1);
 		else if (i >= mx_lo && i < mx_lo+mx_in) X = user->inXmin + (i-mx_lo)*dx;
 		else X = user->inXmax + pct*dx * (pow(pct,i-mx_lo-mx_in+1)-1) / (pct-1);
 		user->x[i] = (X - user->outXmin)/user->L;
-			//PetscPrintf(PETSC_COMM_WORLD,"X = %12.3f\n",user->outXmin + user->x[i]*user->L);
 	}
 	user->outXmax = X;
 	
@@ -359,7 +355,6 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 		else if (j >= my_lo && j < my_lo+my_in) Y = user->inYmin + (j-my_lo)*dy;
 		else Y = user->inYmax + pct*dy * (pow(pct,j-my_lo-my_in+1)-1) / (pct-1);
 		user->y[j] = (Y - user->outYmin)/user->L;
-			//PetscPrintf(PETSC_COMM_WORLD,"Y = %12.3f\n",user->outYmin + user->y[j]*user->L);
 	}
 	user->outYmax = Y;
 	
@@ -369,7 +364,6 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 		else if (k >= mz_lo && k < mz_lo+mz_in) Z = user->inZmin + (k-mz_lo)*dz;
 		else Z = user->inZmax + pct*dz * (pow(pct,k-mz_lo-mz_in+1)-1) / (pct-1);
 		user->z[k] = (Z - user->outZmin)/user->L;
-			//PetscPrintf(PETSC_COMM_WORLD,"Z = %12.3f\n",user->outZmin + user->z[k]*user->L);
 	}
 	user->outZmax = Z;
 	
@@ -380,13 +374,12 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 	user->T0  = user->p0/(kB*user->n0 );
 	user->B0  = user->me/(qe*user->tau);
 	
-	/* dt = min(dt,CFL) */
-    user->dt    = user->dt/user->tau;     // Initial time step (need to write this in main.in)
+	user->dt    = user->dt/user->tau;     // Initial time step (need to write this in main.in)
 	user->eps.n = 1.0e3/user->n0; // min density allowed in the domain: 10^-3 cm-3 = 1e3 m^-3
 	user->eps.p = 1e-15/user->p0; // min pressure allowed in the domain
 	user->eps.v = .01*299742458/user->v0; // MAX velocity allowed in the domain: 1% of the speed of light
 	
-		// Retrieve information from initial conditions //
+	// Retrieve information from initial conditions
 	user->istep = 0;
 	if (user->isInputFile) {
 		/*
@@ -399,8 +392,7 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 		 */
 		sprintf(InputFile,"%s",user->InputFile);
 		pdot = strchr(InputFile,dot); // pointer on the "." character
-		if(pdot)
-			{
+		if(pdot) {
 			size_t len = pdot - InputFile -1; // string length
 			pstep = malloc(len);
 			memcpy(pstep, &InputFile[1],len);
@@ -429,14 +421,12 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 			user->ti = t/user->tau; 
 			
 			PetscPrintf(PETSC_COMM_WORLD,"Resuming simulation from:\n * File: %s\n * Step: %d\n * Time: %e s\n * Line: %d in output/t.out\n", user->InputFile, user->istep, user->ti, line);
-				//user->ti = user->istep*user->dt;
-			} else {
-				PetscPrintf(PETSC_COMM_WORLD,"Unreadable input file\n");
-				exit(1);
-			}
+
+		} else {
+			PetscPrintf(PETSC_COMM_WORLD,"Unreadable input file\n");
+			exit(1);
+		}
 	}
-	
-		//for (i=0; i<6; i++) PetscPrintf(PETSC_COMM_WORLD,"outer box dim %d = %f\n", i, user->vizbox[i]);
 	
 	/* Commented by Kellen to remove vizbox
 	if(user->vizbox[0]<user->outXmin || user->vizbox[1]>user->outXmax || user->vizbox[2]<user->outYmin || user->vizbox[3]>user->outYmax || user->vizbox[4]<user->outZmin || user->vizbox[5]>user->outZmax){
@@ -450,9 +440,9 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 	}
 	*/
 	
-		// Read input files //
+	// Read input files
 	if(rank==0) {
-		//Changed by Kellen so that the program is run from parent directory (M4s), not M4s/bin
+		//Changed by Kellen so that the program is run from parent directory M4, not M4/bin
 		//ReadTable(user->RefProf,Np_REF,"../input/Profiles.in");
 		//ReadTable(user->RefPart,4,"../input/Partition.in");
 		ReadTable(user->RefProf,Np_REF,"./input/Profiles.in");
@@ -461,7 +451,7 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 	MPI_Bcast(&(user->RefProf[0][0]),Np_REF*Nz_REF, MPIU_REAL, 0, PETSC_COMM_WORLD);
 	MPI_Bcast(&(user->RefPart[0][0]),     4*Nz_REF, MPIU_REAL, 0, PETSC_COMM_WORLD);
 	
-		// Display diagnostics //
+	// Display diagnostics
 	PetscPrintf(PETSC_COMM_WORLD,"\nmx = [%i %i %i]:%i\nmy = [%i %i %i]:%i\nmz = [%i %i %i]:%i\n\n",mx_lo,mx_in,mx_hi,user->mx, my_lo,my_in,my_hi,user->my, mz_lo,mz_in,mz_hi,user->mz); 
 	PetscPrintf(PETSC_COMM_WORLD,"      O2+\t\tCO2+\t\tO+\t\te\n");
 	PetscPrintf(PETSC_COMM_WORLD,"m   = [%12.6e\t%12.6e\t%12.6e\t%12.6e]\n",user->mi[0],user->mi[1],user->mi[2],user->me);
@@ -481,7 +471,6 @@ PetscErrorCode OutputData(void* ptr)
 {
 	PetscErrorCode ierr;
 	AppCtx         *user    = (AppCtx*)ptr;
-		//PetscInt       istep=user->istep;
 	PetscInt       maxsteps = user->maxsteps;
 	PetscInt       vizdstep = user->viz_dstep;
 	PetscBool      xtra_out = user->xtra_out;
@@ -525,7 +514,7 @@ PetscErrorCode OutputData(void* ptr)
 	PetscPrintf(PETSC_COMM_WORLD,"box: [%2.1f,%2.1f,%2.1f] to [%2.1f,%2.1f,%2.1f] (km)\n",vizbox[0]/1e3,vizbox[2]/1e3,vizbox[4]/1e3,vizbox[1]/1e3,vizbox[3]/1e3,vizbox[5]/1e3);
 	*/
 	
-		// Store total number of charge carriers in a file named diagnotics.dat //
+	// Store total number of charge carriers in a file named diagnotics.dat
 	int kTop=0;
 	Z = Zmin + z[kTop]*L;
 	while(Z<300e3) {
@@ -549,22 +538,22 @@ PetscErrorCode OutputData(void* ptr)
 	ierr = PetscFPrintf(PETSC_COMM_WORLD,NFile,"Z (m)       \tn.O2+  (m-3)\tn.CO2+ (m-3)\tn.O+   (m-3)\tn.e    (m-3)\n");CHKERRQ(ierr);
 	*/
 	
-	tFile = fopen("./output/t.out","r");
+	// Changed by Kellen to run from root directory not bin
 	//tFile = fopen("../output/t.out","r");
+	tFile = fopen("./output/t.out","r");
 	
-		// Get local grid boundaries //
+	// Get local grid boundaries
 	ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
-	for (step=0/*istep*/; step<=maxsteps; step++) {
+	for (step=0; step<=maxsteps; step++) {
 		
-			//PetscPrintf(PETSC_COMM_WORLD,"istep = %d\tstep = %d\tmaxsteps = %d\tvizdstep = %d\n",istep,step,maxsteps,vizdstep);
 		if(step%vizdstep==0) {
 			
 			ierr = PetscPrintf(PETSC_COMM_WORLD,"timestep %D\n",step);CHKERRQ(ierr);
 			
-				// Retrieve current time //
+			// Retrieve current time
 			fscanf(tFile,"%e",&t);
 			
-				// Read binary file containing the solution //
+			// Read binary file containing the solution
 			sprintf(fName,"%s/X%d.bin",user->dName,step);
 			flag  = access(fName,F_OK);
 			if (flag != 0) break;
@@ -584,338 +573,16 @@ PetscErrorCode OutputData(void* ptr)
 				ierr = PetscViewerDestroy(&fViewer);CHKERRQ(ierr);
 			}
 			
-				// Get pointers to vector data //
-			ierr = DMDAVecGetArrayDOF(da,U,&u);CHKERRQ(ierr);
-			if(xtra_out) {ierr = DMDAVecGetArrayDOF(db,V,&v);CHKERRQ(ierr);}
-			
-				// Store the solution limited to the visualization box into an ascii file //
+			// Get pointers to vector data
+			//ierr = DMDAVecGetArrayDOF(da,U,&u);CHKERRQ(ierr);
+			//if(xtra_out) {ierr = DMDAVecGetArrayDOF(db,V,&v);CHKERRQ(ierr);}
 
-			// Commented by Kellen to remove .dat
-			/*
-			sprintf(fName,"%s/X%d.dat",user->vName,step);
-			flag  = access(fName,W_OK);
-			if (flag==0) pFile = fopen(fName,"a");
-			else         pFile = fopen(fName,"w");
-			
-			imin = mx;
-			imax = -1;
-			jmin = my;
-			jmax = -1;
-			kmin = mz;
-			kmax = -1;
-			
-			Ne = 0.0;
-			for (l=0; l<3; l++) Ni[l] = 0.0;
-			
-			for (i=xs; i<xs+xm; i++) {
-				X = Xmin + x[i]*L;
-				if((float)X>=(float)vizbox[0] && (float)X<=(float)vizbox[1]){
-						// Define x-space increment //
-					if (i==0)         DX = (x[   1]-x[   0])*L    ;
-					else if (i==mx-1) DX = (x[mx-1]-x[mx-2])*L    ;
-					else              DX = (x[ i+1]-x[ i-1])*L/2.0;
-					for (j=ys; j<ys+ym; j++) {
-						Y = Ymin + y[j]*L;
-						if((float)Y>=(float)vizbox[2] && (float)Y<=(float)vizbox[3]){
-								// Define y-space increment //
-							if (j==0)         DY = (y[   1]-y[   0])*L    ;
-							else if (j==my-1) DY = (y[my-1]-y[my-2])*L    ;
-							else              DY = (y[ j+1]-y[ j-1])*L/2.0;
-							for (k=zs; k<zs+zm; k++) {
-								Z = Zmin + z[k]*L;
-								if((float)Z>=(float)vizbox[4] && (float)Z<=(float)vizbox[5]){
-										// Define z-space increment //
-									if (k==0)         DZ = (z[   1]-z[   0])*L    ;
-									else if (k==mz-1) DZ = (z[mz-1]-z[mz-2])*L    ;
-									else              DZ = (z[ k+1]-z[ k-1])*L/2.0;
-									
-										// Define elementary volume //
-									DV = DX*DY*DZ;
-									
-									if (i<imin) imin = i;
-									if (i>imax) imax = i;
-									if (j<jmin) jmin = j;
-									if (j>jmax) jmax = j;
-									if (k<kmin) kmin = k;
-									if (k>kmax) kmax = k;
-									
-                                        // Write electron density (ne) to .dat //
-									if(xtra_out) {
-										ne = (u[k][j][i][d.ni[O2p]]+u[k][j][i][d.ni[CO2p]]+u[k][j][i][d.ni[Op]])*n0;
-										Ne+= ne*DV;
-										ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"%12.6e\t",ne);CHKERRQ(ierr);
-									}
-                                        // Write ion density (nO2p,nCO2p,nOp) to .dat //
-									for (l=0; l<3; l++) {
-										ni[l] = u[k][j][i][d.ni[l]]*n0;
-										Ni[l]+= ni[l]*DV;
-										ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"%12.6e\t",ni[l]);CHKERRQ(ierr);
-									}
-									
-										// Additional output: density profiles //
-									if(X==0 && Y==0 && step==0) {
-										ierr = PetscFPrintf(PETSC_COMM_WORLD,NFile,"%12.6e\t%12.6e\t%12.6e\t%12.6e",Z,ni[O2p],ni[CO2p],ni[Op]);CHKERRQ(ierr);
-										if(xtra_out) {
-											ierr = PetscFPrintf(PETSC_COMM_WORLD,NFile,"\t%12.6e\n",ne);CHKERRQ(ierr);
-										} else {
-											ierr = PetscFPrintf(PETSC_COMM_WORLD,NFile,"\n");CHKERRQ(ierr);
-										}
-									}
-										// End of Additional output //
-									
-                                        // Write electron velocity (ve_x,ve_y,ve_z) //
-									if(xtra_out) {
-										for (m=0; m<3; m++) {
-											ve[m] = v[k][j][i][s.ve[m]]*v0;
-											ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"%12.6e\t",ve[m]);CHKERRQ(ierr);
-										}
-									}
-                                        // Write ion velocity (vO2px,vO2py,vO2pz,vCO2px,vCO2py,vCO2pz,vOpx,vOpy,vOpz) //
-									for (l=0; l<3; l++) {
-										for (m=0; m<3; m++) {
-											vi[l][m] = u[k][j][i][d.vi[l][m]]*v0;
-											ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"%12.6e\t",vi[l][m]);CHKERRQ(ierr);
-										}
-									}
-                                        // Write electron pressure (pe) //
-									pe = u[k][j][i][d.pe]*p0;
-									ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"%12.6e\t",pe);CHKERRQ(ierr);
-                                    
-                                        // Write ion pressure (pO2p,pCO2p,pOp) //
-									for (l=0; l<3; l++) {
-										pi[l] = u[k][j][i][d.pi[l]]*p0;
-										ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"%12.6e\t",pi[l]);CHKERRQ(ierr);
-									}
-									if(xtra_out) {
-                                        // Write current density (Jx,Jy,Jz) //
-										for (m=0; m<3; m++){
-											J[m] = v[k][j][i][s.J[m]]*qe*n0*v0;
-											ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"%12.6e\t",J[m]);CHKERRQ(ierr);
-										}
-                                        // Write current density (Ex,Ey,Ez) //
-										for (m=0; m<3; m++){
-											E[m] = v[k][j][i][s.E[m]]*v0*B0;
-											ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"%12.6e\t",E[m]);CHKERRQ(ierr);
-										}
-									}
-                                        // Write current density (Bx,By,Bz) //
-									for (m=0; m<3; m++){
-										B[m] = u[k][j][i][d.B[m]]*B0;
-										ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"%12.6e\t",B[m]);CHKERRQ(ierr);
-									}
-									ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"\n");CHKERRQ(ierr);
-								}
-								
-							}
-						}
-					}
-				}
-			}
-			fclose(pFile);
-			*/
-			
-				// Find the global values of imin, jmin, kmin, imax, jmax, kmax//
-				// The next lines are useless since the conversion is single-proc //
-			/*
-			 m = MPI_Allreduce(MPI_IN_PLACE,&imin,1,MPIU_INT,MPIU_MIN,PETSC_COMM_WORLD);
-			 m = MPI_Allreduce(MPI_IN_PLACE,&imax,1,MPIU_INT,MPIU_MAX,PETSC_COMM_WORLD);
-			 m = MPI_Allreduce(MPI_IN_PLACE,&jmin,1,MPIU_INT,MPIU_MIN,PETSC_COMM_WORLD);
-			 m = MPI_Allreduce(MPI_IN_PLACE,&jmax,1,MPIU_INT,MPIU_MAX,PETSC_COMM_WORLD);
-			 m = MPI_Allreduce(MPI_IN_PLACE,&kmin,1,MPIU_INT,MPIU_MIN,PETSC_COMM_WORLD);
-			 m = MPI_Allreduce(MPI_IN_PLACE,&kmax,1,MPIU_INT,MPIU_MAX,PETSC_COMM_WORLD);
-			 */
-			/*
-				// Calculate the flows through the boundaries of the PLOTTED domain //
-			PetscReal Ve = 0.0;
-			for (m=0; m<6; m++) {
-				Fe[m] = 0.0;
-				for (l=0; l<3; l++) Fi[l][m] = 0.0;
-			}
-			
-				// W-E flows //
-			for (j=ys; j<ys+ym; j++) {
-					// Define y-space increment //
-				if (j==0)         DY = (y[   1]-y[   0])*L    ;
-				else if (j==my-1) DY = (y[my-1]-y[my-2])*L    ;
-				else              DY = (y[ j+1]-y[ j-1])*L/2.0;
-				
-				for (k=zs; k<zs+zm; k++) {
-						// Define z-space increment //
-					if (k==0)         DZ = (z[   1]-z[   0])*L    ;
-					else if (k==mz-1) DZ = (z[mz-1]-z[mz-2])*L    ;
-					else              DZ = (z[ k+1]-z[ k-1])*L/2.0;
-					
-						// W-flow //
-					i = 0;
-					ne = 0.0;
-					for (l=0; l<3; l++) {
-						ne += u[k][j][i][d.ni[l]];
-						Fi[l][0] -= u[k][j][i][d.ni[l]] * u[k][j][i][d.vi[l][0]] * n0*v0 * DY*DZ;
-					}
-					Ve = v[k][j][i][s.ve[0]];
-					Fe[0] -= ne*Ve * n0*v0 * DY*DZ;
-					
-						// E-flow //
-					i = mx-1;
-					ne = 0.0;
-					for (l=0; l<3; l++) {
-						ne += u[k][j][i][d.ni[l]];
-						Fi[l][1] += u[k][j][i][d.ni[l]] * u[k][j][i][d.vi[l][0]] * n0*v0 * DY*DZ;
-					}
-					Ve = v[k][j][i][s.ve[0]];
-					Fe[1] += ne*Ve * n0*v0 * DY*DZ;
-				}
-			}
-			
-				// S-N flows //
-			for (k=zs; k<zs+zm; k++) {
-					// Define z-space increment //
-				if (k==0)         DZ = (z[   1]-z[   0])*L    ;
-				else if (k==mz-1) DZ = (z[mz-1]-z[mz-2])*L    ;
-				else              DZ = (z[ k+1]-z[ k-1])*L/2.0;
-				
-				for (i=xs; i<xs+xm; i++) {
-					
-						// Define x-space increment //
-					if (i==0)         DX = (x[   1]-x[   0])*L    ;
-					else if (i==mx-1) DX = (x[mx-1]-x[mx-2])*L    ;
-					else              DX = (x[ i+1]-x[ i-1])*L/2.0;
-					
-						// S-flow //
-					j = 0;
-					ne = 0.0;
-					for (l=0; l<3; l++) {
-						ne += u[k][j][i][d.ni[l]];
-						Fi[l][2] -= u[k][j][i][d.ni[l]] * u[k][j][i][d.vi[l][1]] * n0*v0 * DZ*DX;
-					}
-					Ve = v[k][j][i][s.ve[1]];
-					Fe[2] -= ne*Ve * n0*v0 * DZ*DX;
-						// if(i==0) printf("@%d z=%12.6e\tnO2+=%12.6e\tvO2+=%12.6e\tDY=%12.6e\tDZ=%12.6e\n", rank, Zmin + z[k]*L, u[k][j][i][d.ni[0]]*n0,u[k][j][i][d.vi[0][1]]*v0,DY,DZ);
-					
-						// N-flow //
-					j = my-1;
-					ne = 0.0;
-					for (l=0; l<3; l++) {
-						ne += u[k][j][i][d.ni[l]];
-						Fi[l][3] += u[k][j][i][d.ni[l]] * u[k][j][i][d.vi[l][1]] * n0*v0 * DZ*DX;
-					}
-					Ve = v[k][j][i][s.ve[1]];
-					Fe[3] += ne*Ve * n0*v0 * DZ*DX;
-				}
-			}
-			
-				// B-T flows //
-			for (i=xs; i<xs+xm; i++) {
-					// Define x-space increment //
-				if (i==0)         DX = (x[   1]-x[   0])*L    ;
-				else if (i==mx-1) DX = (x[mx-1]-x[mx-2])*L    ;
-				else              DX = (x[ i+1]-x[ i-1])*L/2.0;
-				
-				for (j=ys; j<ys+ym; j++) {
-						// Define y-space increment //
-					if (j==0)         DY = (y[   1]-y[   0])*L    ;
-					else if (j==my-1) DY = (y[my-1]-y[my-2])*L    ;
-					else              DY = (y[ j+1]-y[ j-1])*L/2.0;
-					
-						// B-flow //
-					k = 0;
-					ne = 0.0;
-					for (l=0; l<3; l++) {
-						ne += u[k][j][i][d.ni[l]];
-						Fi[l][4] -= u[k][j][i][d.ni[l]] * u[k][j][i][d.vi[l][2]] * n0*v0 * DX*DY;
-					}
-					Ve = v[k][j][i][s.ve[2]];
-					Fe[4] -= ne*Ve * n0*v0 * DX*DY;
-					
-						// T-flow //
-					//k = mz-1;
-					k = kTop;
-					ne = 0.0;
-					for (l=0; l<3; l++) {
-						ne += u[k][j][i][d.ni[l]];
-						Fi[l][5] += u[k][j][i][d.ni[l]] * u[k][j][i][d.vi[l][2]] * n0*v0 * DX*DY;
-					}
-					Ve = v[k][j][i][s.ve[2]];
-					Fe[5] += ne*Ve * n0*v0 * DX*DY;
-				}
-			}
-			*/
-			
-				// Summing subdomain values //
-				// The next lines are useless since the conversion is single-proc //
-			/*
-			 m = MPI_Allreduce(MPI_IN_PLACE,&Ni[0]   ,3  ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
-			 m = MPI_Allreduce(MPI_IN_PLACE,&Fi[0][0],3*6,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
-			 m = MPI_Allreduce(MPI_IN_PLACE,&Ne      ,1  ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
-			 m = MPI_Allreduce(MPI_IN_PLACE,&Fe      ,6  ,MPIU_REAL,MPIU_SUM,PETSC_COMM_WORLD);
-			 */
-			
-				// Fill the diagnotics.dat file //
-            /*
-			ierr = PetscFPrintf(PETSC_COMM_WORLD,nFile,"%12.6e\t",t);CHKERRQ(ierr);
-			for (l=0; l<3; l++) {
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,nFile,"%12.6e\t",Ni[l]);CHKERRQ(ierr);
-				for (m=0; m<6; m++) {
-					ierr = PetscFPrintf(PETSC_COMM_WORLD,nFile,"%12.6e\t",Fi[l][m]);CHKERRQ(ierr);
-				}
-			}
-			ierr = PetscFPrintf(PETSC_COMM_WORLD,nFile,"%12.6e\t",Ne);CHKERRQ(ierr);
-			for (m=0; m<6; m++) {
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,nFile,"%12.6e\t",Fe[m]);CHKERRQ(ierr);
-			}
-			ierr = PetscFPrintf(PETSC_COMM_WORLD,nFile,"\n");CHKERRQ(ierr);
-			*/
-
-
-
-			// Commented by Kellen to remove .dat and .general
-			/*
-				// Create the X.general file // 
-			sprintf(fName,"%s/X%d.general",user->vName,step);
-			flag  = access(fName,W_OK);
-			if (flag==0) pFile = fopen(fName,"a");
-			else         pFile = fopen(fName,"w");
-			
-			
-			if(!xtra_out){
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"file = X%d.dat\n",step);CHKERRQ(ierr);
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"grid = %d %d %d\n",imax-imin+1,jmax-jmin+1,kmax-kmin+1);CHKERRQ(ierr);
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"format = ascii\n");CHKERRQ(ierr);
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"interleaving = field\n");CHKERRQ(ierr);
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"field = nO2p,nCO2p,nOp,vO2p,vCO2p,vOp,pO2p,pCO2p,pOp,pe,B\n");CHKERRQ(ierr);
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"type = float float float float float float float float float float float\n");CHKERRQ(ierr);
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"structure = scalar scalar scalar 3-vector 3-vector 3-vector scalar scalar scalar scalar 3-vector\n");CHKERRQ(ierr);
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"dependency = positions,positions,positions,positions,positions,positions,positions,positions,positions,positions,positions\n");CHKERRQ(ierr);
-					//ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"positions = regular, regular, regular, %12.6e, %12.6e, %12.6e, %12.6e, %12.6e, %12.6e\n", (Xmin+x[imin]*L)*1e-3,(x[imax]-x[imin])/(imax-imin)*L*1e-3,(Ymin+y[jmin]*L)*1e-3,(y[jmax]-y[jmin])/(jmax-jmin)*L*1e-3,(Zmin+z[kmin]*L)*1e-3,(z[kmax]-z[kmin])/(kmax-kmin)*L*1e-3);CHKERRQ(ierr);
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"positions = irregular, irregular, irregular");CHKERRQ(ierr);
-				for (i=imin; i<=imax; i++)  ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,", %12.6e",(Xmin+x[i]*L)*1e-3);CHKERRQ(ierr);
-				for (j=jmin; j<=jmax; j++)  ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,", %12.6e",(Ymin+y[j]*L)*1e-3);CHKERRQ(ierr);
-				for (k=kmin; k<=kmax; k++)  ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,", %12.6e",(Zmin+z[k]*L)*1e-3);CHKERRQ(ierr);
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"\n\nend");CHKERRQ(ierr);
-			} else {
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"file = X%d.dat\n",step);CHKERRQ(ierr);
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"grid = %d %d %d\n",imax-imin+1,jmax-jmin+1,kmax-kmin+1);CHKERRQ(ierr);
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"format = ascii\n");CHKERRQ(ierr);
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"interleaving = field\n");CHKERRQ(ierr);
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"field = ne,nO2p,nCO2p,nOp,ve,vO2p,vCO2p,vOp,pe,pO2p,pCO2p,pOp,J,E,B\n");CHKERRQ(ierr);
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"type = float float float float float float float float float float float float float float float\n");CHKERRQ(ierr);
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"structure = scalar scalar scalar scalar 3-vector 3-vector 3-vector 3-vector scalar scalar scalar scalar 3-vector 3-vector 3-vector\n");CHKERRQ(ierr);
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"dependency = positions,positions,positions,positions,positions,positions,positions,positions,positions,positions,positions,positions,positions,positions,positions\n");CHKERRQ(ierr);
-					//ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"positions = regular, regular, regular, %12.6e, %12.6e, %12.6e, %12.6e, %12.6e, %12.6e\n", (Xmin+x[imin]*L)*1e-3,(x[imax]-x[imin])/(imax-imin)*L*1e-3,(Ymin+y[jmin]*L)*1e-3,(y[jmax]-y[jmin])/(jmax-jmin)*L*1e-3,(Zmin+z[kmin]*L)*1e-3,(z[kmax]-z[kmin])/(kmax-kmin)*L*1e-3);CHKERRQ(ierr);
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"positions = irregular, irregular, irregular");CHKERRQ(ierr);
-				for (i=imin; i<=imax; i++)  ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,", %12.6e",(Xmin+x[i]*L)*1e-3);CHKERRQ(ierr);
-				for (j=jmin; j<=jmax; j++)  ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,", %12.6e",(Ymin+y[j]*L)*1e-3);CHKERRQ(ierr);
-				for (k=kmin; k<=kmax; k++)  ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,", %12.6e",(Zmin+z[k]*L)*1e-3);CHKERRQ(ierr);
-				ierr = PetscFPrintf(PETSC_COMM_WORLD,pFile,"\n\nend");CHKERRQ(ierr);
-			}
-			fclose(pFile);
-			*/
-			ierr = DMDAVecRestoreArrayDOF(da,U,&u);CHKERRQ(ierr);
-			ierr = VecDestroy(&U);CHKERRQ(ierr);
-			if(xtra_out) {
-				ierr = DMDAVecRestoreArrayDOF(db,V,&v);CHKERRQ(ierr);
-				ierr = VecDestroy(&V);CHKERRQ(ierr);
-			}
+			//ierr = DMDAVecRestoreArrayDOF(da,U,&u);CHKERRQ(ierr);
+			//ierr = VecDestroy(&U);CHKERRQ(ierr);
+			//if(xtra_out) {
+				//ierr = DMDAVecRestoreArrayDOF(db,V,&v);CHKERRQ(ierr);
+				//ierr = VecDestroy(&V);CHKERRQ(ierr);
+			//}
 		}
 	}
 	fclose(NFile);
@@ -967,7 +634,6 @@ PetscReal Arcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m)
 		for (j=0; j<Ns; j++) {
 			for (k=0; k<Ps; k++) {
 				s = j; 
-					//s = k*Ns*Ms + j*Ms + i; // <-This gives 6 dipoles with each dipole having opposite direction compared to its neighbor
 				B += pow(-1,s%2) * V_Dipole(mu,xs[i],ys[j],zs[k],x,y,z,m);
 			}
 		}
@@ -996,7 +662,6 @@ PetscReal MultiArcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m)
 		for (j=0; j<Ns; j++) {
 			for (k=0; k<Ps; k++) {
 				s = j; 
-					//s = k*Ns*Ms + j*Ms + i; // <-This gives 6 dipoles with each dipole having opposite direction compared to its neighbor
 				B += pow(-1,s%2) * V_Dipole(mu,xs[i],ys[j],zs[k],x,y,z,m);
 			}
 		}
@@ -1132,28 +797,7 @@ PetscErrorCode Average(Vec U,void* ctx)
 			for (i=xs; i<xs+xm; i++)
 				for (l=0; l<19; l++)
 					u_[k][j][i][l] = (u[k+1][j][i][l] + u[k][j+1][i][l] + u[k][j][i+1][l] + u[k][j][i-1][l] + u[k][j-1][i][l] + u[k-1][j][i][l])/6.0;
-	
-	/*
-	 if(rank==0) {
-	 for (k=-1;k<=1;k++) for (j=-1;j<=1;j++) for (i=-1;i<=1;i++) 
-	 if (! ( (i==-1 && j==-1) || (i==-1 && k==-1) || (j==-1 && k==-1) ) ) {
-	 PetscPrintf(PETSC_COMM_SELF,"@[%2d][%2d][%2d]  nO2+=%2.5e;  nCO2+=%2.5e;  nO+=%2.5e;  vO2+=[%2.5e %2.5e %2.5e];  vCO2+=[%2.5e %2.5e %2.5e];  vO+=[%2.5e %2.5e %2.5e];  pO2+=%2.5e;  pCO2+=%2.5e;  pO+=%2.5e;  pe=%2.5e;  B=[%2.5e %2.5e %2.5e]\n",i,j,k,u[k][j][i][0]*user->n0,u[k][j][i][1]*user->n0,u[k][j][i][2]*user->n0,u[k][j][i][3]*user->v0,u[k][j][i][4]*user->v0,u[k][j][i][5]*user->v0,u[k][j][i][6]*user->v0,u[k][j][i][7]*user->v0,u[k][j][i][8]*user->v0,u[k][j][i][9]*user->v0,u[k][j][i][10]*user->v0,u[k][j][i][11]*user->v0,u[k][j][i][12]*user->p0,u[k][j][i][13]*user->p0,u[k][j][i][14]*user->p0,u[k][j][i][15]*user->p0,u[k][j][i][16]*user->B0,u[k][j][i][17]*user->B0,u[k][j][i][18]*user->B0);
-	 }
-	 }
-	 if (rank == 0) { 
-	 for (k=-1;k<=1;k++) for (j=-1;j<=1;j++) for (i=-1;i<=1;i++) 
-	 if (! ( (i==-1 && j==-1) || (i==-1 && k==-1) || (j==-1 && k==-1) ) ) {
-	 PetscPrintf(PETSC_COMM_SELF,"@[%2d][%2d][%2d] _nO2+=%2.5e; _nCO2+=%2.5e; _nO+=%2.5e; _vO2+=[%2.5e %2.5e %2.5e]; _vCO2+=[%2.5e %2.5e %2.5e]; _vO+=[%2.5e %2.5e %2.5e]; _pO2+=%2.5e; _pCO2+=%2.5e; _pO+=%2.5e; _pe=%2.5e; _B=[%2.5e %2.5e %2.5e]\n",i,j,k,u_[k][j][i][0]*user->n0,u_[k][j][i][1]*user->n0,u_[k][j][i][2]*user->n0,u_[k][j][i][3]*user->v0,u_[k][j][i][4]*user->v0,u_[k][j][i][5]*user->v0,u_[k][j][i][6]*user->v0,u_[k][j][i][7]*user->v0,u_[k][j][i][8]*user->v0,u_[k][j][i][9]*user->v0,u_[k][j][i][10]*user->v0,u_[k][j][i][11]*user->v0,u_[k][j][i][12]*user->p0,u_[k][j][i][13]*user->p0,u_[k][j][i][14]*user->p0,u_[k][j][i][15]*user->p0,u_[k][j][i][16]*user->B0,u_[k][j][i][17]*user->B0,u_[k][j][i][18]*user->B0);
-	 }
-	 }
-	 if (rank == 0) { 
-	 i=0;
-	 j=0;
-	 k=0;
-	 PetscPrintf(PETSC_COMM_SELF,"@[%2d][%2d][%2d] avnO2p=%2.5e; avnCO2p=%2.5e; avnOp=%2.5e; avvO2p=[%2.5e %2.5e %2.5e]; avvCO2p=[%2.5e %2.5e %2.5e]; avvOp=[%2.5e %2.5e %2.5e]; avpO2p=%2.5e; avpCO2p=%2.5e; avpOp=%2.5e; avpe=%2.5e; avB=[%2.5e %2.5e %2.5e]\n",i,j,k,u_[k][j][i][0]*user->n0,u_[k][j][i][1]*user->n0,u_[k][j][i][2]*user->n0,u_[k][j][i][3]*user->v0,u_[k][j][i][4]*user->v0,u_[k][j][i][5]*user->v0,u_[k][j][i][6]*user->v0,u_[k][j][i][7]*user->v0,u_[k][j][i][8]*user->v0,u_[k][j][i][9]*user->v0,u_[k][j][i][10]*user->v0,u_[k][j][i][11]*user->v0,u_[k][j][i][12]*user->p0,u_[k][j][i][13]*user->p0,u_[k][j][i][14]*user->p0,u_[k][j][i][15]*user->p0,u_[k][j][i][16]*user->B0,u_[k][j][i][17]*user->B0,u_[k][j][i][18]*user->B0);
-	 }
-	 */
-	
+
 	ierr = DMDAVecRestoreArrayDOF(da,localU ,&u );CHKERRQ(ierr);
 	ierr = DMDAVecRestoreArrayDOF(da,localU_,&u_);CHKERRQ(ierr);
 	ierr = DMLocalToGlobalBegin(da,localU_,INSERT_VALUES,U);CHKERRQ(ierr);
@@ -1189,6 +833,7 @@ PetscErrorCode WeightedAverage(Vec U,void* ctx)
 			for (i=xs; i<xs+xm; i++)
 				for (l=0; l<19; l++)
 					u_[k][j][i][l] = (u[k+1][j][i][l] + u[k][j+1][i][l] + u[k][j][i+1][l] + 6*u[k][j][i][l] + u[k][j][i-1][l] + u[k][j-1][i][l] + u[k-1][j][i][l])/12.0;
+
 	ierr = DMDAVecRestoreArrayDOF(da,localU ,&u );CHKERRQ(ierr);
 	ierr = DMDAVecRestoreArrayDOF(da,localU_,&u_);CHKERRQ(ierr);
 	ierr = DMLocalToGlobalBegin(da,localU_,INSERT_VALUES,U);CHKERRQ(ierr);

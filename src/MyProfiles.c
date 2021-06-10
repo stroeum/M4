@@ -52,7 +52,6 @@ PetscReal Interpolate1(PetscReal x, PetscReal xi[], PetscReal yi[], PetscInt Ni,
 		
 		y = (x-X[0])/(X[1]-X[0])*Y[1] + (x-X[1])/(X[0]-X[1])*Y[0];
 	} else if (x>xi[Ni-1]) {
-//        PetscPrintf(PETSC_COMM_WORLD,"x>xi[Ni-1]\n");
 		id[0] = Ni-1;
 		id[1] = Ni-2;
 		id[2] = Ni-3;
@@ -66,11 +65,11 @@ PetscReal Interpolate1(PetscReal x, PetscReal xi[], PetscReal yi[], PetscInt Ni,
 		
 		Dy    = Dx[0]*Y[0] + Dx[1]*Y[1] + Dx[2]*Y[2];
 		
-			// linear interpolation above max xi //
+		// linear interpolation above max xi
 		if (ItpType==lin_lin) {
 			y = Dy*(x-X[0]) + Y[0];
 		}
-			// exponential decrease above max xi //
+		// exponential decrease above max xi
 		if (ItpType==lin_exp) {
 			L     = Y[0]/Dy;
 			if (L<0) {
@@ -83,12 +82,11 @@ PetscReal Interpolate1(PetscReal x, PetscReal xi[], PetscReal yi[], PetscInt Ni,
 				exit(1);
 			}
 		}
-			// flat interpolation above max xi //
+		// flat interpolation above max xi
 		if (ItpType==lin_flat) {
 			y = Y[0];
 		}
 	} else if (x<xi[0]) {
-//        PetscPrintf(PETSC_COMM_WORLD,"x<xi[0]\n");
 		id[0] = 0;
 		id[1] = 1;
 		id[2] = 2;
@@ -101,26 +99,20 @@ PetscReal Interpolate1(PetscReal x, PetscReal xi[], PetscReal yi[], PetscInt Ni,
 		Dx[2] =   1.0/dl[1] + 1.0/(dl[0]-dl[1]);
 		
 		Dy    = Dx[0]*Y[0] + Dx[1]*Y[1] + Dx[2]*Y[2];
-			// linear interpolation below min xi //
-            // RETURNS NEG VALUES //
+		// linear interpolation below min xi
+		// RETURNS NEG VALUES
 		if (ItpType==lin_lin) {
 			y = Dy*(x-X[0]) + Y[0];
-//            PetscPrintf(PETSC_COMM_WORLD,"%e %e\n",Dy*(x-X[0]),Y[0]);
 		}
 			// exponential decrease below min xi //
 		if (ItpType==lin_exp) {
 			L = Y[0]/Dy;
-				//if (L>0) {
 			if (fabs((x-X[0])/L)<alpha)
 				y = Y[0]*exp( (x-X[0])/L );
 			else
 				y = Y[0]*exp(-alpha);
-			/* } else {
-			 PetscPrintf(PETSC_COMM_WORLD,"Wrong Interpolation\n");
-			 exit(1);
-			 }*/
 		}
-			// flat interpolation above max reference altitude //
+		// flat interpolation above max reference altitude
 		if (ItpType==lin_flat) {
 			y = Y[0];
 		}
@@ -167,11 +159,11 @@ PetscReal Interpolate2(PetscReal x, PetscReal xi[], PetscReal yi[], PetscInt Ni,
 		
 		Dy    = Dx[0]*Y[0] + Dx[1]*Y[1] + Dx[2]*Y[2];
 		
-			// linear interpolation above max reference altitude //
+		// linear interpolation above max reference altitude
 		if (ItpType==lin_lin) {
 			y = Dy*(x-X[0]) + Y[0];
 		}
-			// exponential decrease above max reference altitude //
+		// exponential decrease above max reference altitude
 		if (ItpType==lin_exp) {
 			L = Y[0]/Dy;
 			if (L<0) {
@@ -184,7 +176,7 @@ PetscReal Interpolate2(PetscReal x, PetscReal xi[], PetscReal yi[], PetscInt Ni,
 				exit(1);
 			}
 		}
-			// flat interpolation above max reference altitude //
+		// flat interpolation above max reference altitude
 		if (ItpType==lin_flat) {
 			y = Y[0];
 		}
@@ -201,26 +193,20 @@ PetscReal Interpolate2(PetscReal x, PetscReal xi[], PetscReal yi[], PetscInt Ni,
 		Dx[2] =   1.0/dl[1] + 1.0/(dl[0]-dl[1]);
 		
 		Dy    = Dx[0]*Y[0] + Dx[1]*Y[1] + Dx[2]*Y[2];
-			//PetscPrintf(PETSC_COMM_WORLD,"Dz=[%f %f %f] u=[%f %f %f] Du=%f\n",Dz[0],Dz[1],Dz[2],u[0],u[1],u[2],Du);
 		
-			// linear interpolation below min reference altitude //
+		// linear interpolation below min reference altitude
 		if (ItpType==lin_lin) {
 			y = Dy*(x-X[0]) + Y[0];
 		}
-			// exponential decrease below min reference altitude //
+		// exponential decrease below min reference altitude
 		if (ItpType==lin_exp) {
 			L = Y[0]/Dy;
-				// if (L>0) {
 			if (fabs((x-X[0])/L)<alpha)
 				y = Y[0]*exp( (x-X[0])/L );
 			else
 				y = Y[0]*exp(-alpha);
-			/* } else {
-			 PetscPrintf(PETSC_COMM_WORLD,"Wrong Interpolation\n");
-			 exit(1);
-			 }*/
 		}
-			// flat interpolation below min reference altitude //
+		// flat interpolation below min reference altitude
 		if (ItpType==lin_flat) {
 			y = Y[0];
 		}

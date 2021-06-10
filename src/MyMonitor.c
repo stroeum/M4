@@ -20,7 +20,6 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
 	PetscInt       rank;
 	PetscInt       istep = user->istep, vizdstep = user->viz_dstep;
 	PetscReal      tau = user->tau;
-		//PetscReal      dt;
 	PetscBool      xtra_out = user->xtra_out;
 	Vec            V;
 	Vec            localU;
@@ -32,20 +31,16 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
 	
 	MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
 	
-	if((istep+step)%vizdstep==0) { // || (step>=9400) ) {
+	if((istep+step)%vizdstep==0) {
 		ierr = PetscTime(&t1);CHKERRQ(ierr);
 		ierr = PetscPrintf(PETSC_COMM_WORLD,"Elapsed_time=%2.1e(%2.1fhr)\ttimestep %D\tt %2.3e\tdt %2.3e\n",t1-t0,(t1-t0)/3600,istep+step,ptime*tau,user->dt*tau);CHKERRQ(ierr);
         
-//        // Trying to track density at center...
-//        PetscPrintf(PETSC_COMM_WORLD,"U[1] = %e\n",U[1]);
-
 		sprintf(fName, "%s/t.out",user->dName);
 		flag = access(fName,W_OK);
 		if (flag==0) fd=fopen(fName,"a");
 		else         fd=fopen(fName,"w");
-		if(user->isInputFile==1 && ptime==user->ti) {
-				// do not record the time //
-		} else { 
+		
+		if(!(user->isInputFile==1 && ptime==user->ti)) {
 			ierr = PetscFPrintf(PETSC_COMM_WORLD,fd,"%12.6e\n",ptime*tau); CHKERRQ(ierr);
 		}
 		fclose(fd);
@@ -65,9 +60,7 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
 			
 			ierr = FormBCu(u,user);CHKERRQ(ierr);
 			
-				//PetscPrintf(PETSC_COMM_WORLD,"Extra Diagnostic Record: ...\n"); 
 			ierr = FormIntermediateFunction(u,V,user);CHKERRQ(ierr);
-				//PetscPrintf(PETSC_COMM_WORLD,"Extra Diagnostic Record: DONE\n"); 
 			
 			sprintf(fName, "%s/Y%d.bin",user->dName,istep+step);
 			ierr = PetscViewerBinaryOpen(PETSC_COMM_WORLD,fName,FILE_MODE_WRITE, &fViewer); CHKERRQ(ierr);

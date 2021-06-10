@@ -16,8 +16,8 @@ module load hdf5/1.10.5
 echo "================================================"
 echo "Time is         : `date`"
 echo "Job ID is       : "$SLURM_JOBID
-echo "execution folder: M4s/"
-echo "execution file  : M4s/bin/M4"
+echo "execution folder: M4/"
+echo "execution file  : M4/bin/M4"
 echo "================================================"
 
 make clean_data

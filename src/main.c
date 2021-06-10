@@ -18,10 +18,10 @@ int main(int argc,char **argv)
 	Vec            u,r; // solution, residual vectors
 	Mat            J;   // Jacobian matrix
 	PetscErrorCode ierr;
-		//MatFDColoring  matfdcoloring = PETSC_NULL;
 	MonitorCtx     usermonitor;
 	AppCtx         user;
-		// For JAR RK method personalization //
+
+	// For JAR RK method personalization
 	PetscFunctionList TSSSPList;
 
 	PetscInitialize(&argc,&argv,PETSC_NULL,help);
@@ -40,18 +40,18 @@ int main(int argc,char **argv)
 	 Initialize program
 	 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 	ierr = InitCtx(&user,&usermonitor);CHKERRQ(ierr);
-    if(user.gravswitch==1)
-        PetscPrintf(PETSC_COMM_WORLD,"\nGravity\t\t= ON\n");
-    else
-        PetscPrintf(PETSC_COMM_WORLD,"\nGravity\t\t= OFF\n");
-    if(user.chemswitch==1)
-        PetscPrintf(PETSC_COMM_WORLD,"Chemistry\t= ON\n");
-    else
-        PetscPrintf(PETSC_COMM_WORLD,"Chemistry\t= OFF\n");
-    if(user.collswitch==1)
-        PetscPrintf(PETSC_COMM_WORLD,"Collisions\t= ON\n\n");
-    else
-        PetscPrintf(PETSC_COMM_WORLD,"Collisions\t= OFF\n\n");
+	if(user.gravswitch==1)
+		PetscPrintf(PETSC_COMM_WORLD,"\nGravity\t\t= ON\n");
+	else
+		PetscPrintf(PETSC_COMM_WORLD,"\nGravity\t\t= OFF\n");
+	if(user.chemswitch==1)
+		PetscPrintf(PETSC_COMM_WORLD,"Chemistry\t= ON\n");
+	else
+		PetscPrintf(PETSC_COMM_WORLD,"Chemistry\t= OFF\n");
+	if(user.collswitch==1)
+		PetscPrintf(PETSC_COMM_WORLD,"Collisions\t= ON\n\n");
+	else
+		PetscPrintf(PETSC_COMM_WORLD,"Collisions\t= OFF\n\n");
         
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	 Create distributed array (DMDA) to manage parallel grid and vectors
@@ -81,9 +81,7 @@ int main(int argc,char **argv)
 	size_t len=255;
 	ierr = PetscGetVersion(version,len);CHKERRQ(ierr);
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"Version = %s\n",version);CHKERRQ(ierr);
-	//ierr = PetscFunctionListAdd(&TSSSPList,"rk2jar", (void(*)(void))TSSSPStep_RK_2_JAR);CHKERRQ(ierr);
-	//ierr = PetscFunctionListAdd(&TSSSPList,"lw"    , (void(*)(void))TSSSPStep_LW      );CHKERRQ(ierr);
-	//ierr = PetscFunctionListAdd(&TSSSPList,"lax"   , (void(*)(void))TSSSPStep_LAX     );CHKERRQ(ierr);
+
 	ierr = SNESSetJacobian(snes,J,J,SNESComputeJacobianDefault,(void *)&user);CHKERRQ(ierr);
 	ierr = TSSetProblemType(ts,TS_NONLINEAR);CHKERRQ(ierr);
 	ierr = TSSetRHSFunction(ts,r,FormFunction,(void *)&user);CHKERRQ(ierr);
