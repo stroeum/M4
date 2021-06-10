@@ -44,7 +44,7 @@ else
 endif
 endif
 
-save_data:
+save:
 ifdef n
 	if [ ! -d "SaveData" ]; then \
 		mkdir SaveData; \
