@@ -22,7 +22,7 @@ makefile must be tailored to the specific computer being used. (And rankfile if 
 	3.  make in=<input> run
 	where <input> is an optional argument. Defaults to main.in.
 	4. Optional: Can save data with
-	    make n=<directory> save_data
+	    make n=<directory> save
 
 	Or, if on blueshark
 	1. sbatch start.job
