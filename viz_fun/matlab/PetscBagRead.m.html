@@ -1,0 +1,122 @@
+<center><a href="PetscBagRead.m">Actual source code: PetscBagRead.m</a></center><br>
+
+<html>
+<head> <link rel="canonical" href="http://www.mcs.anl.gov/petsc/petsc-current/share/petsc/matlab/PetscBagRead.m.html" />
+<title></title>
+<meta name="generator" content="c2html 0.9.4">
+<meta name="date" content="2020-02-04T17:38:34+00:00">
+</head>
+
+<body bgcolor="#FFFFFF">
+   <div id="version" align=right><b>petsc-3.12.4 2020-02-04</b></div>
+   <div id="bugreport" align=right><a href="mailto:petsc-maint@mcs.anl.gov?subject=Typo or Error in Documentation &body=Please describe the typo or error in the documentation: petsc-3.12.4 v3.12.4 share/petsc/matlab/PetscBagRead.m.html "><small>Report Typos and Errors</small></a></div>
+<pre width="80">
+<a name="line1">  1: </a>function bag = PetscBagRead(fd)
+<a name="line2">  2: </a>%
+<a name="line3">  3: </a>%  Reads in PETSc binary file bag object
+<a name="line4">  4: </a>%  emits as Matlab <font color="#4169E1">struct</font>.  Called from
+<a name="line5">  5: </a>%  <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a>.m.
+<a name="line6">  6: </a>%
+
+<a name="line8">  8: </a>[name_len help_len] = ParsePetscBagDotH;
+
+<a name="line10"> 10: </a>bagsize = read(fd,1,'int32');  %  no longer used after petsc-3.2 just here <font color="#4169E1">for</font> backward compatibility of the binary files
+<a name="line11"> 11: </a>count = read(fd,1,'int32');
+
+<a name="line13"> 13: </a>bag.bag_name      = deblank(char(read(fd,name_len,'uchar')'));
+<a name="line14"> 14: </a>bag.help.bag_help = deblank(char(read(fd,help_len,'uchar')'));
+
+<a name="line16"> 16: </a><font color="#4169E1">for</font> lcv = 1:count
+<a name="line17"> 17: </a>  offsetdtype = read(fd,2,'int32');
+<a name="line18"> 18: </a>  dtype = offsetdtype(2);
+<a name="line19"> 19: </a>  name  = strclean(deblank(char(read(fd,name_len,'uchar')')));
+<a name="line20"> 20: </a>  help  = deblank(char(read(fd,help_len,'uchar')'));
+<a name="line21"> 21: </a>  msize = read(fd,1,'int32');
+
+<a name="line23"> 23: </a>  <font color="#4169E1">if</font> dtype == 16     % integer
+<a name="line24"> 24: </a>    val = read(fd,msize,'int32');
+<a name="line25"> 25: </a>  elseif dtype == 1 % double
+<a name="line26"> 26: </a>    val = read(fd,msize,'double');
+<a name="line27"> 27: </a>  elseif dtype == 6 % char
+<a name="line28"> 28: </a>    val = deblank(char(read(fd,msize,'uchar')'));
+<a name="line29"> 29: </a>  elseif dtype == 9 % truth
+<a name="line30"> 30: </a>    val = read(fd,1,'int32');
+<a name="line31"> 31: </a>% PETSC_LOGICAL is a bit boolean and not currently handled
+<a name="line32"> 32: </a>%  elseif dtype == 7 % boolean
+<a name="line33"> 33: </a>%    val = read(fd,1,'bit1');
+<a name="line34"> 34: </a>  elseif dtype == 8 % Enum
+<a name="line35"> 35: </a>    val   = read(fd,1,'int32');
+<a name="line36"> 36: </a>    n     = read(fd,1,'int32');
+<a name="line37"> 37: </a>    sizes = read(fd,n,'int32');
+<a name="line38"> 38: </a>    enumnames = {'  '};
+<a name="line39"> 39: </a>    <font color="#4169E1">for</font> i=1:n-2,
+<a name="line40"> 40: </a>      enumnames{i} = deblank(char(read(fd,sizes(i),'uchar')));
+<a name="line41"> 41: </a>    end
+<a name="line42"> 42: </a>    val  = char(enumnames{val+1})';
+<a name="line43"> 43: </a>    enumname   = deblank(char(read(fd,sizes(n-1),'uchar')));
+<a name="line44"> 44: </a>    enumprefix = deblank(char(read(fd,sizes(n),'uchar')));
+<a name="line45"> 45: </a>  <font color="#4169E1">else</font>
+<a name="line46"> 46: </a>    val = [];
+<a name="line47"> 47: </a>    warning('Bag entry %s could not be read',name);
+<a name="line48"> 48: </a>  end
+<a name="line49"> 49: </a>  bag      = setfield(bag     ,name,val);
+<a name="line50"> 50: </a>  bag.help = setfield(bag.help,name,help);
+<a name="line51"> 51: </a>end
+<a name="line52"> 52: </a><font color="#4169E1">return</font>
+
+<a name="line54"> 54: </a>% ---------------------------------------------------- %
+<a name="line55"> 55: </a>
+<a name="line56"> 56: </a>function [n, h] = ParsePetscBagDotH
+<a name="line57"> 57: </a>
+<a name="line58"> 58: </a>   petscbagh = [GetPetscDir,'/include/petsc/private/bagimpl.h'];
+<a name="line59"> 59: </a>   fid = fopen(petscbagh,'rt');
+<a name="line60"> 60: </a>   <font color="#4169E1">if</font> (fid&lt;0)
+<a name="line61"> 61: </a>      errstr = sprintf('Could not open %s.',petscbagh);
+<a name="line62"> 62: </a>      error(errstr);
+<a name="line63"> 63: </a>   end
+<a name="line64"> 64: </a>
+<a name="line65"> 65: </a>   nametag = '#define PETSC_BAG_NAME_LENGTH';
+<a name="line66"> 66: </a>   helptag = '#define PETSC_BAG_HELP_LENGTH';
+<a name="line67"> 67: </a>   n = 0; h = 0;
+<a name="line68"> 68: </a>   <font color="#4169E1">while</font> ~feof(fid)
+<a name="line69"> 69: </a>      lin = fgetl(fid);
+<a name="line70"> 70: </a>      ni = strfind(lin,nametag);
+<a name="line71"> 71: </a>      nh = strfind(lin,helptag);
+<a name="line72"> 72: </a>      <font color="#4169E1">if</font> ni
+<a name="line73"> 73: </a>         n = str2num(lin(ni+length(nametag):end));
+<a name="line74"> 74: </a>      elseif nh
+<a name="line75"> 75: </a>         h = str2num(lin(nh+length(helptag):end));
+<a name="line76"> 76: </a>      end
+<a name="line77"> 77: </a>      <font color="#4169E1">if</font> (n&gt;0 &amp; h&gt;0) <font color="#4169E1">break</font>; end;
+<a name="line78"> 78: </a>   end
+<a name="line79"> 79: </a>   <font color="#4169E1">if</font> (n==0 | h==0)
+<a name="line80"> 80: </a>      errstr = sprintf('Could not parse %s.',petscbagh);
+<a name="line81"> 81: </a>      error(errstr);
+<a name="line82"> 82: </a>   end
+<a name="line83"> 83: </a>   fclose(fid);
+<a name="line84"> 84: </a>   <font color="#4169E1">return</font>
+<a name="line85"> 85: </a>
+<a name="line86"> 86: </a>% ---------------------------------------------------- %
+<a name="line87"> 87: </a>
+<a name="line88"> 88: </a>function str = strclean(str)
+<a name="line89"> 89: </a>
+<a name="line90"> 90: </a>   badchars = ' ()[]<>{}.-';
+<a name="line91"> 91: </a>   <font color="#4169E1">for</font> i=1:length(badchars);
+<a name="line92"> 92: </a>      str(strfind(str,badchars(i))) = '_';
+<a name="line93"> 93: </a>   end
+<a name="line94"> 94: </a>   <font color="#4169E1">return</font>
+<a name="line95"> 95: </a>
+<a name="line96"> 96: </a>% ---------------------------------------------------- %
+<a name="line97"> 97: </a>
+<a name="line98"> 98: </a>function dir = GetPetscDir
+<a name="line99"> 99: </a>
+<a name="line100">100: </a>   dir = getenv('PETSC_DIR');
+<a name="line101">101: </a>   <font color="#4169E1">if</font> length(dir)==0
+<a name="line102">102: </a>      error(['Please set environment variable PETSC_DIR' ...
+<a name="line103">103: </a>             ' and try again.'])
+<a name="line104">104: </a>   end
+<a name="line105">105: </a>   <font color="#4169E1">return</font>
+</pre>
+</body>
+
+</html>

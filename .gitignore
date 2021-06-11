@@ -1,8 +1,14 @@
-#ignore everything in this directory
-*
-#except this file
-!.gitignore
-!*.c
-!*.h
-!*.sh
-!makefile
+bin/
+build/
+output/*
+SaveData/
+viz_dir/
+
+*.bin
+*.txt
+*.log
+*.out
+*.err
+*.o
+
+.DS_Store

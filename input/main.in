@@ -1,17 +1,17 @@
 #Command line options
--output_folder output
--visualization_folder viz_dir
+-output_folder ./output
+#-output_folder ../output			//Changed by Kellen so that the program is run from parent directory, not M4/bin
 #-input_file X2900000.bin
 #
 -bc_type 0 # 0: 1st order Neumann, 1: 2nd order Neumann, 2: zero'ed 2nd derivatives, 3: Non-symmetric "exact" solution, 10: combination of df/dn=0 amd d2f/dn2=0
-#-limiters
+-limiters
 #-blockers
 #-smoothing
 #
--ts_max_steps 100000000
--viz_dstep 100000           # plot every dstep 
--ts_max_time 1e3 
-#-ts_final_time 1e2 
+-dt 1.0e-4                # Initial time step
+-ts_max_steps 1000000000  # maximum number of time steps
+-viz_dstep 3000           # plot every dstep
+-ts_max_time 36000
 #-mi0 5.3135e-26        #_kg, mass of O2+, only single charged ions allowed!
 #-mi1 5.3135e-26        #_kg, mass of O2+, only single charged ions allowed!
 #-mi2 5.3135e-26        #_kg, mass of O2+, only single charged ions allowed!
@@ -19,43 +19,47 @@
 -mi1 7.3079e-26        #_kg, mass of CO2+
 -mi2 2.6567e-26        #_kg, mass of O+
 -me 9.1093e-31         #_kg, electron mass
--WindNS 1e2            #_m/_s, x-component of neutral wind
+-WindNS 0e2            #_m/_s, x-component of neutral wind
 -WindEW 0e2            #_m/_s, y-component of neutral wind
 -WindUD 0e2            #_m/_s, z-component of neutral wind
--iWindNS 0e2          #_m/_s, initial x-component of ion wind
--iWindEW 1e2           #_m/_s, initial y-component of ion wind
+-iWindNS 0e2           #_m/_s, initial x-component of ion wind
+-iWindEW 0e2           #_m/_s, initial y-component of ion wind
 -iWindUD 0e2           #_m/_s, initial z-component of ion wind
 -ExtraDiagnostics
--B_field_type 8        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical, 7: Arcades, 8: Three lines of dipoles giving parallel arcades
--B0 1e16               #_A_m2, magnitude of the magnetic dipole moment 
--B1 -20e3              #_m, geometry parameter a
+-B_field_type 3        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical, 7: Arcades, 8: Three lines of dipoles giving parallel arcades
+-B0 0e16               #_A_m2, magnitude of the magnetic dipole moment
+-B1 0e3                #_m, geometry parameter a
 -B2 0e3                #_m, geometry parameter b
 -B3 0e3                #_m, geometry parameter c
 -Mmars 6.4185e23       #_kg, Mars' mass
 -Rmars 3396.2e3        #_m, Mars' equatorial radius
 #
 #-ts_type euler
--ts_type ssp
--ts_ssp_type rk2jar
+#-ts_type ssp
+#-ts_ssp_type rk2jar
 #-ts_ssp_type lax
 #-ts_ssp_nstages 2
 #
+-ts_ssp_type rk104
 -da_grid_x 21
 -da_grid_y 21
--da_grid_z 31
+-da_grid_z 61
+#-da_grid_x 7
+#-da_grid_y 7
+#-da_grid_z 15
 #
 #Simulation parameters
 -in_x_min -100.0e+3       #_m
 -in_x_max 100.0e+3        #_m
 -in_y_min -100.0e+3       #_m
 -in_y_max 100.0e+3        #_m
--in_z_min 80.0e+3        #_m
--in_z_max 200.0e+3        #_m
--out_x_min -400.0e+3      #_m
--out_x_max 400.0e+3       #_m
--out_y_min -400.0e+3      #_m
--out_y_max 400.0e+3       #_m
--out_z_min 100.0e+3         #_m
+-in_z_min 100.0e+3        #_m
+-in_z_max 400.0e+3        #_m
+-out_x_min -200.0e+3      #_m
+-out_x_max 200.0e+3       #_m
+-out_y_min -200.0e+3      #_m
+-out_y_max 200.0e+3       #_m
+-out_z_min 100.0e+3       #_m
 -out_z_max 400.0e+3       #_m
 
 #-vDamping 
@@ -64,9 +68,18 @@
 #-Damping_scaleheight 10.0e3 #_m
 
 #Visualization parameters
--vizbox_x_min -400.0e+3  #_m
--vizbox_x_max 400.0e+3   #_m
--vizbox_y_min -400.0e+3  #_m
--vizbox_y_max 400.0e+3   #_m
--vizbox_z_min 0.0e+3     #_m
--vizbox_z_max 10000.0e+3 #_m
+#-vizbox_x_min -1000.0e+3  #_m
+#-vizbox_x_max 1000.0e+3   #_m
+#-vizbox_y_min -500.0e+3   #_m
+#-vizbox_y_max 500.0e+3    #_m
+#-vizbox_z_min 0.0e+3      #_m
+#-vizbox_z_max 1000.0e+3   #_m
+
+#Chemistry
+-chem_switch 1   # 1: chemistry off, 1: chemistry on
+
+#Collisions
+-coll_switch 1   # 0: collisions off, 1: collisions on
+
+#Gravity
+-grav_switch 1   # 0: gravity off, 1:gravity on

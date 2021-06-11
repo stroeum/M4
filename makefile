@@ -1,67 +1,72 @@
-DATE  = `date +%Y%m%d-%H%M`
-FLAGS = -g -Wall -m64 -O1 # -wd981 -g -Werror -wd593 -Wwrite-strings -Wmissing-declarations -Wuninitialized -Wstrict-prototypes -Wmissing-prototypes -std=c99 -Wshadow
-CFLAGS = $(FLAGS)
+#!/bin/bash
+include $(PETSC_DIR)/lib/petsc/conf/variables
+include $(PETSC_DIR)/lib/petsc/conf/rules
 
-FOLDER = $(CURDIR)
-NAME = $(notdir $(CURDIR))
-MYDIR=/nv/hp5/jriousset6/data/M4/${NAME}
-NODES=1
-PPN=64
-RUNTIME=30:00:00
-PROCS= $(shell echo ${NODES}*${PPN} | bc)
+LOCALDIR := /usr/lib/petsc
 
-include ${PETSC_DIR}/conf/variables
-include ${PETSC_DIR}/conf/rules
+SRCDIR := src
+BUILDDIR := build
+TARGETDIR := bin
+TARGET1 := $(TARGETDIR)/M4
 
-#SOURCES = $(wildcard *.c)
+SRCEXT := c
 
-SOURCES = MyProfiles.c MyCollisions.c MyChemistry.c MyCtx.c MyMonitor.c MyPDEs.c
+SOURCES1 := $(wildcard $(SRCDIR)/*.$(SRCEXT))
+OBJECTS1 := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES1:.$(SRCEXT)=.o))
 
-OBJECTS = $(SOURCES:.c=.o)
+CFLAGS := -g -w -m64 -Os -Wwrite-strings -Wmissing-declarations -Wuninitialized
+COMPILER = mpicc
 
-all: $(OBJECTS) main_exe conv_exe
+LIB := \
+ 	-lpetsc -lmpi -lm -ldl -lc \
+	-L$(PETSC_DIR)/lib
 
-main_exe: main.o chkopts ${OBJECTS}
-	${CLINKER} -o main main.o ${OBJECTS} ${PETSC_LIB}
-	
-conv_exe: convert.o chkopts ${OBJECTS}
-	${CLINKER} -o convert convert.o ${OBJECTS} ${PETSC_LIB}
+INCLUDE := \
+	-Iinclude/ \
+	-I$(PETSC_DIR)/include
+
+all: $(TARGET1)
+	@echo "main srcs: $(SOURCES1)"
+	@echo "main objs: $(OBJECTS1)"
 
 run:
-	#cp ~/M4_RK.5 ~/${NAME}.sh
-	#cp ~/M4_RK.6 ~/${NAME}.sh
-	#qsub -N log${NAME} -l nodes=${NODES}:ppn=${PPN} -l walltime=${RUNTIME} -l pmem=3gb -v MYDIR=${MYDIR},MYPROCS=${PROCS} -z ~/${NAME}.sh 
-	mpirun -n 8 ./main -options_file input/main.in # > viz_dir/log.out
-	
-conv:
-	./convert -options_file input/main.in
-	
-run_help:	
-	reset
-	./main -options_file input/main.in -help
+ifeq ($(PETSC_DIR), $(LOCALDIR))
+ifdef in
+	mpiexec -np 12 -H localhost -rf ./rankfile $(TARGET1) -options_file ./input/$(in) | tee ./output/out.txt
+else
+	mpiexec -np 12 -H localhost -rf ./rankfile $(TARGET1) -options_file ./input/main.in | tee ./output/out.txt
+endif
+else
+ifdef in
+	mpiexec $(TARGET1) -mca btl_tcp_if_include eno1 -mca btl tcp,self -options_file ./input/$(in) > ./output/out.txt
+else
+	mpiexec $(TARGET1) -mca btl_tcp_if_include eno1 -mca btl tcp,self -options_file ./input/main.in > ./output/out.txt
+endif
+endif
 
-clr_pgm:
-	find .	     \( -name ".*.swp" -o -name ".nfs*"     \) -exec rm -rfv {} \;
-	find .	     \( -name "main"   -o -name "convert" -o -name "*.o" \) -exec rm -rfv {} \;
+save:
+ifdef n
+	if [ ! -d "SaveData" ]; then \
+		mkdir SaveData; \
+	fi
 
-clr_dat:
-	find .	     \( -name ".*.swp" -o -name ".nfs*"     \) -exec rm -rfv {} \;
-	find .       \( -name "*.?if*" -o -name "*.png"     \) -exec rm -rfv {} \;
-	find viz_dir \( -name "*.dat"  -o -name "*.general" \) -exec rm -rfv {} \;
-	find output  \( -name "*.dat" 			    \) -exec rm -rfv {} \;
+	mkdir SaveData/$(n)_save/
+	cp ./output/* ./SaveData/$(n)_save/
+	cp ./input/main.in ./SaveData/$(n)_save/
+else
+	@echo "You must provide a directory name n=<...>"
+endif
 
-clr_img:
-	find .	     \( -name ".*.swp" -o -name ".nfs*"     \) -exec rm -rfv {} \;
-	find .       \( -name "*.?if*" -o -name "*.png"     \) -exec rm -rfv {} \;
-	find .       \( -name "*.pdf"  -o -name "*ps" 	    \) -exec rm -rfv {} \;
+$(TARGET1): $(OBJECTS1)
+	@mkdir -p $(TARGETDIR)
+	@echo " Linking..."
+	$(COMPILER) $(OBJECTS1) -o $(TARGET1) $(PETSC_LIB) $(LIB)
 
-clear:
-	find .	     \( -name ".*.swp" -o -name ".nfs*"     		     \) -exec rm -rfv {} \;
-	find .	     \( -name "main"   -o -name "convert"   -o -name "*.o"   \) -exec rm -rfv {} \;
-	find .       \( -name "*.?if*" -o -name "*.png"     		     \) -exec rm -rfv {} \;
-	find viz_dir \( -name "*.dat"  -o -name "*.general" 		     \) -exec rm -rfv {} \;
-	find output  \( -name "*.bin*" -o -name "*.dat"     -o -name "*.out" \) -exec rm -rfv {} \;
-	rm -rfv  ~/${NAME}.sh ~/log${NAME}.*
+$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
+	@echo $(PETSC_DIR)
+	@mkdir -p $(BUILDDIR)
+	$(COMPILER) $(CFLAGS) $(INCLUDE) -c -o $@ $<
 
-stop:
-	sh scripts/stop.sh
+clean_data:
+	@echo " Cleaning...";
+	$(RM) -r $(BUILDDIR) $(TARGETDIR) output/*

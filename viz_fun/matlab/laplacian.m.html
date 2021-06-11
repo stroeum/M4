@@ -1,0 +1,500 @@
+<center><a href="laplacian.m">Actual source code: laplacian.m</a></center><br>
+
+<html>
+<head> <link rel="canonical" href="http://www.mcs.anl.gov/petsc/petsc-current/share/petsc/matlab/laplacian.m.html" />
+<title></title>
+<meta name="generator" content="c2html 0.9.4">
+<meta name="date" content="2020-02-04T17:38:32+00:00">
+</head>
+
+<body bgcolor="#FFFFFF">
+   <div id="version" align=right><b>petsc-3.12.4 2020-02-04</b></div>
+   <div id="bugreport" align=right><a href="mailto:petsc-maint@mcs.anl.gov?subject=Typo or Error in Documentation &body=Please describe the typo or error in the documentation: petsc-3.12.4 v3.12.4 share/petsc/matlab/laplacian.m.html "><small>Report Typos and Errors</small></a></div>
+<pre width="80">
+<a name="line1">  1: </a>function [lambda, V, A] = laplacian(varargin)
+
+<a name="line3">  3: </a>% LAPLACIAN   Sparse Negative Laplacian in 1D, 2D, or 3D
+<a name="line4">  4: </a>%
+<a name="line5">  5: </a>%    [~,~,A]=LAPLACIAN(N) generates a sparse negative 3D Laplacian matrix
+<a name="line6">  6: </a>%    with Dirichlet boundary conditions, from a rectangular cuboid regular
+<a name="line7">  7: </a>%    grid with j x k x l interior grid points <font color="#4169E1">if</font> N = [j k l], using the
+<a name="line8">  8: </a>%    standard 7-point finite-difference scheme,  The grid size is always
+<a name="line9">  9: </a>%    one in all directions.
+<a name="line10"> 10: </a>%
+<a name="line11"> 11: </a>%    [~,~,A]=LAPLACIAN(N,B) specifies boundary conditions with a cell array
+<a name="line12"> 12: </a>%    B. For example, B = {'DD' 'DN' 'P'} will Dirichlet boundary conditions
+<a name="line13"> 13: </a>%    ('DD') in the x-direction, Dirichlet-Neumann conditions ('DN') in the
+<a name="line14"> 14: </a>%    y-direction and period conditions ('P') in the z-direction. Possible
+<a name="line15"> 15: </a>%    values <font color="#4169E1">for</font> the elements of B are 'DD', 'DN', 'ND', 'NN' and 'P'.
+<a name="line16"> 16: </a>%
+<a name="line17"> 17: </a>%    LAMBDA = LAPLACIAN(N,B,M) or LAPLACIAN(N,M) outputs the m smallest
+<a name="line18"> 18: </a>%    eigenvalues of the matrix, computed by an exact known formula, see
+<a name="line19"> 19: </a>%    http://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors_of_the_second_derivative
+<a name="line20"> 20: </a>%    It will produce a warning <font color="#4169E1">if</font> the mth eigenvalue is equal to the
+<a name="line21"> 21: </a>%    (m+1)th eigenvalue. If m is absebt or zero, lambda will be empty.
+<a name="line22"> 22: </a>%
+<a name="line23"> 23: </a>%    [LAMBDA,V] = LAPLACIAN(N,B,M) also outputs orthonormal eigenvectors
+<a name="line24"> 24: </a>%    associated with the corresponding m smallest eigenvalues.
+<a name="line25"> 25: </a>%
+<a name="line26"> 26: </a>%    [LAMBDA,V,A] = LAPLACIAN(N,B,M) produces a 2D or 1D negative
+<a name="line27"> 27: </a>%    Laplacian matrix <font color="#4169E1">if</font> the length of N and B are 2 or 1 respectively.
+<a name="line28"> 28: </a>%    It uses the standard 5-point scheme <font color="#4169E1">for</font> 2D, and 3-point scheme <font color="#4169E1">for</font> 1D.
+<a name="line29"> 29: </a>%
+<a name="line30"> 30: </a>%    % Examples:
+<a name="line31"> 31: </a>%    [lambda,V,A] = laplacian([100,45,55],{'DD' 'NN' 'P'}, 20);
+<a name="line32"> 32: </a>%    % Everything <font color="#4169E1">for</font> 3D negative Laplacian with mixed boundary conditions.
+<a name="line33"> 33: </a>%    laplacian([100,45,55],{'DD' 'NN' 'P'}, 20);
+<a name="line34"> 34: </a>%    % or
+<a name="line35"> 35: </a>%    lambda = laplacian([100,45,55],{'DD' 'NN' 'P'}, 20);
+<a name="line36"> 36: </a>%    % computes the eigenvalues only
+<a name="line37"> 37: </a>%
+<a name="line38"> 38: </a>%    [~,V,~] = laplacian([200 200],{'DD' 'DN'},30);
+<a name="line39"> 39: </a>%    % Eigenvectors of 2D negative Laplacian with mixed boundary conditions.
+<a name="line40"> 40: </a>%
+<a name="line41"> 41: </a>%    [~,~,A] = laplacian(200,{'DN'},30);
+<a name="line42"> 42: </a>%    % 1D negative Laplacian matrix A with mixed boundary conditions.
+<a name="line43"> 43: </a>%
+<a name="line44"> 44: </a>%    % Example to test <font color="#4169E1">if</font> outputs correct eigenvalues and vectors:
+<a name="line45"> 45: </a>%    [lambda,V,A] = laplacian([13,10,6],{'DD' 'DN' 'P'},30);
+<a name="line46"> 46: </a>%    [Veig D] = eig(full(A)); lambdaeig = diag(D(1:30,1:30));
+<a name="line47"> 47: </a>%    max(abs(lambda-lambdaeig))  %checking eigenvalues
+<a name="line48"> 48: </a>%    subspace(V,Veig(:,1:30))    %checking the invariant subspace
+<a name="line49"> 49: </a>%    subspace(V(:,1),Veig(:,1))  %checking selected eigenvectors
+<a name="line50"> 50: </a>%    subspace(V(:,29:30),Veig(:,29:30)) %a multiple eigenvalue
+<a name="line51"> 51: </a>%
+<a name="line52"> 52: </a>%    % Example showing equivalence between laplacian.m and built-in MATLAB
+<a name="line53"> 53: </a>%    % DELSQ <font color="#4169E1">for</font> the 2D <font color="#4169E1">case</font>. The output of the last command shall be 0.
+<a name="line54"> 54: </a>%    A1 = delsq(numgrid('S',32)); % input 'S' specifies square grid.
+<a name="line55"> 55: </a>%    [~,~,A2] = laplacian([30,30]);
+<a name="line56"> 56: </a>%    norm(A1-A2,inf)
+<a name="line57"> 57: </a>%
+<a name="line58"> 58: </a>%    Class support <font color="#4169E1">for</font> inputs:
+<a name="line59"> 59: </a>%    N - row vector float double
+<a name="line60"> 60: </a>%    B - cell array
+<a name="line61"> 61: </a>%    M - scalar float double
+<a name="line62"> 62: </a>%
+<a name="line63"> 63: </a>%    Class support <font color="#4169E1">for</font> outputs:
+<a name="line64"> 64: </a>%    lambda and V  - full float double, A - sparse float double.
+<a name="line65"> 65: </a>%
+<a name="line66"> 66: </a>%    Note: the actual numerical entries of A fit int8 format, but only
+<a name="line67"> 67: </a>%    double data class is currently (2010) supported <font color="#4169E1">for</font> sparse matrices.
+<a name="line68"> 68: </a>%
+<a name="line69"> 69: </a>%    This program is designed to efficiently compute eigenvalues,
+<a name="line70"> 70: </a>%    eigenvectors, and the sparse matrix of the (1-3)D negative Laplacian
+<a name="line71"> 71: </a>%    on a rectangular grid <font color="#4169E1">for</font> Dirichlet, Neumann, and Periodic boundary
+<a name="line72"> 72: </a>%    conditions using tensor sums of 1D Laplacians. For more information on
+<a name="line73"> 73: </a>%    tensor products, see
+<a name="line74"> 74: </a>%    http://en.wikipedia.org/wiki/Kronecker_sum_of_discrete_Laplacians
+<a name="line75"> 75: </a>%    For 2D <font color="#4169E1">case</font> in MATLAB, see
+<a name="line76"> 76: </a>%    http://www.mathworks.com/access/helpdesk/help/techdoc/ref/kron.html.
+<a name="line77"> 77: </a>%
+<a name="line78"> 78: </a>%    This code is a part of the BLOPEX package:
+<a name="line79"> 79: </a>%    http://en.wikipedia.org/wiki/BLOPEX or directly
+<a name="line80"> 80: </a>%    http://code.google.com/p/blopex/
+
+<a name="line82"> 82: </a>%    Revision 1.1 changes: rearranged the output variables, always compute
+<a name="line83"> 83: </a>%    the eigenvalues, compute eigenvectors and/or the matrix on demand only.
+
+<a name="line85"> 85: </a>%    License: BSD
+<a name="line86"> 86: </a>%    Copyright 2010-2011 Bryan C. Smith, Andrew V. Knyazev
+<a name="line87"> 87: </a>%    $Revision: 1.1 $ $Date: 1-Aug-2011
+<a name="line88"> 88: </a>%    Tested in MATLAB 7.11.0 (R2010b) and Octave 3.4.0.
+
+<a name="line90"> 90: </a>tic
+
+<a name="line92"> 92: </a>% Input/Output handling.
+<a name="line93"> 93: </a><font color="#4169E1">if</font> nargin &gt; 3
+<a name="line94"> 94: </a>    error('BLOPEX:laplacian:TooManyInputs',...
+<a name="line95"> 95: </a>        '%s','Too many input arguments.');
+<a name="line96"> 96: </a>elseif nargin == 0
+<a name="line97"> 97: </a>    error('BLOPEX:laplacian:NoInputArguments',...
+<a name="line98"> 98: </a>        '%s','Must have at least one input argument.');
+<a name="line99"> 99: </a>end
+
+<a name="line101">101: </a><font color="#4169E1">if</font> nargout &gt; 3
+<a name="line102">102: </a>    error('BLOPEX:laplacian:TooManyOutputs',...
+<a name="line103">103: </a>        '%s','Maximum number of outputs is 3.');
+<a name="line104">104: </a>end
+
+<a name="line106">106: </a>u = varargin{1};
+<a name="line107">107: </a>dim2 = size(u);
+<a name="line108">108: </a><font color="#4169E1">if</font> dim2(1) ~= 1
+<a name="line109">109: </a>    error('BLOPEX:laplacian:WrongVectorOfGridPoints',...
+<a name="line110">110: </a>        '%s','Number of grid points must be in a row vector.')
+<a name="line111">111: </a>end
+<a name="line112">112: </a><font color="#4169E1">if</font> dim2(2) &gt; 3
+<a name="line113">113: </a>    error('BLOPEX:laplacian:WrongNumberOfGridPoints',...
+<a name="line114">114: </a>        '%s','Number of grid points must be a 1, 2, or 3')
+<a name="line115">115: </a>end
+<a name="line116">116: </a>dim=dim2(2); clear dim2;
+
+<a name="line118">118: </a>uint = round(u);
+<a name="line119">119: </a><font color="#4169E1">if</font> max(uint~=u)
+<a name="line120">120: </a>    warning('BLOPEX:laplacian:NonIntegerGridSize',...
+<a name="line121">121: </a>        '%s','Grid sizes must be integers. Rounding...');
+<a name="line122">122: </a>    u = uint; clear uint
+<a name="line123">123: </a>end
+<a name="line124">124: </a><font color="#4169E1">if</font> max(u&lt;=0 )
+<a name="line125">125: </a>    error('BLOPEX:laplacian:NonIntegerGridSize',...
+<a name="line126">126: </a>        '%s','Grid sizes must be positive.');
+<a name="line127">127: </a>end
+
+<a name="line129">129: </a><font color="#4169E1">if</font> nargin == 3
+<a name="line130">130: </a>    m = varargin{3};
+<a name="line131">131: </a>    B = varargin{2};
+<a name="line132">132: </a>elseif nargin == 2
+<a name="line133">133: </a>    f = varargin{2};
+<a name="line134">134: </a>    a = whos('regep','f');
+<a name="line135">135: </a>    <font color="#4169E1">if</font> sum(a.class(1:4)=='cell') == 4
+<a name="line136">136: </a>        B = f;
+<a name="line137">137: </a>        m = 0;
+<a name="line138">138: </a>    elseif sum(a.class(1:4)=='doub') == 4
+<a name="line139">139: </a>        <font color="#4169E1">if</font> dim == 1
+<a name="line140">140: </a>            B = {'DD'};
+<a name="line141">141: </a>        elseif dim == 2
+<a name="line142">142: </a>            B = {'DD' 'DD'};
+<a name="line143">143: </a>        <font color="#4169E1">else</font>
+<a name="line144">144: </a>            B = {'DD' 'DD' 'DD'};
+<a name="line145">145: </a>        end
+<a name="line146">146: </a>        m = f;
+<a name="line147">147: </a>    <font color="#4169E1">else</font>
+<a name="line148">148: </a>        error('BLOPEX:laplacian:InvalidClass',...
+<a name="line149">149: </a>            '%s','Second input must be either class double or a cell array.');
+<a name="line150">150: </a>    end
+<a name="line151">151: </a><font color="#4169E1">else</font>
+<a name="line152">152: </a>    <font color="#4169E1">if</font> dim == 1
+<a name="line153">153: </a>        B = {'DD'};
+<a name="line154">154: </a>    elseif dim == 2
+<a name="line155">155: </a>        B = {'DD' 'DD'};
+<a name="line156">156: </a>    <font color="#4169E1">else</font>
+<a name="line157">157: </a>        B = {'DD' 'DD' 'DD'};
+<a name="line158">158: </a>    end
+<a name="line159">159: </a>    m = 0;
+<a name="line160">160: </a><strong><font color="#4169E1"><a name="max"></a>end</font></strong>
+
+<a name="line162">162: </a><strong><font color="#4169E1">if max(size(m)</font></strong> - [1 1]) ~= 0
+<a name="line163">163: </a>    error('BLOPEX:laplacian:WrongNumberOfEigenvalues',...
+<a name="line164">164: </a>        '%s','The requested number of eigenvalues must be a scalar.');
+<a name="line165">165: </a>end
+
+<a name="line167">167: </a>maxeigs = prod(u);
+<a name="line168">168: </a>mint = round(m);
+<a name="line169">169: </a><font color="#4169E1">if</font> mint ~= m || mint &gt; maxeigs
+<a name="line170">170: </a>    error('BLOPEX:laplacian:InvalidNumberOfEigs',...
+<a name="line171">171: </a>        '%s','Number of eigenvalues output must be a nonnegative ',...
+<a name="line172">172: </a>        'integer no bigger than number of grid points.');
+<a name="line173">173: </a>end
+<a name="line174">174: </a>m = mint;
+
+<a name="line176">176: </a>bdryerr = 0;
+<a name="line177">177: </a>a = whos('regep','B');
+<a name="line178">178: </a><font color="#4169E1">if</font> sum(a.class(1:4)=='cell') ~= 4 || sum(a.size == [1 dim]) ~= 2
+<a name="line179">179: </a>    bdryerr = 1;
+<a name="line180">180: </a><font color="#4169E1">else</font>
+<a name="line181">181: </a>    BB = zeros(1, 2*dim);
+<a name="line182">182: </a>    <font color="#4169E1">for</font> i = 1:dim
+<a name="line183">183: </a>        <font color="#4169E1">if</font> (length(B{i}) == 1)
+<a name="line184">184: </a>            <font color="#4169E1">if</font> B{i} == 'P'
+<a name="line185">185: </a>                BB(i) = 3;
+<a name="line186">186: </a>                BB(i + dim) = 3;
+<a name="line187">187: </a>            <font color="#4169E1">else</font>
+<a name="line188">188: </a>                bdryerr = 1;
+<a name="line189">189: </a>            end
+<a name="line190">190: </a>        elseif (length(B{i}) == 2)
+<a name="line191">191: </a>            <font color="#4169E1">if</font> B{i}(1) == 'D'
+<a name="line192">192: </a>                BB(i) = 1;
+<a name="line193">193: </a>            elseif B{i}(1) == 'N'
+<a name="line194">194: </a>                BB(i) = 2;
+<a name="line195">195: </a>            <font color="#4169E1">else</font>
+<a name="line196">196: </a>                bdryerr = 1;
+<a name="line197">197: </a>            end
+<a name="line198">198: </a>            <font color="#4169E1">if</font> B{i}(2) == 'D'
+<a name="line199">199: </a>                BB(i + dim) = 1;
+<a name="line200">200: </a>            elseif B{i}(2) == 'N'
+<a name="line201">201: </a>                BB(i + dim) = 2;
+<a name="line202">202: </a>            <font color="#4169E1">else</font>
+<a name="line203">203: </a>                bdryerr = 1;
+<a name="line204">204: </a>            end
+<a name="line205">205: </a>        <font color="#4169E1">else</font>
+<a name="line206">206: </a>            bdryerr = 1;
+<a name="line207">207: </a>        end
+<a name="line208">208: </a>    end
+<a name="line209">209: </a>end
+
+<a name="line211">211: </a><font color="#4169E1">if</font> bdryerr == 1
+<a name="line212">212: </a>    error('BLOPEX:laplacian:InvalidBdryConds',...
+<a name="line213">213: </a>        '%s','Boundary conditions must be a cell of length 3 for 3D, 2',...
+<a name="line214">214: </a>        ' for 2D, 1 for 1D, with values ''DD'', ''DN'', ''ND'', ''NN''',...
+<a name="line215">215: </a>        ', or ''P''.');
+<a name="line216">216: </a>end
+
+<a name="line218">218: </a>% Set the component matrices. SPDIAGS converts int8 into double anyway.
+<a name="line219">219: </a>e1 = ones(u(1),1); %e1 = ones(u(1),1,'int8');
+<a name="line220">220: </a><font color="#4169E1">if</font> dim &gt; 1
+<a name="line221">221: </a>    e2 = ones(u(2),1);
+<a name="line222">222: </a>end
+<a name="line223">223: </a><font color="#4169E1">if</font> dim &gt; 2
+<a name="line224">224: </a>    e3 = ones(u(3),1);
+<a name="line225">225: </a>end
+
+<a name="line227">227: </a>% Calculate m smallest exact eigenvalues.
+<a name="line228">228: </a><font color="#4169E1">if</font> m &gt; 0
+<a name="line229">229: </a>    <font color="#4169E1">if</font> (BB(1) == 1) &amp;&amp; (BB(1+dim) == 1)
+<a name="line230">230: </a>        a1 = pi/2/(u(1)+1);
+<a name="line231">231: </a>        N = (1:u(1))';
+<a name="line232">232: </a>    elseif (BB(1) == 2) &amp;&amp; (BB(1+dim) == 2)
+<a name="line233">233: </a>        a1 = pi/2/u(1);
+<a name="line234">234: </a>        N = (0:(u(1)-1))';
+<a name="line235">235: </a>    elseif ((BB(1) == 1) &amp;&amp; (BB(1+dim) == 2)) || ((BB(1) == 2)...
+<a name="line236">236: </a>            &amp;&amp; (BB(1+dim) == 1))
+<a name="line237">237: </a>        a1 = pi/4/(u(1)+0.5);
+<a name="line238">238: </a>        N = 2*(1:u(1))' - 1;
+<a name="line239">239: </a>    <font color="#4169E1">else</font>
+<a name="line240">240: </a>        a1 = pi/u(1);
+<a name="line241">241: </a>        N = floor((1:u(1))/2)';
+<a name="line242">242: </a>    end
+<a name="line243">243: </a>
+<a name="line244">244: </a>    lambda1 = 4*sin(a1*N).^2;
+<a name="line245">245: </a>
+<a name="line246">246: </a>    <font color="#4169E1">if</font> dim &gt; 1
+<a name="line247">247: </a>        <font color="#4169E1">if</font> (BB(2) == 1) &amp;&amp; (BB(2+dim) == 1)
+<a name="line248">248: </a>            a2 = pi/2/(u(2)+1);
+<a name="line249">249: </a>            N = (1:u(2))';
+<a name="line250">250: </a>        elseif (BB(2) == 2) &amp;&amp; (BB(2+dim) == 2)
+<a name="line251">251: </a>            a2 = pi/2/u(2);
+<a name="line252">252: </a>            N = (0:(u(2)-1))';
+<a name="line253">253: </a>        elseif ((BB(2) == 1) &amp;&amp; (BB(2+dim) == 2)) || ((BB(2) == 2)...
+<a name="line254">254: </a>                &amp;&amp; (BB(2+dim) == 1))
+<a name="line255">255: </a>            a2 = pi/4/(u(2)+0.5);
+<a name="line256">256: </a>            N = 2*(1:u(2))' - 1;
+<a name="line257">257: </a>        <font color="#4169E1">else</font>
+<a name="line258">258: </a>            a2 = pi/u(2);
+<a name="line259">259: </a>            N = floor((1:u(2))/2)';
+<a name="line260">260: </a>        end
+<a name="line261">261: </a>        lambda2 = 4*sin(a2*N).^2;
+<a name="line262">262: </a>    <font color="#4169E1">else</font>
+<a name="line263">263: </a>        lambda2 = 0;
+<a name="line264">264: </a>    end
+<a name="line265">265: </a>
+<a name="line266">266: </a>    <font color="#4169E1">if</font> dim &gt; 2
+<a name="line267">267: </a>        <font color="#4169E1">if</font> (BB(3) == 1) &amp;&amp; (BB(6) == 1)
+<a name="line268">268: </a>            a3 = pi/2/(u(3)+1);
+<a name="line269">269: </a>            N = (1:u(3))';
+<a name="line270">270: </a>        elseif (BB(3) == 2) &amp;&amp; (BB(6) == 2)
+<a name="line271">271: </a>            a3 = pi/2/u(3);
+<a name="line272">272: </a>            N = (0:(u(3)-1))';
+<a name="line273">273: </a>        elseif ((BB(3) == 1) &amp;&amp; (BB(6) == 2)) || ((BB(3) == 2)...
+<a name="line274">274: </a>                &amp;&amp; (BB(6) == 1))
+<a name="line275">275: </a>            a3 = pi/4/(u(3)+0.5);
+<a name="line276">276: </a>            N = 2*(1:u(3))' - 1;
+<a name="line277">277: </a>        <font color="#4169E1">else</font>
+<a name="line278">278: </a>            a3 = pi/u(3);
+<a name="line279">279: </a>            N = floor((1:u(3))/2)';
+<a name="line280">280: </a>        end
+<a name="line281">281: </a>        lambda3 = 4*sin(a3*N).^2;
+<a name="line282">282: </a>    <font color="#4169E1">else</font>
+<a name="line283">283: </a>        lambda3 = 0;
+<a name="line284">284: </a>    end
+<a name="line285">285: </a>
+<a name="line286">286: </a>    <font color="#4169E1">if</font> dim == 1
+<a name="line287">287: </a>        lambda = lambda1;
+<a name="line288">288: </a>    elseif dim == 2
+<a name="line289">289: </a>        lambda = kron(e2,lambda1) + kron(lambda2, e1);
+<a name="line290">290: </a>    <font color="#4169E1">else</font>
+<a name="line291">291: </a>        lambda = kron(e3,kron(e2,lambda1)) + kron(e3,kron(lambda2,e1))...
+<a name="line292">292: </a>            + kron(lambda3,kron(e2,e1));
+<a name="line293">293: </a>    end
+<a name="line294">294: </a>    [lambda, p] = sort(lambda);
+<a name="line295">295: </a>    <font color="#4169E1">if</font> m &lt; maxeigs - 0.1
+<a name="line296">296: </a>        w = lambda(m+1);
+<a name="line297">297: </a>    <font color="#4169E1">else</font>
+<a name="line298">298: </a>        w = inf;
+<a name="line299">299: </a>    end
+<a name="line300">300: </a>    lambda = lambda(1:m);
+<a name="line301">301: </a>    p = p(1:m)';
+<a name="line302">302: </a><font color="#4169E1">else</font>
+<a name="line303">303: </a>    lambda = [];
+<a name="line304">304: </a>end
+
+<a name="line306">306: </a>V = [];
+<a name="line307">307: </a><font color="#4169E1">if</font> nargout &gt; 1 &amp;&amp; m &gt; 0 % Calculate eigenvectors <font color="#4169E1">if</font> specified in output.
+<a name="line308">308: </a>
+<a name="line309">309: </a>    p1 = mod(p-1,u(1))+1;
+<a name="line310">310: </a>
+<a name="line311">311: </a>    <font color="#4169E1">if</font> (BB(1) == 1) &amp;&amp; (BB(1+dim) == 1)
+<a name="line312">312: </a>        V1 = sin(kron((1:u(1))'*(pi/(u(1)+1)),p1))*(2/(u(1)+1))^0.5;
+<a name="line313">313: </a>    elseif (BB(1) == 2) &amp;&amp; (BB(1+dim) == 2)
+<a name="line314">314: </a>        V1 = cos(kron((0.5:1:u(1)-0.5)'*(pi/u(1)),p1-1))*(2/u(1))^0.5;
+<a name="line315">315: </a>        V1(:,p1==1) = 1/u(1)^0.5;
+<a name="line316">316: </a>    elseif ((BB(1) == 1) &amp;&amp; (BB(1+dim) == 2))
+<a name="line317">317: </a>        V1 = sin(kron((1:u(1))'*(pi/2/(u(1)+0.5)),2*p1 - 1))...
+<a name="line318">318: </a>            *(2/(u(1)+0.5))^0.5;
+<a name="line319">319: </a>    elseif ((BB(1) == 2) &amp;&amp; (BB(1+dim) == 1))
+<a name="line320">320: </a>        V1 = cos(kron((0.5:1:u(1)-0.5)'*(pi/2/(u(1)+0.5)),2*p1 - 1))...
+<a name="line321">321: </a>            *(2/(u(1)+0.5))^0.5;
+<a name="line322">322: </a>    <font color="#4169E1">else</font>
+<a name="line323">323: </a>        V1 = zeros(u(1),m);
+<a name="line324">324: </a>        a = (0.5:1:u(1)-0.5)';
+<a name="line325">325: </a>        V1(:,mod(p1,2)==1) = cos(a*(pi/u(1)*(p1(mod(p1,2)==1)-1)))...
+<a name="line326">326: </a>            *(2/u(1))^0.5;
+<a name="line327">327: </a>        pp = p1(mod(p1,2)==0);
+<a name="line328">328: </a>        <font color="#4169E1">if</font> ~isempty(pp)
+<a name="line329">329: </a>            V1(:,mod(p1,2)==0) = sin(a*(pi/u(1)*p1(mod(p1,2)==0)))...
+<a name="line330">330: </a>                *(2/u(1))^0.5;
+<a name="line331">331: </a>        end
+<a name="line332">332: </a>        V1(:,p1==1) = 1/u(1)^0.5;
+<a name="line333">333: </a>        <font color="#4169E1">if</font> mod(u(1),2) == 0
+<a name="line334">334: </a>            V1(:,p1==u(1)) = V1(:,p1==u(1))/2^0.5;
+<a name="line335">335: </a>        end
+<a name="line336">336: </a>    end
+<a name="line337">337: </a>
+<a name="line338">338: </a>
+<a name="line339">339: </a>    <font color="#4169E1">if</font> dim &gt; 1
+<a name="line340">340: </a>        p2 = mod(p-p1,u(1)*u(2));
+<a name="line341">341: </a>        p3 = (p - p2 - p1)/(u(1)*u(2)) + 1;
+<a name="line342">342: </a>        p2 = p2/u(1) + 1;
+<a name="line343">343: </a>        <font color="#4169E1">if</font> (BB(2) == 1) &amp;&amp; (BB(2+dim) == 1)
+<a name="line344">344: </a>            V2 = sin(kron((1:u(2))'*(pi/(u(2)+1)),p2))*(2/(u(2)+1))^0.5;
+<a name="line345">345: </a>        elseif (BB(2) == 2) &amp;&amp; (BB(2+dim) == 2)
+<a name="line346">346: </a>            V2 = cos(kron((0.5:1:u(2)-0.5)'*(pi/u(2)),p2-1))*(2/u(2))^0.5;
+<a name="line347">347: </a>            V2(:,p2==1) = 1/u(2)^0.5;
+<a name="line348">348: </a>        elseif ((BB(2) == 1) &amp;&amp; (BB(2+dim) == 2))
+<a name="line349">349: </a>            V2 = sin(kron((1:u(2))'*(pi/2/(u(2)+0.5)),2*p2 - 1))...
+<a name="line350">350: </a>                *(2/(u(2)+0.5))^0.5;
+<a name="line351">351: </a>        elseif ((BB(2) == 2) &amp;&amp; (BB(2+dim) == 1))
+<a name="line352">352: </a>            V2 = cos(kron((0.5:1:u(2)-0.5)'*(pi/2/(u(2)+0.5)),2*p2 - 1))...
+<a name="line353">353: </a>                *(2/(u(2)+0.5))^0.5;
+<a name="line354">354: </a>        <font color="#4169E1">else</font>
+<a name="line355">355: </a>            V2 = zeros(u(2),m);
+<a name="line356">356: </a>            a = (0.5:1:u(2)-0.5)';
+<a name="line357">357: </a>            V2(:,mod(p2,2)==1) = cos(a*(pi/u(2)*(p2(mod(p2,2)==1)-1)))...
+<a name="line358">358: </a>                *(2/u(2))^0.5;
+<a name="line359">359: </a>            pp = p2(mod(p2,2)==0);
+<a name="line360">360: </a>            <font color="#4169E1">if</font> ~isempty(pp)
+<a name="line361">361: </a>                V2(:,mod(p2,2)==0) = sin(a*(pi/u(2)*p2(mod(p2,2)==0)))...
+<a name="line362">362: </a>                    *(2/u(2))^0.5;
+<a name="line363">363: </a>            end
+<a name="line364">364: </a>            V2(:,p2==1) = 1/u(2)^0.5;
+<a name="line365">365: </a>            <font color="#4169E1">if</font> mod(u(2),2) == 0
+<a name="line366">366: </a>                V2(:,p2==u(2)) = V2(:,p2==u(2))/2^0.5;
+<a name="line367">367: </a>            end
+<a name="line368">368: </a>        end
+<a name="line369">369: </a>    <font color="#4169E1">else</font>
+<a name="line370">370: </a>        V2 = ones(1,m);
+<a name="line371">371: </a>    end
+<a name="line372">372: </a>
+<a name="line373">373: </a>    <font color="#4169E1">if</font> dim &gt; 2
+<a name="line374">374: </a>        <font color="#4169E1">if</font> (BB(3) == 1) &amp;&amp; (BB(3+dim) == 1)
+<a name="line375">375: </a>            V3 = sin(kron((1:u(3))'*(pi/(u(3)+1)),p3))*(2/(u(3)+1))^0.5;
+<a name="line376">376: </a>        elseif (BB(3) == 2) &amp;&amp; (BB(3+dim) == 2)
+<a name="line377">377: </a>            V3 = cos(kron((0.5:1:u(3)-0.5)'*(pi/u(3)),p3-1))*(2/u(3))^0.5;
+<a name="line378">378: </a>            V3(:,p3==1) = 1/u(3)^0.5;
+<a name="line379">379: </a>        elseif ((BB(3) == 1) &amp;&amp; (BB(3+dim) == 2))
+<a name="line380">380: </a>            V3 = sin(kron((1:u(3))'*(pi/2/(u(3)+0.5)),2*p3 - 1))...
+<a name="line381">381: </a>                *(2/(u(3)+0.5))^0.5;
+<a name="line382">382: </a>        elseif ((BB(3) == 2) &amp;&amp; (BB(3+dim) == 1))
+<a name="line383">383: </a>            V3 = cos(kron((0.5:1:u(3)-0.5)'*(pi/2/(u(3)+0.5)),2*p3 - 1))...
+<a name="line384">384: </a>                *(2/(u(3)+0.5))^0.5;
+<a name="line385">385: </a>        <font color="#4169E1">else</font>
+<a name="line386">386: </a>            V3 = zeros(u(3),m);
+<a name="line387">387: </a>            a = (0.5:1:u(3)-0.5)';
+<a name="line388">388: </a>            V3(:,mod(p3,2)==1) = cos(a*(pi/u(3)*(p3(mod(p3,2)==1)-1)))...
+<a name="line389">389: </a>                *(2/u(3))^0.5;
+<a name="line390">390: </a>            pp = p1(mod(p3,2)==0);
+<a name="line391">391: </a>            <font color="#4169E1">if</font> ~isempty(pp)
+<a name="line392">392: </a>                V3(:,mod(p3,2)==0) = sin(a*(pi/u(3)*p3(mod(p3,2)==0)))...
+<a name="line393">393: </a>                    *(2/u(3))^0.5;
+<a name="line394">394: </a>            end
+<a name="line395">395: </a>            V3(:,p3==1) = 1/u(3)^0.5;
+<a name="line396">396: </a>            <font color="#4169E1">if</font> mod(u(3),2) == 0
+<a name="line397">397: </a>                V3(:,p3==u(3)) = V3(:,p3==u(3))/2^0.5;
+<a name="line398">398: </a>            end
+<a name="line399">399: </a>
+<a name="line400">400: </a>        end
+<a name="line401">401: </a>    <font color="#4169E1">else</font>
+<a name="line402">402: </a>        V3 = ones(1,m);
+<a name="line403">403: </a>    end
+<a name="line404">404: </a>
+<a name="line405">405: </a>    <font color="#4169E1">if</font> dim == 1
+<a name="line406">406: </a>        V = V1;
+<a name="line407">407: </a>    elseif dim == 2
+<a name="line408">408: </a>        V = kron(e2,V1).*kron(V2,e1);
+<a name="line409">409: </a>    <font color="#4169E1">else</font>
+<a name="line410">410: </a>        V = kron(e3, kron(e2, V1)).*kron(e3, kron(V2, e1))...
+<a name="line411">411: </a>            .*kron(kron(V3,e2),e1);
+<a name="line412">412: </a>    end
+<a name="line413">413: </a>
+<a name="line414">414: </a>    <font color="#4169E1">if</font> m ~= 0
+<a name="line415">415: </a>        <font color="#4169E1">if</font> abs(lambda(m) - w) &lt; maxeigs*eps('double')
+<a name="line416">416: </a>            sprintf('\n%s','Warning: (m+1)th eigenvalue is  nearly equal',...
+<a name="line417">417: </a>                ' to mth.')
+<a name="line418">418: </a>
+<a name="line419">419: </a>        end
+<a name="line420">420: </a>    end
+<a name="line421">421: </a>
+<a name="line422">422: </a>end
+
+<a name="line424">424: </a>A = [];
+<a name="line425">425: </a><font color="#4169E1">if</font> nargout &gt; 2 %also calulate the matrix <font color="#4169E1">if</font> specified in the output
+<a name="line426">426: </a>
+<a name="line427">427: </a>    % Set the component matrices. SPDIAGS converts int8 into double anyway.
+<a name="line428">428: </a>    %    e1 = ones(u(1),1); %e1 = ones(u(1),1,'int8');
+<a name="line429">429: </a>    D1x = spdiags([-e1 2*e1 -e1], [-1 0 1], u(1),u(1));
+<a name="line430">430: </a>    <font color="#4169E1">if</font> dim &gt; 1
+<a name="line431">431: </a>        %        e2 = ones(u(2),1);
+<a name="line432">432: </a>        D1y = spdiags([-e2 2*e2 -e2], [-1 0 1], u(2),u(2));
+<a name="line433">433: </a>    end
+<a name="line434">434: </a>    <font color="#4169E1">if</font> dim &gt; 2
+<a name="line435">435: </a>        %        e3 = ones(u(3),1);
+<a name="line436">436: </a>        D1z = spdiags([-e3 2*e3 -e3], [-1 0 1], u(3),u(3));
+<a name="line437">437: </a>    end
+<a name="line438">438: </a>
+<a name="line439">439: </a>
+<a name="line440">440: </a>    % Set boundary conditions <font color="#4169E1">if</font> other than Dirichlet.
+<a name="line441">441: </a>    <font color="#4169E1">for</font> i = 1:dim
+<a name="line442">442: </a>        <font color="#4169E1">if</font> BB(i) == 2
+<a name="line443">443: </a>            eval(['D1' char(119 + i) '(1,1) = 1;'])
+<a name="line444">444: </a>        elseif BB(i) == 3
+<a name="line445">445: </a>            eval(['D1' char(119 + i) '(1,' num2str(u(i)) ') = D1'...
+<a name="line446">446: </a>                char(119 + i) '(1,' num2str(u(i)) ') -1;']);
+<a name="line447">447: </a>            eval(['D1' char(119 + i) '(' num2str(u(i)) ',1) = D1'...
+<a name="line448">448: </a>                char(119 + i) '(' num2str(u(i)) ',1) -1;']);
+<a name="line449">449: </a>        end
+<a name="line450">450: </a>
+<a name="line451">451: </a>        <font color="#4169E1">if</font> BB(i+dim) == 2
+<a name="line452">452: </a>            eval(['D1' char(119 + i)...
+<a name="line453">453: </a>                '(',num2str(u(i)),',',num2str(u(i)),') = 1;'])
+<a name="line454">454: </a>        end
+<a name="line455">455: </a>    end
+<a name="line456">456: </a>
+<a name="line457">457: </a>    % Form A using tensor products of lower dimensional Laplacians
+<a name="line458">458: </a>    Ix = speye(u(1));
+<a name="line459">459: </a>    <font color="#4169E1">if</font> dim == 1
+<a name="line460">460: </a>        A = D1x;
+<a name="line461">461: </a>    elseif dim == 2
+<a name="line462">462: </a>        Iy = speye(u(2));
+<a name="line463">463: </a>        A = kron(Iy,D1x) + kron(D1y,Ix);
+<a name="line464">464: </a>    elseif dim == 3
+<a name="line465">465: </a>        Iy = speye(u(2));
+<a name="line466">466: </a>        Iz = speye(u(3));
+<a name="line467">467: </a>        A = kron(Iz, kron(Iy, D1x)) + kron(Iz, kron(D1y, Ix))...
+<a name="line468">468: </a>            + kron(kron(D1z,Iy),Ix);
+<a name="line469">469: </a>    end
+<a name="line470">470: </a>end
+
+<a name="line472">472: </a>disp('  ')
+<a name="line473">473: </a>toc
+<a name="line474">474: </a><font color="#4169E1">if</font> ~isempty(V)
+<a name="line475">475: </a>    a = whos('regep','V');
+<a name="line476">476: </a>    disp(['The eigenvectors take ' num2str(a.bytes) ' bytes'])
+<a name="line477">477: </a>end
+<a name="line478">478: </a><font color="#4169E1">if</font>  ~isempty(A)
+<a name="line479">479: </a>    a = whos('regexp','A');
+<a name="line480">480: </a>    disp(['The Laplacian matrix takes ' num2str(a.bytes) ' bytes'])
+<a name="line481">481: </a>end
+<a name="line482">482: </a>disp('  ')
+
+</pre>
+</body>
+
+</html>

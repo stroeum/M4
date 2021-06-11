@@ -1,0 +1,59 @@
+<center><a href="PetscReadBinaryMatlab.m">Actual source code: PetscReadBinaryMatlab.m</a></center><br>
+
+<html>
+<head> <link rel="canonical" href="http://www.mcs.anl.gov/petsc/petsc-current/share/petsc/matlab/PetscReadBinaryMatlab.m.html" />
+<title></title>
+<meta name="generator" content="c2html 0.9.4">
+<meta name="date" content="2020-02-04T17:38:36+00:00">
+</head>
+
+<body bgcolor="#FFFFFF">
+   <div id="version" align=right><b>petsc-3.12.4 2020-02-04</b></div>
+   <div id="bugreport" align=right><a href="mailto:petsc-maint@mcs.anl.gov?subject=Typo or Error in Documentation &body=Please describe the typo or error in the documentation: petsc-3.12.4 v3.12.4 share/petsc/matlab/PetscReadBinaryMatlab.m.html "><small>Report Typos and Errors</small></a></div>
+<pre width="80">
+<a name="line1">  1: </a>function Set = PetscReadBinaryMatlab(filename)
+<a name="line2">  2: </a>% PETSCREADBINARYMATLAB - Reads and interprets matlab specific lines
+<a name="line3">  3: </a>%   from the .info files produced by PetscViewerBinaryMatlab
+<a name="line4">  4: </a>%
+<a name="line5">  5: </a>%   Input filename can be the name of the binary file with or without
+<a name="line6">  6: </a>%   the .info suffix
+<a name="line7">  7: </a>%
+<a name="line8">  8: </a>%   This function returns a single <font color="#4169E1">struct containing</font> all objects submitted
+<a name="line9">  9: </a>%   to the PetscViewerBinaryMatlab viewer.
+
+<a name="line11"> 11: </a>  matlabHeader = ['%$$ '; '#$$ ']; % string that marks a matlab line <font color="#4169E1">for</font> evaluation (could be passed)
+<a name="line12"> 12: </a>  matlabHeaderLen = size(matlabHeader,2);
+
+<a name="line14"> 14: </a>  <font color="#4169E1">if</font> (isempty(strfind(filename,'.info')))
+<a name="line15"> 15: </a>     filename = [filename,'.info'];
+<a name="line16"> 16: </a>  end
+<a name="line17"> 17: </a>  fid=fopen(filename,'r');
+<a name="line18"> 18: </a>  <font color="#4169E1">if</font> (fid == -1)
+<a name="line19"> 19: </a>     error(sprintf('PetscReadBinaryMatlab: cannot load file %s',filename))
+<a name="line20"> 20: </a>  end
+<a name="line21"> 21: </a>  str=fgets(fid);
+<a name="line22"> 22: </a>  <font color="#4169E1">while</font> (ischar(str))
+
+<a name="line24"> 24: </a>     % check <font color="#4169E1">for</font> output lines that start matlabHeader
+<a name="line25"> 25: </a>     <font color="#4169E1">if</font> strncmp(str,matlabHeader(1,:),matlabHeaderLen) || strncmp(str,matlabHeader(2,:),matlabHeaderLen)
+<a name="line26"> 26: </a>         str = str(1+matlabHeaderLen:end);
+
+<a name="line28"> 28: </a>              % check <font color="#4169E1">for</font> old-style file open/close commands
+<a name="line29"> 29: </a>         <font color="#4169E1">if</font> strfind(str,'fopen(Set.filename')
+<a name="line30"> 30: </a>            str = 'fd = PetscOpenFile(Set.filename);';
+<a name="line31"> 31: </a>         elseif strfind(str,'if (fd < 0) error'); % ignore this line
+<a name="line32"> 32: </a>            str = '%';
+<a name="line33"> 33: </a>         elseif strfind(str,'fclose(fd)');
+<a name="line34"> 34: </a>            str = 'close(fd);';
+<a name="line35"> 35: </a>         end
+
+<a name="line37"> 37: </a>         eval(str);
+<a name="line38"> 38: </a>     end
+<a name="line39"> 39: </a>     str=fgets(fid);
+<a name="line40"> 40: </a>  end
+<a name="line41"> 41: </a>  fclose(fid);
+<a name="line42"> 42: </a>  <font color="#4169E1">return</font>
+</pre>
+</body>
+
+</html>

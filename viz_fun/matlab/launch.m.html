@@ -1,0 +1,47 @@
+<center><a href="launch.m">Actual source code: launch.m</a></center><br>
+
+<html>
+<head> <link rel="canonical" href="http://www.mcs.anl.gov/petsc/petsc-current/share/petsc/matlab/launch.m.html" />
+<title></title>
+<meta name="generator" content="c2html 0.9.4">
+<meta name="date" content="2020-02-04T17:38:34+00:00">
+</head>
+
+<body bgcolor="#FFFFFF">
+   <div id="version" align=right><b>petsc-3.12.4 2020-02-04</b></div>
+   <div id="bugreport" align=right><a href="mailto:petsc-maint@mcs.anl.gov?subject=Typo or Error in Documentation &body=Please describe the typo or error in the documentation: petsc-3.12.4 v3.12.4 share/petsc/matlab/launch.m.html "><small>Report Typos and Errors</small></a></div>
+<pre width="80">
+<a name="line1">  1: </a>function result = launch(program,np,opt)
+<a name="line2">  2: </a>%
+<a name="line3">  3: </a>%  launch(program,np)
+<a name="line4">  4: </a>%  Starts up PETSc program
+<a name="line5">  5: </a>%
+<a name="line6">  6: </a>% Unfortunately does not emit an error code <font color="#4169E1">if</font> the launch fails and one cannot see the output
+<a name="line7">  7: </a>% including error messages from the PETSc code.
+<a name="line8">  8: </a>%
+<a name="line9">  9: </a>% To debug problems we recommend commenting out the launch script from the Matlab script and
+<a name="line10"> 10: </a>% in a separate terminal starting the PETSc program manually, <font color="#4169E1">for</font> example petscmpiexec -n 1 ./ex1 -info other options
+<a name="line11"> 11: </a>% The Matlab script will block on the PetscOpenSocket() until the PETSc executable is started.
+
+<a name="line13"> 13: </a>%  see also @sreader/sreader() and <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a>()
+<a name="line14"> 14: </a>%
+<a name="line15"> 15: </a><font color="#4169E1">if</font> nargin &lt; 2
+<a name="line16"> 16: </a>  np = 1;
+<a name="line17"> 17: </a><font color="#4169E1">else</font> <font color="#4169E1">if</font> nargin &lt; 3
+<a name="line18"> 18: </a>  opt = ''
+<a name="line19"> 19: </a>end
+<a name="line20"> 20: </a>end
+
+<a name="line22"> 22: </a>%
+<a name="line23"> 23: </a>% to run parallel jobs make sure petscmpiexec is in your path
+<a name="line24"> 24: </a>% with the particular PETSC_ARCH environmental varable set
+<a name="line25"> 25: </a>%command = ['petscmpiexec -np ' int2str(np) ' ' program opt ' &'];
+<a name="line26"> 26: </a>command = [ program opt ' &'];
+<a name="line27"> 27: </a>fprintf(1,['Executing: ' command])
+
+<a name="line29"> 29: </a>result = system(command)
+<a name="line30"> 30: </a>
+</pre>
+</body>
+
+</html>

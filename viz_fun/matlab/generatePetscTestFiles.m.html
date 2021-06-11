@@ -1,0 +1,162 @@
+<center><a href="generatePetscTestFiles.m">Actual source code: generatePetscTestFiles.m</a></center><br>
+
+<html>
+<head> <link rel="canonical" href="http://www.mcs.anl.gov/petsc/petsc-current/share/petsc/matlab/generatePetscTestFiles.m.html" />
+<title></title>
+<meta name="generator" content="c2html 0.9.4">
+<meta name="date" content="2020-02-04T17:38:31+00:00">
+</head>
+
+<body bgcolor="#FFFFFF">
+   <div id="version" align=right><b>petsc-3.12.4 2020-02-04</b></div>
+   <div id="bugreport" align=right><a href="mailto:petsc-maint@mcs.anl.gov?subject=Typo or Error in Documentation &body=Please describe the typo or error in the documentation: petsc-3.12.4 v3.12.4 share/petsc/matlab/generatePetscTestFiles.m.html "><small>Report Typos and Errors</small></a></div>
+<pre width="80">
+<a name="line1">  1: </a>% This MATLAB script generates test matrices <font color="#4169E1">for</font> PETSc
+<a name="line2">  2: </a>% using PETSc-MATLAB IO functions and the function laplacian.m from
+<a name="line3">  3: </a>% http://www.mathworks.com/matlabcentral/fileexchange/27279-laplacian-in-1d-2d-or-3d
+
+
+<a name="line6">  6: </a>clear all;
+<a name="line7">  7: </a>nx=3; ny=4; n=nx*ny; % any sizes can be used
+<a name="line8">  8: </a>% Create a nx-times-ny 2D negative Laplacian with h=1 and Dirichlet BC
+<a name="line9">  9: </a>[~,~,A]=laplacian([nx,ny],{'DD' 'DD'});
+<a name="line10"> 10: </a>% Alternatevely, a nx-times-ny-times-nz 3D negative Laplacian with h=1 and Dirichlet BC
+<a name="line11"> 11: </a>%nz=2; n=nx*ny*nz; [~,~,A]=laplacian([nx,ny,nz],{'DD' 'DD' 'DD'});
+
+<a name="line13"> 13: </a>x=ones(n,1); b=A*x; %  use <a href="share/../../../docs/manualpages/Vec/VecSet.html#VecSet">VecSet</a>(x,1.0) in PETSc <font color="#4169E1">for</font> x
+
+<a name="line15"> 15: </a>% this is the <font color="#4169E1">default</font>
+<a name="line16"> 16: </a><a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a>('spd-real-int32-float64',A,b, 'indices','int32','precision','float64');
+<a name="line17"> 17: </a>[At,bt] = <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a>('spd-real-int32-float64', 'indices','int32','precision','float64');
+<a name="line18"> 18: </a><font color="#4169E1">if</font> max(max(max(abs(At-A))),max(abs(bt-b))) ~= 0
+<a name="line19"> 19: </a> error('PETSc:generatePetscTestFiles:IncompatibleIO',...
+<a name="line20"> 20: </a> '%s','Error in <a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a> or/and <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a> for spd-real-int32-float64');
+<a name="line21"> 21: </a>end
+
+<a name="line23"> 23: </a>% int64 only appears in the header
+<a name="line24"> 24: </a><a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a>('spd-real-int64-float64',A, b,'indices','int64','precision','float64');
+<a name="line25"> 25: </a>[At,bt] = <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a>('spd-real-int64-float64','indices','int64','precision','float64');
+<a name="line26"> 26: </a><font color="#4169E1">if</font> max(max(max(abs(At-A))),max(abs(bt-b))) ~= 0
+<a name="line27"> 27: </a> error('PETSc:generatePetscTestFiles:IncompatibleIO',...
+<a name="line28"> 28: </a> '%s','Error in <a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a> or/and <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a> for spd-real-int64-float64');
+<a name="line29"> 29: </a>end
+
+<a name="line31"> 31: </a>% MATLAB does not yet support single-presision sparce matrices
+<a name="line32"> 32: </a>% but all the entries in A, b, and x are actually integers
+<a name="line33"> 33: </a><a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a>('spd-real-int32-float32',A,b, 'indices','int32','precision','float32');
+<a name="line34"> 34: </a>[At,bt] = <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a>('spd-real-int32-float32', 'indices','int32','precision','float32');
+<a name="line35"> 35: </a><font color="#4169E1">if</font> max(max(max(abs(At-A))),max(abs(bt-b))) ~= 0
+<a name="line36"> 36: </a> error('PETSc:generatePetscTestFiles:IncompatibleIO',...
+<a name="line37"> 37: </a> '%s','Error in <a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a> or/and <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a> for spd-real-int32-float32');
+<a name="line38"> 38: </a>end
+
+<a name="line40"> 40: </a>% int64 only appears in the header
+<a name="line41"> 41: </a><a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a>('spd-real-int64-float32',A,b,'indices','int64','precision','float32');
+<a name="line42"> 42: </a>[At,bt] = <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a>('spd-real-int64-float32','indices','int64','precision','float32');
+<a name="line43"> 43: </a><font color="#4169E1">if</font> max(max(max(abs(At-A))),max(abs(bt-b))) ~= 0
+<a name="line44"> 44: </a> error('PETSc:generatePetscTestFiles:IncompatibleIO',...
+<a name="line45"> 45: </a> '%s','Error in <a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a> or/and <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a> for spd-real-int64-float32');
+<a name="line46"> 46: </a>end
+<a name="line47"> 47: </a>
+<a name="line48"> 48: </a>% Now, we swap the (1,1) and (1,2) entries in A to make it nonsymmetric
+<a name="line49"> 49: </a>tmp=A(1,1); A(1,1)=A(1,2); A(1,2)=tmp; clear tmp;
+<a name="line50"> 50: </a>% the solution x does not change and can be reused. Check:
+<a name="line51"> 51: </a><font color="#4169E1">if</font> max(abs(b-A*x))  ~= 0
+<a name="line52"> 52: </a> error('PETSc:generatePetscTestFiles:WrongAns',...
+<a name="line53"> 53: </a> '%s','The nonsymmetric matrix A is wrong');
+<a name="line54"> 54: </a>end
+
+<a name="line56"> 56: </a>% We need to again write all possible formats
+<a name="line57"> 57: </a><a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a>('ns-real-int32-float64',A,b,'indices','int32','precision','float64');
+<a name="line58"> 58: </a>[At,bt] = <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a>('ns-real-int32-float64','indices','int32','precision','float64');
+<a name="line59"> 59: </a><font color="#4169E1">if</font> max(max(max(abs(At-A))),max(abs(bt-b))) ~= 0
+<a name="line60"> 60: </a> error('PETSc:generatePetscTestFiles:IncompatibleIO',...
+<a name="line61"> 61: </a> '%s','Error in <a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a> or/and <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a> for ns-real-int32-float64');
+<a name="line62"> 62: </a>end
+<a name="line63"> 63: </a><a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a>('ns-real-int64-float64',A,b,'indices','int64','precision','float64');
+<a name="line64"> 64: </a>[At,bt] = <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a>('ns-real-int64-float64','indices','int64','precision','float64');
+<a name="line65"> 65: </a><font color="#4169E1">if</font> max(max(max(abs(At-A))),max(abs(bt-b))) ~= 0
+<a name="line66"> 66: </a> error('PETSc:generatePetscTestFiles:IncompatibleIO',...
+<a name="line67"> 67: </a> '%s','Error in <a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a> or/and <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a> for ns-real-int64-float64');
+<a name="line68"> 68: </a>end
+<a name="line69"> 69: </a><a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a>('ns-real-int32-float32',A,b,'indices','int32','precision','float32');
+<a name="line70"> 70: </a>[At,bt] = <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a>('ns-real-int32-float32','indices','int32','precision','float32');
+<a name="line71"> 71: </a><font color="#4169E1">if</font> max(max(max(abs(At-A))),max(abs(bt-b))) ~= 0
+<a name="line72"> 72: </a> error('PETSc:generatePetscTestFiles:IncompatibleIO',...
+<a name="line73"> 73: </a> '%s','Error in <a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a> or/and <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a> for ns-real-int32-float32');
+<a name="line74"> 74: </a>end
+<a name="line75"> 75: </a><a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a>('ns-real-int64-float32',A,b,'indices','int64','precision','float32');
+<a name="line76"> 76: </a>[At,bt] = <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a>('ns-real-int64-float32','indices','int64','precision','float32');
+<a name="line77"> 77: </a><font color="#4169E1">if</font> max(max(max(abs(At-A))),max(abs(bt-b))) ~= 0
+<a name="line78"> 78: </a> error('PETSc:generatePetscTestFiles:IncompatibleIO',...
+<a name="line79"> 79: </a> '%s','Error in <a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a> or/and <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a> for ns-real-int64-float32');
+<a name="line80"> 80: </a>end
+
+<a name="line82"> 82: </a>% Finally, we make A, b, and x complex, still integers
+<a name="line83"> 83: </a>A(1,1)=A(1,1)+1i; A(2,1)=A(2,1)-1i;
+<a name="line84"> 84: </a>x=1i.*ones(n,1); b=A*x;  % use <a href="share/../../../docs/manualpages/Vec/VecSet.html#VecSet">VecSet</a>(x,<a href="share/../../../docs/manualpages/Sys/PETSC_i.html#PETSC_i">PETSC_i</a>) in PETSc <font color="#4169E1">for</font> x
+
+<a name="line86"> 86: </a>% We need to again write all possible formats
+<a name="line87"> 87: </a><a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a>('nh-complex-int32-float64',A,b,'indices','int32','precision','float64');
+<a name="line88"> 88: </a>[At,bt] = <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a>('nh-complex-int32-float64','indices','int32','precision','float64','complex',true);
+<a name="line89"> 89: </a><font color="#4169E1">if</font> max(max(max(abs(At-A))),max(abs(bt-b))) ~= 0
+<a name="line90"> 90: </a> error('PETSc:generatePetscTestFiles:IncompatibleIO',...
+<a name="line91"> 91: </a> '%s','Error in <a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a> or/and <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a> for nh-complex-int32-float64');
+<a name="line92"> 92: </a>end
+<a name="line93"> 93: </a><a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a>('nh-complex-int64-float64',A,b,'indices','int64','precision','float64');
+<a name="line94"> 94: </a>[At,bt] = <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a>('nh-complex-int64-float64','indices','int64','precision','float64','complex',true);
+<a name="line95"> 95: </a><font color="#4169E1">if</font> max(max(max(abs(At-A))),max(abs(bt-b))) ~= 0
+<a name="line96"> 96: </a> error('PETSc:generatePetscTestFiles:IncompatibleIO',...
+<a name="line97"> 97: </a> '%s','Error in <a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a> or/and <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a> for nh-complex-int64-float64');
+<a name="line98"> 98: </a>end
+<a name="line99"> 99: </a><a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a>('nh-complex-int32-float32',A,b,'indices','int32','precision','float32');
+<a name="line100">100: </a>[At,bt] = <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a>('nh-complex-int32-float32','indices','int32','precision','float32','complex',true);
+<a name="line101">101: </a><font color="#4169E1">if</font> max(max(max(abs(At-A))),max(abs(bt-b))) ~= 0
+<a name="line102">102: </a> error('PETSc:generatePetscTestFiles:IncompatibleIO',...
+<a name="line103">103: </a> '%s','Error in <a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a> or/and <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a> for nh-complex-int32-float32');
+<a name="line104">104: </a>end
+<a name="line105">105: </a><a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a>('nh-complex-int64-float32',A,b,'indices','int64','precision','float32');
+<a name="line106">106: </a>[At,bt] = <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a>('nh-complex-int64-float32','indices','int64','precision','float32','complex',true);
+<a name="line107">107: </a><font color="#4169E1">if</font> max(max(max(abs(At-A))),max(abs(bt-b))) ~= 0
+<a name="line108">108: </a> error('PETSc:generatePetscTestFiles:IncompatibleIO',...
+<a name="line109">109: </a> '%s','Error in <a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a> or/and <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a> for nh-complex-int64-float32');
+<a name="line110">110: </a>end
+
+<a name="line112">112: </a>% Make A Hermitian, without changing b and x
+<a name="line113">113: </a>tmp=A(1,1); A(1,1)=A(1,2); A(1,2)=tmp; clear tmp;
+<a name="line114">114: </a>% the solution x does not change and can be reused. Check:
+<a name="line115">115: </a><font color="#4169E1">if</font> max(max(abs(b-A*x)),max(max(abs(A-A'))))  ~= 0
+<a name="line116">116: </a> error('PETSc:generatePetscTestFiles:WrongAns',...
+<a name="line117">117: </a> '%s','The HPD matrix A is wrong');
+<a name="line118">118: </a>end
+
+<a name="line120">120: </a>% We need to again write all possible formats
+<a name="line121">121: </a><a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a>('hpd-complex-int32-float64',A,b,'indices','int32','precision','float64');
+<a name="line122">122: </a>[At,bt] = <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a>('hpd-complex-int32-float64','indices','int32','precision','float64','complex',true);
+<a name="line123">123: </a><font color="#4169E1">if</font> max(max(max(abs(At-A))),max(abs(bt-b))) ~= 0
+<a name="line124">124: </a> error('PETSc:generatePetscTestFiles:IncompatibleIO',...
+<a name="line125">125: </a> '%s','Error in <a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a> or/and <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a> for hpd-complex-int32-float64');
+<a name="line126">126: </a>end
+<a name="line127">127: </a><a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a>('hpd-complex-int64-float64',A,b,'indices','int64','precision','float64');
+<a name="line128">128: </a>[At,bt] = <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a>('hpd-complex-int64-float64','indices','int64','precision','float64','complex',true);
+<a name="line129">129: </a><font color="#4169E1">if</font> max(max(max(abs(At-A))),max(abs(bt-b))) ~= 0
+<a name="line130">130: </a> error('PETSc:generatePetscTestFiles:IncompatibleIO',...
+<a name="line131">131: </a> '%s','Error in <a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a> or/and <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a> for hpd-complex-int64-float64');
+<a name="line132">132: </a>end
+<a name="line133">133: </a><a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a>('hpd-complex-int32-float32',A,b,'indices','int32','precision','float32');
+<a name="line134">134: </a>[At,bt] = <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a>('hpd-complex-int32-float32','indices','int32','precision','float32','complex',true);
+<a name="line135">135: </a><font color="#4169E1">if</font> max(max(max(abs(At-A))),max(abs(bt-b))) ~= 0
+<a name="line136">136: </a> error('PETSc:generatePetscTestFiles:IncompatibleIO',...
+<a name="line137">137: </a> '%s','Error in <a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a> or/and <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a> for hpd-complex-int32-float32');
+<a name="line138">138: </a>end
+<a name="line139">139: </a><a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a>('hpd-complex-int64-float32',A,b,'indices','int64','precision','float32');
+<a name="line140">140: </a>[At,bt] = <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a>('hpd-complex-int64-float32','indices','int64','precision','float32','complex',true);
+<a name="line141">141: </a><font color="#4169E1">if</font> max(max(max(abs(At-A))),max(abs(bt-b))) ~= 0
+<a name="line142">142: </a> error('PETSc:generatePetscTestFiles:IncompatibleIO',...
+<a name="line143">143: </a> '%s','Error in <a href="share/../../../docs/manualpages/Sys/PetscBinaryWrite.html#PetscBinaryWrite">PetscBinaryWrite</a> or/and <a href="share/../../../docs/manualpages/Sys/PetscBinaryRead.html#PetscBinaryRead">PetscBinaryRead</a> for hpd-complex-int64-float32');
+<a name="line144">144: </a>end
+
+</pre>
+</body>
+
+</html>

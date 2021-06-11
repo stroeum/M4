@@ -1,0 +1,99 @@
+<center><a href="PetscReadBinaryTrajectory.m">Actual source code: PetscReadBinaryTrajectory.m</a></center><br>
+
+<html>
+<head> <link rel="canonical" href="http://www.mcs.anl.gov/petsc/petsc-current/share/petsc/matlab/PetscReadBinaryTrajectory.m.html" />
+<title></title>
+<meta name="generator" content="c2html 0.9.4">
+<meta name="date" content="2020-02-04T17:38:37+00:00">
+</head>
+
+<body bgcolor="#FFFFFF">
+   <div id="version" align=right><b>petsc-3.12.4 2020-02-04</b></div>
+   <div id="bugreport" align=right><a href="mailto:petsc-maint@mcs.anl.gov?subject=Typo or Error in Documentation &body=Please describe the typo or error in the documentation: petsc-3.12.4 v3.12.4 share/petsc/matlab/PetscReadBinaryTrajectory.m.html "><small>Report Typos and Errors</small></a></div>
+<pre width="80">
+<a name="line1">  1: </a>function [varargout] = PetscBinaryReadTrajectory(inarg)
+<a name="line2">  2: </a>%
+<a name="line3">  3: </a>%   [varargout] = PetscBinaryReadTrajectory(inarg)
+<a name="line4">  4: </a>%
+<a name="line5">  5: </a>%  Read in the trajectory information saved in a folder of PETSc binary file
+<a name="line6">  6: </a>%  Emit as Matlab <font color="#4169E1">struct</font>
+<a name="line7">  7: </a>%
+<a name="line8">  8: </a>%  Examples: A = PetscBinaryReadTrajectory('myfolder'); read from myfolder.
+<a name="line9">  9: </a>%            A = PetscBinaryReadTrajectory(); read from folder '<a href="share/../../../docs/manualpages/TS/TS.html#TS">TS</a>-data' or 'Visualization-data' <font color="#4169E1">if</font> they exist, <a href="share/../../../docs/manualpages/TS/TS.html#TS">TS</a>-data has the priority.
+<a name="line10"> 10: </a>%
+
+<a name="line12"> 12: </a><font color="#4169E1">if</font> nargin &lt; 1
+<a name="line13"> 13: </a>  <font color="#4169E1">if</font> exist('<a href="share/../../../docs/manualpages/TS/TS.html#TS">TS</a>-data','dir')
+<a name="line14"> 14: </a>    inarg = '<a href="share/../../../docs/manualpages/TS/TS.html#TS">TS</a>-data';
+<a name="line15"> 15: </a>  elseif exist('Visualization-data','dir')
+<a name="line16"> 16: </a>    inarg = 'Visualization-data';
+<a name="line17"> 17: </a>  <font color="#4169E1">else</font>
+<a name="line18"> 18: </a>    error('Can not find the folder of trajectory files!');
+<a name="line19"> 19: </a>  end
+<a name="line20"> 20: </a>end
+
+<a name="line22"> 22: </a>indices = 'int32';
+<a name="line23"> 23: </a>precision = 'float64';
+<a name="line24"> 24: </a>maxsteps = 10000;
+
+<a name="line26"> 26: </a>t = zeros(1,maxsteps);
+
+<a name="line28"> 28: </a>foundnames = 0;
+<a name="line29"> 29: </a>fullname = fullfile(inarg,'variablenames');
+<a name="line30"> 30: </a><font color="#4169E1">if</font> exist(fullname,'file') == 2
+<a name="line31"> 31: </a>  fd = PetscOpenFile(fullname);
+<a name="line32"> 32: </a>  n     = read(fd,1,indices);
+<a name="line33"> 33: </a>  sizes = read(fd,n,indices);
+<a name="line34"> 34: </a>  names = {'  '};
+<a name="line35"> 35: </a>  <font color="#4169E1">for</font> i=1:n,
+<a name="line36"> 36: </a>    names{i} = deblank(char(read(fd,sizes(i),'uchar')))';
+<a name="line37"> 37: </a>  end
+<a name="line38"> 38: </a>  foundnames = 1;
+<a name="line39"> 39: </a>end
+
+<a name="line41"> 41: </a><font color="#4169E1">for</font> stepnum=1:maxsteps
+<a name="line42"> 42: </a>  filename = sprintf('<a href="share/../../../docs/manualpages/TS/TS.html#TS">TS</a>-%06d.bin',stepnum-1);
+<a name="line43"> 43: </a>  fullname = fullfile(inarg,filename);
+<a name="line44"> 44: </a>  <font color="#4169E1">if</font> exist(fullname,'file') ~= 2
+<a name="line45"> 45: </a>    steps = stepnum-1;
+<a name="line46"> 46: </a>    <font color="#4169E1">break</font>;
+<a name="line47"> 47: </a>  end
+<a name="line48"> 48: </a>  fd = PetscOpenFile(fullname);
+<a name="line49"> 49: </a>  header = double(read(fd,1,indices));
+
+<a name="line51"> 51: </a>  <font color="#4169E1">if</font> isempty(header)
+<a name="line52"> 52: </a>    steps = stepnum-1;
+<a name="line53"> 53: </a>    <font color="#4169E1">break</font>;
+<a name="line54"> 54: </a>  end
+
+<a name="line56"> 56: </a>  <font color="#4169E1">if</font>  header == 1211214 % Petsc <a href="share/../../../docs/manualpages/Vec/Vec.html#Vec">Vec</a> Object
+<a name="line57"> 57: </a>    %% Read state vector
+<a name="line58"> 58: </a>    m = double(read(fd,1,indices));
+<a name="line59"> 59: </a>    <font color="#4169E1">if</font> (stepnum == 1)
+<a name="line60"> 60: </a>      x = zeros(m,maxsteps);
+<a name="line61"> 61: </a>    end
+<a name="line62"> 62: </a>    v = read(fd,m,precision);
+<a name="line63"> 63: </a>    x(:,stepnum) = v;
+
+<a name="line65"> 65: </a>    %% Read time
+<a name="line66"> 66: </a>    t(stepnum) = read(fd,1,precision);
+<a name="line67"> 67: </a>  end
+<a name="line68"> 68: </a>  % close the reader <font color="#4169E1">if</font> we opened it
+<a name="line69"> 69: </a>  close(fd);
+<a name="line70"> 70: </a>end
+
+<a name="line72"> 72: </a><font color="#4169E1">if</font> steps &gt; 1
+<a name="line73"> 73: </a>  varargout{1} = t(1:steps);
+<a name="line74"> 74: </a>  varargout{2} = x(:,1:steps);
+<a name="line75"> 75: </a>  <font color="#4169E1">if</font> foundnames == 1
+<a name="line76"> 76: </a>    varargout{3} = names;
+<a name="line77"> 77: </a>  end
+<a name="line78"> 78: </a>end
+
+
+
+
+</pre>
+</body>
+
+</html>
