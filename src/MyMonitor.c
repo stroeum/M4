@@ -40,14 +40,8 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
 		if (flag==0) fd=fopen(fName,"a");
 		else         fd=fopen(fName,"w");
 		
-		//if(!(user->isInputFile==1 && ptime==user->ti)) {
-			//ierr = PetscFPrintf(PETSC_COMM_WORLD,fd,"%12.6e\n",ptime*tau); CHKERRQ(ierr);
-		//}
-
 		if(user->isInputFile==1 && ptime==user->ti) {
-			ierr = PetscFPrintf(PETSC_COMM_WORLD,fd,"NOT RECORDING\n",ptime*tau); CHKERRQ(ierr);
-			ierr = PetscFPrintf(PETSC_COMM_WORLD,fd,"isInput: %d   ptime: %f   ti: %f\n",user->isInputFile,ptime,user->ti); CHKERRQ(ierr);
-				// do not record the time //
+			// do not record the time
 		} else { 
 			ierr = PetscFPrintf(PETSC_COMM_WORLD,fd,"%12.6e\n",ptime*tau); CHKERRQ(ierr);
 		}
