@@ -50,10 +50,7 @@ ifdef n
 		mkdir SaveData; \
 	fi
 
-	if [ ! -d "SaveData/$(n)_save" ]; then \
-		mkdir ./SaveData/$(n)_save
-	fi
-
+	mkdir SaveData/$(n)_save/
 	cp ./output/* ./SaveData/$(n)_save/
 	cp ./input/main.in ./SaveData/$(n)_save/
 else
