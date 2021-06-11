@@ -562,6 +562,7 @@ PetscErrorCode OutputData(void* ptr)
 			ierr = VecSetBlockSize(U,19);CHKERRQ(ierr);
 			ierr = VecLoad(U,fViewer); CHKERRQ(ierr);
 			ierr = PetscViewerDestroy(&fViewer);CHKERRQ(ierr);
+			ierr = VecDestroy(&U);CHKERRQ(ierr);
 			if(xtra_out) {
 				sprintf(fName, "%s/Y%d.bin",user->dName,step);
 				flag  = access(fName,F_OK);
@@ -571,18 +572,8 @@ PetscErrorCode OutputData(void* ptr)
 				ierr = VecSetBlockSize(V,9);CHKERRQ(ierr);
 				ierr = VecLoad(V,fViewer); CHKERRQ(ierr);
 				ierr = PetscViewerDestroy(&fViewer);CHKERRQ(ierr);
+				ierr = VecDestroy(&V);CHKERRQ(ierr);
 			}
-			
-			// Get pointers to vector data
-			//ierr = DMDAVecGetArrayDOF(da,U,&u);CHKERRQ(ierr);
-			//if(xtra_out) {ierr = DMDAVecGetArrayDOF(db,V,&v);CHKERRQ(ierr);}
-
-			//ierr = DMDAVecRestoreArrayDOF(da,U,&u);CHKERRQ(ierr);
-			//ierr = VecDestroy(&U);CHKERRQ(ierr);
-			//if(xtra_out) {
-				//ierr = DMDAVecRestoreArrayDOF(db,V,&v);CHKERRQ(ierr);
-				//ierr = VecDestroy(&V);CHKERRQ(ierr);
-			//}
 		}
 	}
 	fclose(NFile);
