@@ -50,9 +50,9 @@ ifdef n
 		mkdir SaveData; \
 	fi
 
-	mkdir SaveData/$(n)_save/
-	cp ./output/* ./SaveData/$(n)_save/
-	cp ./input/main.in ./SaveData/$(n)_save/
+	mkdir SaveData/$(n)/
+	cp ./output/* ./SaveData/$(n)/
+	cp ./input/main.in ./SaveData/$(n)/
 else
 	@echo "You must provide a directory name n=<...>"
 endif
