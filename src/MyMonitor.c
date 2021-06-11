@@ -41,6 +41,7 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
 		else         fd=fopen(fName,"w");
 		
 		if(user->isInputFile==1 && ptime==user->ti) {
+			ierr = PetscPrintf(PETSC_COMM_WORLD,"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~HERE\n"); CHKERRQ(ierr);
 			// do not record the time
 		} else { 
 			ierr = PetscFPrintf(PETSC_COMM_WORLD,fd,"%12.6e\n",ptime*tau); CHKERRQ(ierr);
