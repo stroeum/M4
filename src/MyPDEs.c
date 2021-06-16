@@ -1820,7 +1820,8 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 					f[k][j][i][d.vi[l][1]] = - (vi[l][0]*dvi[l][1].dx +vi[l][1]*dvi[l][1].dy +vi[l][2]*dvi[l][1].dz) + me/mi[l]*(E[1] +CrossP(vi[l],B,1) -dpi[l].dy/ni[l]);
 					f[k][j][i][d.vi[l][2]] = - (vi[l][0]*dvi[l][2].dx +vi[l][1]*dvi[l][2].dy +vi[l][2]*dvi[l][2].dz) + me/mi[l]*(E[2] +CrossP(vi[l],B,2) -dpi[l].dz/ni[l]);
 					if(user->gravswitch==1)
-						f[k][j][i][d.vi[l][2]] += - PetscPowScalar(1+Z/rM,-2.0);
+						// f[k][j][i][d.vi[l][2]] += - PetscPowScalar(1+Z/rM,-2.0);   // Changed by Kellen to increase speed
+						f[k][j][i][d.vi[l][2]] += - 1/((1+Z/rM)*(1+Z/rM));
 					if(user->chemswitch==1){
 						f[k][j][i][d.vi[l][0]] += mom_chem_S[l][0];
 						f[k][j][i][d.vi[l][1]] += mom_chem_S[l][1];

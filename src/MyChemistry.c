@@ -98,7 +98,8 @@ PetscReal v5(PetscReal N , PetscReal Te) {
 PetscReal v6(PetscReal N , PetscReal Te) {
 	// return 0; //zzz
 	PetscReal K, v;
-	K = 3.1e-7*PetscPowScalar(300/Te,0.5); //_cm^3/_s
+	// K = 3.1e-7*PetscPowScalar(300/Te,0.5); //_cm^3/_s     // Changed by Kellen to increase speed
+	K = 3.1e-7*PetscSqrtScalar(300/Te); //_cm^3/_s
 	v = N*K;
 	return v*1e-6; //_m3/_s
 }
