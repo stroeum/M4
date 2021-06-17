@@ -427,5 +427,4 @@ PetscReal v46(PetscReal ne   , PetscReal Te   ){
 	ne *= 1e-6; // _cm^-3
 	v   = 54.5/PetscSqrtScalar(2.0)*ne/PetscPowScalar(Te,3./2.); // _s^-1
 	return v; // _s^-1
-	return 0;
 }
