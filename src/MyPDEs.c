@@ -1175,22 +1175,22 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 				// Temperature
 				Te = Interpolate(user->RefProf, 8 ,Z, lin_flat);
 				// PetscPrintf(PETSC_COMM_WORLD, "Te = %2.1e   MyPDEs.c Part 2\n", Te);
-				nn[CO2]     = Interpolate(user->RefProf, 5 ,Z, lin_flat);
-				nn[O]       = Interpolate(user->RefProf, 4 ,Z, lin_flat);
-				nu[CO2]     = Ven(CO2, nn[CO2], Te);
-				nu[O]       = Ven(O  , nn[O]  , Te);
+				nn[CO2]     = Interpolate(user->RefProf, 5 ,Z, lin_flat)/n0;
+				nn[O]       = Interpolate(user->RefProf, 4 ,Z, lin_flat)/n0;
+				nu[CO2]     = Ven(CO2, nn[CO2] *n0, Te);
+				nu[O]       = Ven(O  , nn[O]   *n0, Te);
 
 				//Te = Interpolate(user->RefProf, 8 ,Z, lin_flat)/T0;
 				// PetscPrintf(PETSC_COMM_WORLD, "Te = %2.1e   MyPDEs.c Part 3\n", Te);
 				//nn[CO2]     = Interpolate(user->RefProf, 5 ,Z, lin_flat)/n0;
 				//nn[O]       = Interpolate(user->RefProf, 4 ,Z, lin_flat)/n0;
                 
-				nu[0]       = v41(nn[CO2]     , Te);	// e    CO2
-				nu[1]       = v42(nn[O]       , Te);	// e    O
-				nu[2]       = v43(ni[O2p] *n0 , Te);	// e    O2+
-				nu[3]       = v44(ni[CO2p]*n0 , Te);	// e    CO2+
-				nu[4]       = v45(ni[Op]  *n0 , Te);	// e    O+
-				nu[5]       = v46(ne      *n0 , Te);	// e    e
+				nu[0]       = v41(nn[CO2] *n0, Te);	// e    CO2
+				nu[1]       = v42(nn[O]   *n0, Te);	// e    O
+				nu[2]       = v43(ni[O2p] *n0, Te);	// e    O2+
+				nu[3]       = v44(ni[CO2p]*n0, Te);	// e    CO2+
+				nu[4]       = v45(ni[Op]  *n0, Te);	// e    O+
+				nu[5]       = v46(ne      *n0, Te);	// e    e
 				
 				// Elastic collisions term
 				for (m=0;m<3;m++) {
@@ -1202,10 +1202,10 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 
 				// chemistry for Gen Ohms Law
 				chem_nuS[e][0] = v1();                      // CO2 + hv
-				chem_nuS[e][1] = 2*v2(nn[CO2] , Te);	    // CO2 + e      Added by Kellen to test v2
+				chem_nuS[e][1] = 2*v2(nn[CO2], Te);	    // CO2 + e      Added by Kellen to test v2
 				// chem_nuS[e][1] = 0;
 				chem_nuS[e][2] = v3();                      // O + hv
-				chem_nuS[e][3] = 2*v4(nn[O]   , Te);        // O + e
+				chem_nuS[e][3] = 2*v4(nn[O]  , Te);         // O + e
 				for (m=0;m<3;m++) {
 					E_chem_S[m]   = tau   *(chem_nuS[e][0]   *(un[m] - vi[e][m])
 					+ chem_nuS[e][1]   *(un[m] - vi[e][m])
