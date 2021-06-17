@@ -78,7 +78,6 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 					X = Xmin + x[i]*L;
 					
 					Te = Interpolate(user->RefProf, 8 ,Z, lin_flat);
-					//PetscPrintf(PETSC_COMM_WORLD, "Te = %2.1e   MyPDEs.c Part 1\n", Te);
 					Ti = Interpolate(user->RefProf, 9 ,Z, lin_flat);
 					neo = Interpolate(user->RefProf, 7 ,Z, lin_exp);
 					assert(Te>0);
@@ -1174,14 +1173,12 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 				
 				// Temperature
 				Te = Interpolate(user->RefProf, 8 ,Z, lin_flat);
-				// PetscPrintf(PETSC_COMM_WORLD, "Te = %2.1e   MyPDEs.c Part 2\n", Te);
 				nn[CO2]     = Interpolate(user->RefProf, 5 ,Z, lin_flat)/n0;
 				nn[O]       = Interpolate(user->RefProf, 4 ,Z, lin_flat)/n0;
 				nu[CO2]     = Ven(CO2, nn[CO2] *n0, Te);
 				nu[O]       = Ven(O  , nn[O]   *n0, Te);
 
-				//Te = Interpolate(user->RefProf, 8 ,Z, lin_flat)/T0;
-				// PetscPrintf(PETSC_COMM_WORLD, "Te = %2.1e   MyPDEs.c Part 3\n", Te);
+				//Te = Interpolate(user->RefProf, 8 ,Z, lin_flat)/T0;		// Changed by Kellen because of redundancy
 				//nn[CO2]     = Interpolate(user->RefProf, 5 ,Z, lin_flat)/n0;
 				//nn[O]       = Interpolate(user->RefProf, 4 ,Z, lin_flat)/n0;
                 
@@ -1553,7 +1550,6 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				Tn[CO2] = Interpolate(user->RefProf,10,Z,lin_flat)/T0;
 				Tn[O]   = Interpolate(user->RefProf,10,Z,lin_flat)/T0;
 				Te = Interpolate(user->RefProf, 8 ,Z, lin_flat)/T0;
-				// PetscPrintf(PETSC_COMM_WORLD, "Te = %2.1e   MyPDEs.c Part 4\n", Te);
                 
 				// projectiles velocities
 				for (m=0;m<3;m++) {
