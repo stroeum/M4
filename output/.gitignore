@@ -1,0 +1,8 @@
+# Ignore everything in this directory
+*
+# Except this file
+!.gitignore
+
+# This is done so that the directory is saved in the repo, but no binary files
+# are kept
+# (program returns seg fault if M4/output doesn't exist)
