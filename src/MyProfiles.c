@@ -73,7 +73,7 @@ PetscReal Interpolate1(PetscReal x, PetscReal xi[], PetscReal yi[], PetscInt Ni,
 		}
 		// exponential decrease above max xi
 		if (ItpType==lin_exp) {
-			L     = Y[0]/Dy;
+			L = Y[0]/Dy;
 			if (L<0) {
 				if (fabs((x-X[0])/L)<alpha)
 					y = Y[0]*exp( (x-X[0])/L );
@@ -106,7 +106,7 @@ PetscReal Interpolate1(PetscReal x, PetscReal xi[], PetscReal yi[], PetscInt Ni,
 		if (ItpType==lin_lin) {
 			y = Dy*(x-X[0]) + Y[0];
 		}
-			// exponential decrease below min xi //
+		// exponential decrease below min xi
 		if (ItpType==lin_exp) {
 			L = Y[0]/Dy;
 			if (fabs((x-X[0])/L)<alpha)

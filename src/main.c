@@ -104,7 +104,7 @@ int main(int argc,char **argv)
 	 Set runtime options
 	 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 	ierr = TSSetFromOptions(ts);CHKERRQ(ierr);
-	ierr = TSSetPostStep(ts,CFL);CHKERRQ(ierr);
+	ierr = TSSetPostStep(ts,CFL);CHKERRQ(ierr);     // Referencing MyCtx/CFL()
 	
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	 Solve nonlinear system
