@@ -10,11 +10,13 @@
 
 #undef __FUNCT__
 #define __FUNCT__ "ReadTable"
-PetscInt  ReadTable(PetscReal table[][Nz_REF], PetscInt P, const char *fName)
+PetscErrorCode ReadTable(PetscReal table[][Nz_REF], PetscInt P, const char *fName)
 {
 	char buffer[MAX_LINE_LENGTH];
 	FILE *pFile;
 	int m=0, p=0;
+
+	PetscFunctionBegin;
 	
 	pFile=fopen(fName,"r");
 	fgets(buffer, MAX_LINE_LENGTH, pFile);
@@ -26,7 +28,7 @@ PetscInt  ReadTable(PetscReal table[][Nz_REF], PetscInt P, const char *fName)
 	}
 	fclose(pFile);
 	
-	return 0;
+ 	PetscFunctionReturn(0);
 }
 
 #undef __FUNCT__

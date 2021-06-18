@@ -51,6 +51,7 @@ ifdef n
 	fi
 
 	mkdir SaveData/$(n)/
+	rm ./output/*.info
 	cp ./output/* ./SaveData/$(n)/
 	cp ./input/main.in ./SaveData/$(n)/
 else
