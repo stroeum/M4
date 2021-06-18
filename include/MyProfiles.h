@@ -62,7 +62,7 @@
  */
 enum interpolations {lin_lin, lin_exp, lin_flat};
 
-extern PetscInt  ReadTable(PetscReal table[][Nz_REF], PetscInt P, const char *fName);
+extern PetscErrorCode ReadTable(PetscReal table[][Nz_REF], PetscInt P, const char *fName);
 extern PetscReal Interpolate(PetscReal table[][Nz_REF], PetscInt i, PetscReal h, PetscInt ItpType);  
 extern PetscReal Interpolate1(PetscReal x, PetscReal xi[], PetscReal yi[], PetscInt Ni, PetscInt ItpType);  
 extern PetscReal Interpolate2(PetscReal x, PetscReal xi[], PetscReal yi[], PetscInt Ni, PetscInt ItpType);  
