@@ -139,7 +139,7 @@ PetscReal ven(PetscReal profiles[][Nz_REF],PetscInt n, PetscReal h)
 	PetscReal nn=0.0,Te;
 	
 	Te = Interpolate(profiles,8,h,lin_flat);
-	
+
 	if (n==CO2) nn = Interpolate(profiles,5,h,lin_exp);
 	if (n==O)   nn = Interpolate(profiles,4,h,lin_exp);
 	

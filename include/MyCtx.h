@@ -130,8 +130,6 @@ typedef struct {
 
 extern PetscErrorCode InitCtx(AppCtx*,MonitorCtx*);
 
-extern PetscErrorCode OutputData(void*);
-
 extern PetscErrorCode CFL(TS);
 
 extern PetscReal      CrossP(PetscReal*,PetscReal*,PetscInt);
