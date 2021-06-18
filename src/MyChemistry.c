@@ -52,7 +52,7 @@ PetscReal v2(PetscReal N , PetscReal Te) {
 #undef __FUNCT__
 #define __FUNCT__ "v3"
 PetscReal v3(void) {
-	return 0; //zzz
+	// return 0; //zzz
 	return 2.0e-7; //_s-1
 }
 
@@ -96,7 +96,7 @@ PetscReal v5(PetscReal N , PetscReal Te) {
 #undef __FUNCT__
 #define __FUNCT__ "v6"
 PetscReal v6(PetscReal N , PetscReal Te) {
-	// return 0; //zzz
+	return 0; //zzz
 	PetscReal K, v;
 	// K = 3.1e-7*PetscPowScalar(300/Te,0.5); //_cm^3/_s     // Changed by Kellen to increase speed
 	K = 3.1e-7*PetscSqrtScalar(300/Te); //_cm^3/_s
@@ -111,7 +111,7 @@ PetscReal v6(PetscReal N , PetscReal Te) {
 #undef __FUNCT__
 #define __FUNCT__ "v7"
 PetscReal v7(PetscReal N , PetscReal Te) {
-	return 0; //zzz
+	// return 0; //zzz
 	PetscReal K, v;
 	K = 3.71e-12*PetscPowScalar(250/Te,0.7); //_cm^3/_s
 	v = N*K;
