@@ -94,7 +94,7 @@ PetscReal vin(PetscReal profiles[][Nz_REF],PetscInt i, PetscInt n, PetscReal h)
  Input Parameters:
  .  n - choice of (n)eutral species
  0. CO2
- 1. 0
+ 1. O
  .  ne - electron density (m^-3)
  .  nn - neutral density (m^-3)
  .  Te - electron temperature (K)
