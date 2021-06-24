@@ -1828,12 +1828,12 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
                 
 				// Eq 3-11: Ion momenta //
 				for (l=0; l<3; l++) {
-					f[k][j][i][d.vi[l][0]] = - (vi[l][0]*dvi[l][0].dx +vi[l][1]*dvi[l][0].dy +vi[l][2]*dvi[l][0].dz) + me/mi[l]*(E[0] +CrossP(vi[l],B,0);
-					f[k][j][i][d.vi[l][1]] = - (vi[l][0]*dvi[l][1].dx +vi[l][1]*dvi[l][1].dy +vi[l][2]*dvi[l][1].dz) + me/mi[l]*(E[1] +CrossP(vi[l],B,1);
-					f[k][j][i][d.vi[l][2]] = - (vi[l][0]*dvi[l][2].dx +vi[l][1]*dvi[l][2].dy +vi[l][2]*dvi[l][2].dz) + me/mi[l]*(E[2] +CrossP(vi[l],B,2);
+					f[k][j][i][d.vi[l][0]] = - (vi[l][0]*dvi[l][0].dx +vi[l][1]*dvi[l][0].dy +vi[l][2]*dvi[l][0].dz) + me/mi[l]*(E[0] +CrossP(vi[l],B,0));
+					f[k][j][i][d.vi[l][1]] = - (vi[l][0]*dvi[l][1].dx +vi[l][1]*dvi[l][1].dy +vi[l][2]*dvi[l][1].dz) + me/mi[l]*(E[1] +CrossP(vi[l],B,1));
+					f[k][j][i][d.vi[l][2]] = - (vi[l][0]*dvi[l][2].dx +vi[l][1]*dvi[l][2].dy +vi[l][2]*dvi[l][2].dz) + me/mi[l]*(E[2] +CrossP(vi[l],B,2));
 					if(user->gravswitch==1)
 						f[k][j][i][d.vi[l][2]] += - 1/((1+Z/rM)*(1+Z/rM));
-					if(user->gradpswitch==1)
+					if(user->gradpswitch==1){
 						f[k][j][i][d.vi[l][0]] += -dpi[l].dx/ni[l];
 						f[k][j][i][d.vi[l][1]] += -dpi[l].dy/ni[l];
 						f[k][j][i][d.vi[l][2]] += -dpi[l].dz/ni[l];
@@ -1863,7 +1863,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				}
 				
 				// Eq 15: Equation of state for electrons
-				f[k][j][i][d.pe] = - gama[l] * pe * (dve[0].dx + dve[1].dy + dve[2].dz );
+				f[k][j][i][d.pe] = - gama[l] * pe * (dve[0].dx + dve[1].dy + dve[2].dz);
 
 				if(user->gradpswitch==1){
 					f[k][j][i][d.pe] += -(ve[0]*dpe.dx + ve[1]*dpe.dy + ve[2]*dpe.dz);
