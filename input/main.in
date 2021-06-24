@@ -1,13 +1,12 @@
 #Command line options
 -output_folder ./output
-#-output_folder ../output			//Changed by Kellen so that the program is run from parent directory, not M4/bin
 #-input_file X2900000.bin
-#
+
 -bc_type 0 # 0: 1st order Neumann, 1: 2nd order Neumann, 2: zero'ed 2nd derivatives, 3: Non-symmetric "exact" solution, 10: combination of df/dn=0 amd d2f/dn2=0
 -limiters
 #-blockers
 #-smoothing
-#
+
 -dt 1.0e-4                # Initial time step
 -ts_max_steps 1000000000  # maximum number of time steps
 -viz_dstep 20000          # plot every dstep
@@ -33,21 +32,18 @@
 -B3 0e3                #_m, geometry parameter c
 -Mmars 6.4185e23       #_kg, Mars' mass
 -Rmars 3396.2e3        #_m, Mars' equatorial radius
-#
+
 #-ts_type euler
 #-ts_type ssp
 #-ts_ssp_type rk2jar
 #-ts_ssp_type lax
 #-ts_ssp_nstages 2
-#
+
 -ts_ssp_type rk104
 -da_grid_x 21
 -da_grid_y 21
 -da_grid_z 61
-#-da_grid_x 7
-#-da_grid_y 7
-#-da_grid_z 15
-#
+
 #Simulation parameters
 -in_x_min -100.0e+3       #_m
 -in_x_max 100.0e+3        #_m
@@ -67,19 +63,12 @@
 #-Damping_upper_alt  300.0e3 #_m
 #-Damping_scaleheight 10.0e3 #_m
 
-#Visualization parameters
-#-vizbox_x_min -1000.0e+3  #_m
-#-vizbox_x_max 1000.0e+3   #_m
-#-vizbox_y_min -500.0e+3   #_m
-#-vizbox_y_max 500.0e+3    #_m
-#-vizbox_z_min 0.0e+3      #_m
-#-vizbox_z_max 1000.0e+3   #_m
-
+#Optional switches (0: OFF  1: ON)
 #Chemistry
--chem_switch 1   # 1: chemistry off, 1: chemistry on
+-chem_switch 1
 
 #Collisions
--coll_switch 1   # 0: collisions off, 1: collisions on
+-coll_switch 1
 
 #Gravity
--grav_switch 1   # 0: gravity off, 1:gravity on
+-grav_switch 1
