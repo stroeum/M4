@@ -46,12 +46,8 @@ endif
 
 save:
 ifdef n
-	if [ ! -d "SaveData" ]; then \
-		mkdir SaveData; \
-	fi
-
-	mkdir SaveData/$(n)/
-	rm ./output/*.info
+	mkdir -p SaveData/$(n);
+	rm -f ./output/*.info
 	cp ./output/* ./SaveData/$(n)/
 	cp ./input/main.in ./SaveData/$(n)/
 else
