@@ -70,5 +70,8 @@
 #Collisions
 -coll_switch 1
 
+#Pressure Gradient
+-gradp_switch 1
+
 #Gravity
 -grav_switch 1
