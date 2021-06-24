@@ -9,7 +9,7 @@
 
 -dt 1.0e-4                # Initial time step
 -ts_max_steps 1000000000  # maximum number of time steps
--viz_dstep 1          # plot every dstep
+-viz_dstep 20000          # plot every dstep
 -ts_max_time 36000
 #-mi0 5.3135e-26        #_kg, mass of O2+, only single charged ions allowed!
 #-mi1 5.3135e-26        #_kg, mass of O2+, only single charged ions allowed!
@@ -71,7 +71,7 @@
 -coll_switch 1
 
 #Pressure Grad
--gradp_switch 0
+-gradp_switch 1
 
 #Gravity
 -grav_switch 1
