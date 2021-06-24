@@ -123,6 +123,7 @@ typedef struct {
 	PetscInt       bcType;
 	PetscInt       chemswitch;                    // Turn chemistry on/off
 	PetscInt       collswitch;                    // Turn collisions on/off
+	PetscInt       gradpswitch;                   // Turn pressure grad on/off
 	PetscInt       gravswitch;                    // Turn gravity on/off
 	PetscReal      RefProf[Np_REF][Nz_REF];       // Table of reference Profiles
 	PetscReal      RefPart[4][Nz_REF];            // Table of reference Partition

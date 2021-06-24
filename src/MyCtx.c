@@ -285,6 +285,8 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
     ierr = PetscOptionsGetInt(PETSC_NULL,PETSC_NULL,"-chem_switch",&user->chemswitch,PETSC_NULL);CHKERRQ(ierr);
     user->collswitch = 0;
     ierr = PetscOptionsGetInt(PETSC_NULL,PETSC_NULL,"-coll_switch",&user->collswitch,PETSC_NULL);CHKERRQ(ierr);
+    user->gradpswitch = 0;
+    ierr = PetscOptionsGetInt(PETSC_NULL,PETSC_NULL,"-gradp_switch",&user->gradpswitch,PETSC_NULL);CHKERRQ(ierr);
     user->gravswitch = 0;
     ierr = PetscOptionsGetInt(PETSC_NULL,PETSC_NULL,"-grav_switch",&user->gravswitch,PETSC_NULL);CHKERRQ(ierr);
     
