@@ -44,6 +44,10 @@ int main(int argc,char **argv)
 		PetscPrintf(PETSC_COMM_WORLD,"\nGravity\t\t= ON\n");
 	else
 		PetscPrintf(PETSC_COMM_WORLD,"\nGravity\t\t= OFF\n");
+	if(user.gradpswitch==1)
+		PetscPrintf(PETSC_COMM_WORLD,"Pressure Grad\t= ON\n");
+	else
+		PetscPrintf(PETSC_COMM_WORLD,"Pressure Grad\t= OFF\n");
 	if(user.chemswitch==1)
 		PetscPrintf(PETSC_COMM_WORLD,"Chemistry\t= ON\n");
 	else
