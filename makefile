@@ -48,7 +48,10 @@ save:
 ifdef n
 	mkdir -p SaveData/$(n);
 	rm -f ./output/*.info
+	cp start.job ./SaveData/$(n)/
 	cp ./output/* ./SaveData/$(n)/
+	cp ./input/Profiles.in ./SaveData/$(n)/
+	cp ./input/Partition.in ./SaveData/$(n)/
 	cp ./input/main.in ./SaveData/$(n)/
 else
 	@echo "You must provide a directory name n=<...>"
