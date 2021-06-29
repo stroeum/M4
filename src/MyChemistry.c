@@ -66,7 +66,7 @@ PetscReal v4(PetscReal N , PetscReal Te) {
 	return 0; //zzz
 	PetscReal K,E,v;
 	E = kB*Te/qe;
-	K = 9.0e-9*PetscPowScalar(E,0.7)*PetscExpScalar(-13.8/E); //_cm^3/_s
+	K = 9.0e-9*PetscPowScalar(E,0.7)*PetscExpScalar(-13.6/E); //_cm^3/_s
 	v = N*K;
 	return v*1e-6; //_m3/_s
 }
