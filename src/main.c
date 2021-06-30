@@ -40,22 +40,22 @@ int main(int argc,char **argv)
 	 Initialize program
 	 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 	ierr = InitCtx(&user,&usermonitor);CHKERRQ(ierr);
-	if(user.gravswitch==1)
-		PetscPrintf(PETSC_COMM_WORLD,"\nGravity\t\t= ON\n");
+	if(user.chemswitch==1)
+		PetscPrintf(PETSC_COMM_WORLD,"\nChemistry\t= ON\n");
 	else
-		PetscPrintf(PETSC_COMM_WORLD,"\nGravity\t\t= OFF\n");
+		PetscPrintf(PETSC_COMM_WORLD,"\nChemistry\t= OFF\n");
+	if(user.collswitch==1)
+		PetscPrintf(PETSC_COMM_WORLD,"Collisions\t= ON\n");
+	else
+		PetscPrintf(PETSC_COMM_WORLD,"Collisions\t= OFF\n");
 	if(user.gradpswitch==1)
 		PetscPrintf(PETSC_COMM_WORLD,"Pressure Grad\t= ON\n");
 	else
 		PetscPrintf(PETSC_COMM_WORLD,"Pressure Grad\t= OFF\n");
-	if(user.chemswitch==1)
-		PetscPrintf(PETSC_COMM_WORLD,"Chemistry\t= ON\n");
+	if(user.gravswitch==1)
+		PetscPrintf(PETSC_COMM_WORLD,"Gravity\t\t= ON\n\n");
 	else
-		PetscPrintf(PETSC_COMM_WORLD,"Chemistry\t= OFF\n");
-	if(user.collswitch==1)
-		PetscPrintf(PETSC_COMM_WORLD,"Collisions\t= ON\n\n");
-	else
-		PetscPrintf(PETSC_COMM_WORLD,"Collisions\t= OFF\n\n");
+		PetscPrintf(PETSC_COMM_WORLD,"Gravity\t\t= OFF\n\n");
         
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	 Create distributed array (DMDA) to manage parallel grid and vectors

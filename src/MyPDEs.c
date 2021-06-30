@@ -1226,12 +1226,6 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 				E[1] = -CrossP(ve,B,1);
 				E[2] = -CrossP(ve,B,2);
 
-				if (user->gradpswitch==1){
-					E[0] += -dpe.dx/ne;
-					E[1] += -dpe.dy/ne;
-					E[2] += -dpe.dz/ne;
-				}
-
 				if(user->chemswitch==1){
 					E[0] += E_chem_S[0];
 					E[1] += E_chem_S[1];
@@ -1241,6 +1235,11 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 					E[0] += el_coll[0];
 					E[1] += el_coll[1];
 					E[2] += el_coll[2];
+				}
+				if (user->gradpswitch==1){
+					E[0] += -dpe.dx/ne;
+					E[1] += -dpe.dy/ne;
+					E[2] += -dpe.dz/ne;
 				}
 				
 				// Store data
@@ -1827,13 +1826,6 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 					f[k][j][i][d.vi[l][0]] = - (vi[l][0]*dvi[l][0].dx +vi[l][1]*dvi[l][0].dy +vi[l][2]*dvi[l][0].dz) + me/mi[l]*(E[0] +CrossP(vi[l],B,0));
 					f[k][j][i][d.vi[l][1]] = - (vi[l][0]*dvi[l][1].dx +vi[l][1]*dvi[l][1].dy +vi[l][2]*dvi[l][1].dz) + me/mi[l]*(E[1] +CrossP(vi[l],B,1));
 					f[k][j][i][d.vi[l][2]] = - (vi[l][0]*dvi[l][2].dx +vi[l][1]*dvi[l][2].dy +vi[l][2]*dvi[l][2].dz) + me/mi[l]*(E[2] +CrossP(vi[l],B,2));
-					if(user->gravswitch==1)
-						f[k][j][i][d.vi[l][2]] += - 1/((1+Z/rM)*(1+Z/rM));
-					if(user->gradpswitch==1){
-						f[k][j][i][d.vi[l][0]] += -dpi[l].dx/ni[l];
-						f[k][j][i][d.vi[l][1]] += -dpi[l].dy/ni[l];
-						f[k][j][i][d.vi[l][2]] += -dpi[l].dz/ni[l];
-					}
 					if(user->chemswitch==1){
 						f[k][j][i][d.vi[l][0]] += mom_chem_S[l][0];
 						f[k][j][i][d.vi[l][1]] += mom_chem_S[l][1];
@@ -1844,29 +1836,35 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 						f[k][j][i][d.vi[l][1]] += el_coll[l][1];
 						f[k][j][i][d.vi[l][2]] += el_coll[l][2];
 					}
+					if(user->gradpswitch==1){
+						f[k][j][i][d.vi[l][0]] += -dpi[l].dx/ni[l];
+						f[k][j][i][d.vi[l][1]] += -dpi[l].dy/ni[l];
+						f[k][j][i][d.vi[l][2]] += -dpi[l].dz/ni[l];
+					}
+					if(user->gravswitch==1)
+						f[k][j][i][d.vi[l][2]] += - 1/((1+Z/rM)*(1+Z/rM));
 				}
 
 				// Eq 12-14: Equations of state for ions
 				// Read more about heat transfer (Schunk and Nagy Book). Appendix I. page 518
 				for (l=0; l<3; l++){
 					f[k][j][i][d.pi[l]] = - gama[l] * pi[l] * (dvi[l][0].dx + dvi[l][1].dy + dvi[l][2].dz);
-					if(user->gradpswitch==1){
-						f[k][j][i][d.pi[l]] += -(vi[l][0]*dpi[l].dx + vi[l][1]*dpi[l].dy + vi[l][2]*dpi[l].dz);
-					}
 					if(user->chemswitch==1){
 						f[k][j][i][d.pi[l]] += ene_chem_S[l] - ene_chem_L[l];
+					}
+					if(user->gradpswitch==1){
+						f[k][j][i][d.pi[l]] += -(vi[l][0]*dpi[l].dx + vi[l][1]*dpi[l].dy + vi[l][2]*dpi[l].dz);
 					}
 				}
 				
 				// Eq 15: Equation of state for electrons
 				f[k][j][i][d.pe] = - gama[l] * pe * (dve[0].dx + dve[1].dy + dve[2].dz);
 
-				if(user->gradpswitch==1){
-					f[k][j][i][d.pe] += -(ve[0]*dpe.dx + ve[1]*dpe.dy + ve[2]*dpe.dz);
-				}
-
 				if(user->chemswitch==1){
 					f[k][j][i][d.pe] += ene_chem_S[e] - ene_chem_L[e];
+				}
+				if(user->gradpswitch==1){
+					f[k][j][i][d.pe] += -(ve[0]*dpe.dx + ve[1]*dpe.dy + ve[2]*dpe.dz);
 				}
 				
 				// Eq 16-18: Faraday's law
