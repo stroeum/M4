@@ -48,6 +48,7 @@ save:
 ifdef n
 	mkdir -p SaveData/$(n);
 	rm -f ./output/*.info
+	rm -f ./SaveData/$(n)/*
 	cp start.job ./SaveData/$(n)/
 	cp ./output/* ./SaveData/$(n)/
 	cp ./input/Profiles.in ./SaveData/$(n)/
