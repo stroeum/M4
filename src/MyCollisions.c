@@ -224,7 +224,6 @@ PetscReal v21(PetscReal nCO2 , PetscReal TCO2  , PetscReal TCO2p){
 	PetscReal v,Tr;
 	nCO2 *= 1e-6; // _cm^-3
 	Tr = (TCO2+TCO2p)/2.0; // _K
-	// v  = (Tr>850)*2.85e-11*nCO2*PetscSqrtScalar(Tr)*PetscPowScalar(1-0.083*log10(Tr),2.0); // _s^-1   // Changed by Kellen to increase speed
 	v  = (Tr>850)*2.85e-11*nCO2*PetscSqrtScalar(Tr)*(1-0.083*log10(Tr))*(1-0.083*log10(Tr)); // _s^-1
 	return v; // _s^-1
 }
@@ -307,7 +306,6 @@ PetscReal v32(PetscReal nO   , PetscReal TO    , PetscReal TOp  ){
 	PetscReal v,Tr;
 	nO *= 1e-6; // _cm-3
 	Tr  = (TO+TOp)/2.0; // _K
-	// v   = (Tr>235)*3.67e-11*nO*PetscSqrtScalar(Tr)*PetscPowScalar(1-0.064*log10(Tr),2.0); // _s^-1   // Changed by Kellen to increase speed
 	v  = (Tr>235)*3.67e-11*nO*PetscSqrtScalar(Tr)*(1-0.064*log10(Tr))*(1-0.064*log10(Tr)); // _s^-1
 	return v; // 1/_s
 }

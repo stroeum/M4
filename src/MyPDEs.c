@@ -1180,10 +1180,6 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 				nu[CO2]     = Ven(CO2, nn[CO2] *n0, Te);
 				nu[O]       = Ven(O  , nn[O]   *n0, Te);
 
-				//Te = Interpolate(user->RefProf, 8 ,Z, lin_flat)/T0;		// Changed by Kellen because of redundancy
-				//nn[CO2]     = Interpolate(user->RefProf, 5 ,Z, lin_flat)/n0;
-				//nn[O]       = Interpolate(user->RefProf, 4 ,Z, lin_flat)/n0;
-                
 				nu[0]       = v41(nn[CO2] *n0, Te);	// e    CO2
 				nu[1]       = v42(nn[O]   *n0, Te);	// e    O
 				nu[2]       = v43(ni[O2p] *n0, Te);	// e    O2+
@@ -1201,7 +1197,7 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 
 				// chemistry for Gen Ohms Law
 				chem_nuS[e][0] = v1();                      // CO2 + hv
-				chem_nuS[e][1] = 2*v2(nn[CO2], Te);	    // CO2 + e      Added by Kellen to test v2
+				chem_nuS[e][1] = 2*v2(nn[CO2], Te);	    // CO2 + e
 				chem_nuS[e][2] = v3();                      // O + hv
 				chem_nuS[e][3] = 2*v4(nn[O]  , Te);         // O + e
 				for (m=0;m<3;m++) {
@@ -1453,16 +1449,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 	// Form F(u,v) = Udot
 	ierr = DMDAVecGetArrayDOF(da,F,&f);CHKERRQ(ierr);
 
-	if(step==0 || ceilf((step+1)/user->viz_dstep) == (float)(step+1)/user->viz_dstep){
-		if(rank==0){
-			// Commented by Kellen to remove .dat
-			//sprintf(fName,"%s/Rates%d.dat",user->vName,step+1);
-			//fp = fopen(fName,"w");
-		}
-	}
-
 	// Compute function over the locally owned part of the grid
-
 	dt_CFL = 1e300;
 	flag   = PETSC_FALSE;
 	for (k=zs; k<zs+zm; k++) {
@@ -1611,7 +1598,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				chem_nuL[O2p][0] = v5(ne        *n0 , Te    *T0);   // O2+ + e
                 
 				chem_nuS[CO2p][0] = v1();                           // CO2 + hv
-				chem_nuS[CO2p][1] = v2(ne       *n0 , Te    *T0);   // CO2 + e     Added by Kellen to test v2
+				chem_nuS[CO2p][1] = v2(ne       *n0 , Te    *T0);   // CO2 + e
 				chem_nuL[CO2p][0] = v6(ne       *n0 , Te    *T0);   // CO2+ + e
 				chem_nuL[CO2p][1] = v8(nn[O]    *n0);               // CO2+ + O
 				chem_nuL[CO2p][2] = v9(nn[O]    *n0);               // CO2+ + O
@@ -1623,14 +1610,25 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				chem_nuL[Op][1] = v10(nn[CO2]   *n0);               // O+ + CO2
                 
 				chem_nuS[e][0] = v1();                              // CO2 + hv
-				chem_nuS[e][1] = 2*v2(nn[CO2]   *n0 , Te    *T0);   // CO2 + e      Added by Kellen to test v2
+				chem_nuS[e][1] = 2*v2(nn[CO2]   *n0 , Te    *T0);   // CO2 + e
 				chem_nuS[e][2] = v3();                              // O + hv
 				chem_nuS[e][3] = 2*v4(nn[O]     *n0 , Te    *T0);   // O + e
-				chem_nuL[e][0] = v2(nn[CO2]     *n0 , Te    *T0);   // CO2 + e      Added by Kellen to test v2
+				chem_nuL[e][0] = v2(nn[CO2]     *n0 , Te    *T0);   // CO2 + e
 				chem_nuL[e][1] = v4(nn[O]       *n0 , Te    *T0);   // O + e
 				chem_nuL[e][2] = v5(ni[O2p]     *n0 , Te    *T0);   // O2+ + e
 				chem_nuL[e][3] = v6(ni[CO2p]    *n0 , Te    *T0);   // CO2+ + e
 				chem_nuL[e][4] = v7(ni[Op]      *n0 , Te    *T0);   // O+ + e
+
+				/*
+				for (m=0;m<5;m++) {
+					chem_nuS[e][m] = 0;
+					chem_nuL[e][m] = 0;
+					for (l=0;l<3;l++) {
+						chem_nuS[e][m] += chem_nuS[l][m];
+						chem_nuL[e][m] += chem_nuL[l][m];
+					}
+				}
+				*/
             
 				// CONSERVATION OF MASS SOURCES AND LOSSES
 				cont_chem_S[O2p]  = tau     *(chem_nuS[O2p][0] *nn[O]    + chem_nuS[O2p][1] *nn[CO2]);
@@ -1686,11 +1684,13 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 					+ (gama[e]-1)    *chem_nuS[e][1]     *(me*nn[CO2])/me         *Norm2(vdiffe)/2
 					+ (gama[e]-1)    *chem_nuS[e][2]     *(me*nn[O])/me           *Norm2(vdiffe)/2
 					+ (gama[e]-1)    *chem_nuS[e][3]     *(me*nn[O])/me           *Norm2(vdiffe)/2);
+				//ene_chem_S[e] = 0;
 				ene_chem_L[O2p]     = tau   *(chem_nuL[O2p][0] *pi[Op]);
 				ene_chem_L[CO2p]    = tau   *(chem_nuL[CO2p][0]*pi[CO2p] + chem_nuL[CO2p][1]*pi[CO2p]  + chem_nuL[CO2p][2]*pi[CO2p]);
 				ene_chem_L[Op]      = tau   *(chem_nuL[Op][0]  *pi[Op]   + chem_nuL[Op][1]  *pi[Op]);
 				ene_chem_L[e]       = tau   *(chem_nuL[e][0]   *pe       + chem_nuL[e][1]   *pe        + chem_nuL[e][2]   *pe
 					+ chem_nuL[e][3] *pe       + chem_nuL[e][4]   *pe);
+				//ene_chem_L[e] = 0;
 				
 				// Intermediate calculations
 				for (m=0; m<3; m++) {
