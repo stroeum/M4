@@ -49,7 +49,7 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
 		
 		sprintf(fName, "%s/X%d.bin",user->dName,istep+step);
 		ierr = PetscViewerBinaryOpen(PETSC_COMM_WORLD,fName,FILE_MODE_WRITE, &fViewer); CHKERRQ(ierr);
-		ierr = VecView(U,fViewer); CHKERRQ(ierr); // try giving an integer and a long number and array figute out dim u
+		ierr = VecView(U,fViewer); CHKERRQ(ierr); // try giving an integer and a long number and array figure out dim u
 		ierr = PetscViewerDestroy(&fViewer); CHKERRQ(ierr);
 		
 		if(xtra_out) {
