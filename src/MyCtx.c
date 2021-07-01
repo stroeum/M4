@@ -368,8 +368,8 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 	user->B0  = user->me/(qe*user->tau);
 	
 	user->dt    = user->dt/user->tau;     // Initial time step (need to write this in main.in)
-	user->eps.n = 1.0e3/user->n0; // min density allowed in the domain: 10^-3 cm-3 = 1e3 m^-3
-	user->eps.p = 1e-15/user->p0; // min pressure allowed in the domain
+	user->eps.n = 1.0e3/user->n0;         // min density allowed in the domain: 1e3 m-3 = 1e-3 cm-3
+	user->eps.p = 1e-15/user->p0;         // min pressure allowed in the domain
 	user->eps.v = .01*299742458/user->v0; // MAX velocity allowed in the domain: 1% of the speed of light
 	
 	// Retrieve information from initial conditions
