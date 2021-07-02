@@ -38,6 +38,7 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 	
 	PetscInt       i,j,k,l,m,xs,ys,zs,xm,ym,zm;
 	PetscReal      ****u;
+	PetscReal      *ukji;
 	PetscReal      X,Y,Z;
 	PetscReal      Te,Ti;
 	PetscReal      nio[3],neo,pio[3],peo;
@@ -75,6 +76,7 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 			for (j=ys; j<ys+ym; j++) {
 				Y = Ymin + y[j]*L;
 				for (i=xs; i<xs+xm; i++) {
+					ukji = u[k][j][i];	// stored for faster access
 					X = Xmin + x[i]*L;
 					
 					Te = Interpolate(user->RefProf, 8 ,Z, lin_flat);
@@ -100,70 +102,70 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 					peo = neo*kB*Te;
 					assert(peo>0);
 					if(Btype==0) {
-						u[k][j][i][d.B[0]] = Interpolate(user->RefProf, 0 ,Z, lin_flat)/B0;
-						u[k][j][i][d.B[1]] = Interpolate(user->RefProf, 1 ,Z, lin_flat)/B0;
-						u[k][j][i][d.B[2]] = Interpolate(user->RefProf, 2 ,Z, lin_flat)/B0;
+						ukji[d.B[0]] = Interpolate(user->RefProf, 0 ,Z, lin_flat)/B0;
+						ukji[d.B[1]] = Interpolate(user->RefProf, 1 ,Z, lin_flat)/B0;
+						ukji[d.B[2]] = Interpolate(user->RefProf, 2 ,Z, lin_flat)/B0;
 					} else if (Btype==1) {
-						u[k][j][i][d.B[0]] = 0.0/B0;
-						u[k][j][i][d.B[1]] = 0.0/B0;
-						u[k][j][i][d.B[2]] = Bo /B0;
+						ukji[d.B[0]] = 0.0/B0;
+						ukji[d.B[1]] = 0.0/B0;
+						ukji[d.B[2]] = Bo /B0;
 					} else if (Btype==2) {
-						u[k][j][i][d.B[0]] = 0.0/B0;
-						u[k][j][i][d.B[1]] = Bo /B0;
-						u[k][j][i][d.B[2]] = 0.0/B0;
+						ukji[d.B[0]] = 0.0/B0;
+						ukji[d.B[1]] = Bo /B0;
+						ukji[d.B[2]] = 0.0/B0;
 					} else if (Btype==3) {
-						u[k][j][i][d.B[0]] = V_Dipole(Bo,0,0,a,X,Y,Z,0)/B0;
-						u[k][j][i][d.B[1]] = V_Dipole(Bo,0,0,a,X,Y,Z,1)/B0;
-						u[k][j][i][d.B[2]] = V_Dipole(Bo,0,0,a,X,Y,Z,2)/B0;
+						ukji[d.B[0]] = V_Dipole(Bo,0,0,a,X,Y,Z,0)/B0;
+						ukji[d.B[1]] = V_Dipole(Bo,0,0,a,X,Y,Z,1)/B0;
+						ukji[d.B[2]] = V_Dipole(Bo,0,0,a,X,Y,Z,2)/B0;
 					} else if (Btype==4) {
-						u[k][j][i][d.B[0]] = H_Dipole(Bo,0,0,a,X,Y,Z,0)/B0;
-						u[k][j][i][d.B[1]] = H_Dipole(Bo,0,0,a,X,Y,Z,1)/B0;
-						u[k][j][i][d.B[2]] = H_Dipole(Bo,0,0,a,X,Y,Z,2)/B0;
+						ukji[d.B[0]] = H_Dipole(Bo,0,0,a,X,Y,Z,0)/B0;
+						ukji[d.B[1]] = H_Dipole(Bo,0,0,a,X,Y,Z,1)/B0;
+						ukji[d.B[2]] = H_Dipole(Bo,0,0,a,X,Y,Z,2)/B0;
 					} else if (Btype==5) {
 						if (Z<=inZmax) {
-							u[k][j][i][d.B[0]] = 0.0/B0;
-							u[k][j][i][d.B[1]] = 0.0/B0;
-							u[k][j][i][d.B[2]] = Bo /B0;
+							ukji[d.B[0]] = 0.0/B0;
+							ukji[d.B[1]] = 0.0/B0;
+							ukji[d.B[2]] = Bo /B0;
 						} else {
-							u[k][j][i][d.B[0]] = 0.0/B0;
-							u[k][j][i][d.B[1]] = 0.0/B0;
-							u[k][j][i][d.B[2]] = Bo /B0 * (1-erf((Z-3*a-inZmax)/a))/2;
+							ukji[d.B[0]] = 0.0/B0;
+							ukji[d.B[1]] = 0.0/B0;
+							ukji[d.B[2]] = Bo /B0 * (1-erf((Z-3*a-inZmax)/a))/2;
 						}
 					} else if (Btype==6) {
 						if (Z<=inZmax) {
-							u[k][j][i][d.B[0]] = 0.0/B0;
-							u[k][j][i][d.B[1]] = 0.0/B0;
-							u[k][j][i][d.B[2]] = Bo /B0;
+							ukji[d.B[0]] = 0.0/B0;
+							ukji[d.B[1]] = 0.0/B0;
+							ukji[d.B[2]] = Bo /B0;
 						} else {
-							u[k][j][i][d.B[0]] = 0.0/B0;
-							u[k][j][i][d.B[1]] = 0.0/B0;
-							u[k][j][i][d.B[2]] = Bo /B0 * pow(inZmax/Z,3);
+							ukji[d.B[0]] = 0.0/B0;
+							ukji[d.B[1]] = 0.0/B0;
+							ukji[d.B[2]] = Bo /B0 * pow(inZmax/Z,3);
 						}
 					} else if (Btype==7) {
-						u[k][j][i][d.B[0]] = Arcades(X,Y,Z,0)/B0;
-						u[k][j][i][d.B[1]] = Arcades(X,Y,Z,1)/B0;
-						u[k][j][i][d.B[2]] = Arcades(X,Y,Z,2)/B0;
+						ukji[d.B[0]] = Arcades(X,Y,Z,0)/B0;
+						ukji[d.B[1]] = Arcades(X,Y,Z,1)/B0;
+						ukji[d.B[2]] = Arcades(X,Y,Z,2)/B0;
 					} else if (Btype==8) {
-						u[k][j][i][d.B[0]] = MultiArcades(X,Y,Z,0)/B0;
-						u[k][j][i][d.B[1]] = MultiArcades(X,Y,Z,1)/B0;
-						u[k][j][i][d.B[2]] = MultiArcades(X,Y,Z,2)/B0;
+						ukji[d.B[0]] = MultiArcades(X,Y,Z,0)/B0;
+						ukji[d.B[1]] = MultiArcades(X,Y,Z,1)/B0;
+						ukji[d.B[2]] = MultiArcades(X,Y,Z,2)/B0;
 					}
 					
 					for (l=0; l<3; l++) {
-						u[k][j][i][d.ni[l]] = nio[l]/n0;
+						ukji[d.ni[l]] = nio[l]/n0;
 						for (m=0; m<3; m++) {
 							if (vDamping) { //((1.0-tanh(Z-Lz)/(Lz/12.0))/2.0);
-								u[k][j][i][d.vi[l][m]] = ui[m]/v0 * 
+								ukji[d.vi[l][m]] = ui[m]/v0 * 
 								.5*(1+erf((X-XL)/lambda)) * .5*(1-erf((X-XU)/lambda)) * 
 								.5*(1+erf((Y-YL)/lambda)) * .5*(1-erf((Y-YU)/lambda)) * 
 								.5*(1+erf((Z-ZL)/lambda)) * .5*(1-erf((Z-ZU)/lambda)) ;
 							} else {
-								u[k][j][i][d.vi[l][m]] = ui[m]/v0;
+								ukji[d.vi[l][m]] = ui[m]/v0;
 							}
 						}
-						u[k][j][i][d.pi[l]] = pio[l]/p0;
+						ukji[d.pi[l]] = pio[l]/p0;
 					}
-					u[k][j][i][d.pe] = peo/p0;
+					ukji[d.pe] = peo/p0;
 				}
 			}
 		}
@@ -202,6 +204,7 @@ PetscErrorCode FormBCu(PetscReal ****u, void*ctx)
 	PetscReal      *x=user->x,*y=user->y,*z=user->z;
 	PetscReal      L=user->L;
 	PetscReal      Zmin=user->outZmin,Z;
+	PetscReal      **ukj;
 	PetscInt       bcType = user->bcType;
 	
 	PetscInt       i,j,k,l,m,xs,ys,zs,xm,ym,zm;
@@ -219,6 +222,7 @@ PetscErrorCode FormBCu(PetscReal ****u, void*ctx)
 	for (k=zs; k<zs+zm; k++) {
 		Z = Zmin + z[k]*L;
 		for (j=ys; j<ys+ym; j++) {
+			ukj = u[k][j];
 			if(xs==0) {		// S-boundary //
 				id.x[0] = -1;
 				id.x[1] = 0;
@@ -233,30 +237,30 @@ PetscErrorCode FormBCu(PetscReal ****u, void*ctx)
 				D2.x[2] =   2.0/(dh.x[1] * (dh.x[1]-dh.x[0]));
 				
 				if (bcType==0) { // 1st order Neumann BC
-					for (l=0; l<19; l++) u[k][j][id.x[0]][l] = u[k][j][id.x[1]][l];
+					for (l=0; l<19; l++) ukj[id.x[0]][l] = ukj[id.x[1]][l];
 				}
 				if (bcType==1) { // 2nd Order Neumann BC
-					for (l=0; l<19; l++) u[k][j][id.x[0]][l] = -D1.x[1]/D1.x[0]*u[k][j][id.x[1]][l]-D1.x[2]/D1.x[0]*u[k][j][id.x[2]][l];
+					for (l=0; l<19; l++) ukj[id.x[0]][l] = -D1.x[1]/D1.x[0]*ukj[id.x[1]][l]-D1.x[2]/D1.x[0]*ukj[id.x[2]][l];
 				}
 				if (bcType==2) { // Continuous 2nd derivative BC
-					for (l=0; l<19; l++) u[k][j][id.x[0]][l] = -D2.x[1]/D2.x[0]*u[k][j][id.x[1]][l]-D2.x[2]/D2.x[0]*u[k][j][id.x[2]][l];
+					for (l=0; l<19; l++) ukj[id.x[0]][l] = -D2.x[1]/D2.x[0]*ukj[id.x[1]][l]-D2.x[2]/D2.x[0]*ukj[id.x[2]][l];
 				}
 				if (bcType==10) { // Combination of zero'ed 1st and 2nd derivatives
 					for (l=0; l<3; l++) {
-						u[k][j][id.x[0]][d.ni[l]] = -D1.x[1]/D1.x[0]*u[k][j][id.x[1]][d.ni[l]]-D1.x[2]/D1.x[0]*u[k][j][id.x[2]][d.ni[l]];
-						u[k][j][id.x[0]][d.pi[l]] = -D1.x[1]/D1.x[0]*u[k][j][id.x[1]][d.pi[l]]-D1.x[2]/D1.x[0]*u[k][j][id.x[2]][d.pi[l]];
+						ukj[id.x[0]][d.ni[l]] = -D1.x[1]/D1.x[0]*ukj[id.x[1]][d.ni[l]]-D1.x[2]/D1.x[0]*ukj[id.x[2]][d.ni[l]];
+						ukj[id.x[0]][d.pi[l]] = -D1.x[1]/D1.x[0]*ukj[id.x[1]][d.pi[l]]-D1.x[2]/D1.x[0]*ukj[id.x[2]][d.pi[l]];
 					}
-					u[k][j][id.x[0]][d.pe] = -D1.x[1]/D1.x[0]*u[k][j][id.x[1]][d.pe]-D1.x[2]/D1.x[0]*u[k][j][id.x[2]][d.pe];
+					ukj[id.x[0]][d.pe] = -D1.x[1]/D1.x[0]*ukj[id.x[1]][d.pe]-D1.x[2]/D1.x[0]*ukj[id.x[2]][d.pe];
 					for (m=0; m<3; m++) {
 						for (l=0; l<3; l++) {
-							u[k][j][id.x[0]][d.vi[l][m]] = -D2.x[1]/D2.x[0]*u[k][j][id.x[1]][d.vi[l][m]]-D2.x[2]/D2.x[0]*u[k][j][id.x[2]][d.vi[l][m]];
+							ukj[id.x[0]][d.vi[l][m]] = -D2.x[1]/D2.x[0]*ukj[id.x[1]][d.vi[l][m]]-D2.x[2]/D2.x[0]*ukj[id.x[2]][d.vi[l][m]];
 						}
-						u[k][j][id.x[0]][d.B[m]] = -D1.x[1]/D1.x[0]*u[k][j][id.x[1]][d.B[m]]-D1.x[2]/D1.x[0]*u[k][j][id.x[2]][d.B[m]];
+						ukj[id.x[0]][d.B[m]] = -D1.x[1]/D1.x[0]*ukj[id.x[1]][d.B[m]]-D1.x[2]/D1.x[0]*ukj[id.x[2]][d.B[m]];
 					}
 				}
 				if (bcType==11) { // Combination of DiRichlet and Neumann
-					for (l=0; l< 3; l++) u[k][j][id.x[0]][l] = Interpolate(user->RefPart, l ,Z, lin_flat)*Interpolate(user->RefProf, 7 ,Z, lin_exp)/n0; 
-					for (l=3; l<19; l++) u[k][j][id.x[0]][l] = u[k][j][id.x[1]][l];
+					for (l=0; l< 3; l++) ukj[id.x[0]][l] = Interpolate(user->RefPart, l ,Z, lin_flat)*Interpolate(user->RefProf, 7 ,Z, lin_exp)/n0; 
+					for (l=3; l<19; l++) ukj[id.x[0]][l] = ukj[id.x[1]][l];
 				}
 			}
 			if(xs+xm==mx) {		// N-boundary //
@@ -273,30 +277,30 @@ PetscErrorCode FormBCu(PetscReal ****u, void*ctx)
 				D2.x[2] =   2.0/(dh.x[1] * (dh.x[1]-dh.x[0]));
 				
 				if (bcType==0) { // 1st order Neumann BC
-					for (l=0; l<19; l++) u[k][j][id.x[0]][l] = u[k][j][id.x[1]][l];
+					for (l=0; l<19; l++) ukj[id.x[0]][l] = ukj[id.x[1]][l];
 				}
 				if (bcType==1) { // 2nd Order Neumann BC
-					for (l=0; l<19; l++) u[k][j][id.x[0]][l] = -D1.x[1]/D1.x[0]*u[k][j][id.x[1]][l]-D1.x[2]/D1.x[0]*u[k][j][id.x[2]][l];
+					for (l=0; l<19; l++) ukj[id.x[0]][l] = -D1.x[1]/D1.x[0]*ukj[id.x[1]][l]-D1.x[2]/D1.x[0]*ukj[id.x[2]][l];
 				}
 				if (bcType==2) { // Continuous 2nd derivative BC
-					for (l=0; l<19; l++) u[k][j][id.x[0]][l] = -D2.x[1]/D2.x[0]*u[k][j][id.x[1]][l]-D2.x[2]/D2.x[0]*u[k][j][id.x[2]][l];
+					for (l=0; l<19; l++) ukj[id.x[0]][l] = -D2.x[1]/D2.x[0]*ukj[id.x[1]][l]-D2.x[2]/D2.x[0]*ukj[id.x[2]][l];
 				}
 				if (bcType==10) { // Combination of zero'ed 1st and 2nd derivatives
 					for (l=0; l<3; l++) {
-						u[k][j][id.x[0]][d.ni[l]] = -D1.x[1]/D1.x[0]*u[k][j][id.x[1]][d.ni[l]]-D1.x[2]/D1.x[0]*u[k][j][id.x[2]][d.ni[l]];
-						u[k][j][id.x[0]][d.pi[l]] = -D1.x[1]/D1.x[0]*u[k][j][id.x[1]][d.pi[l]]-D1.x[2]/D1.x[0]*u[k][j][id.x[2]][d.pi[l]];
+						ukj[id.x[0]][d.ni[l]] = -D1.x[1]/D1.x[0]*ukj[id.x[1]][d.ni[l]]-D1.x[2]/D1.x[0]*ukj[id.x[2]][d.ni[l]];
+						ukj[id.x[0]][d.pi[l]] = -D1.x[1]/D1.x[0]*ukj[id.x[1]][d.pi[l]]-D1.x[2]/D1.x[0]*ukj[id.x[2]][d.pi[l]];
 					}
-					u[k][j][id.x[0]][d.pe] = -D1.x[1]/D1.x[0]*u[k][j][id.x[1]][d.pe]-D1.x[2]/D1.x[0]*u[k][j][id.x[2]][d.pe];
+					ukj[id.x[0]][d.pe] = -D1.x[1]/D1.x[0]*ukj[id.x[1]][d.pe]-D1.x[2]/D1.x[0]*ukj[id.x[2]][d.pe];
 					for (m=0; m<3; m++) {
 						for (l=0; l<3; l++) {
-							u[k][j][id.x[0]][d.vi[l][m]] = -D2.x[1]/D2.x[0]*u[k][j][id.x[1]][d.vi[l][m]]-D2.x[2]/D2.x[0]*u[k][j][id.x[2]][d.vi[l][m]];
+							ukj[id.x[0]][d.vi[l][m]] = -D2.x[1]/D2.x[0]*ukj[id.x[1]][d.vi[l][m]]-D2.x[2]/D2.x[0]*ukj[id.x[2]][d.vi[l][m]];
 						}
-						u[k][j][id.x[0]][d.B[m]] = -D1.x[1]/D1.x[0]*u[k][j][id.x[1]][d.B[m]]-D1.x[2]/D1.x[0]*u[k][j][id.x[2]][d.B[m]];
+						ukj[id.x[0]][d.B[m]] = -D1.x[1]/D1.x[0]*ukj[id.x[1]][d.B[m]]-D1.x[2]/D1.x[0]*ukj[id.x[2]][d.B[m]];
 					}
 				}
 				if (bcType==11) { // Combination of DiRichlet and Neumann
-					for (l=0; l< 3; l++) u[k][j][id.x[0]][l] = Interpolate(user->RefPart, l ,Z, lin_flat)*Interpolate(user->RefProf, 7 ,Z, lin_exp)/n0; 
-					for (l=3; l<19; l++) u[k][j][id.x[0]][l] = u[k][j][id.x[1]][l];
+					for (l=0; l< 3; l++) ukj[id.x[0]][l] = Interpolate(user->RefPart, l ,Z, lin_flat)*Interpolate(user->RefProf, 7 ,Z, lin_exp)/n0; 
+					for (l=3; l<19; l++) ukj[id.x[0]][l] = ukj[id.x[1]][l];
 				}
 			}
 		}
@@ -508,6 +512,7 @@ PetscErrorCode FormBCv(PetscReal ****v, void *ctx)
 	PetscInt       i,j,k,l,m,xs,ys,zs,xm,ym,zm;
 	
 	PetscReal      *x=user->x,*y=user->y,*z=user->z;
+	PetscReal      **vkj;
 	stencil        id;
 	PetscInt       bcType = user->bcType;
 	coeff3         D1,D2;
@@ -593,6 +598,7 @@ PetscErrorCode FormBCv(PetscReal ****v, void *ctx)
 	
 	for (k=zs; k<zs+zm; k++) {
 		for (j=ys; j<ys+ym; j++) {
+			vkj = v[k][j];
 			if(xs==0) {                     // W-boundary //
 				id.x[0] = -1;
 				id.x[1] = 0;
@@ -607,19 +613,19 @@ PetscErrorCode FormBCv(PetscReal ****v, void *ctx)
 				D2.x[2] =   2.0/(dh.x[1] * (dh.x[1]-dh.x[0]));
 				
 				if (bcType==0 || bcType==11) { // 1st order Neumann BC
-					for (l=0; l<9; l++) v[k][j][id.x[0]][l] = v[k][j][id.x[1]][l];
+					for (l=0; l<9; l++) vkj[id.x[0]][l] = vkj[id.x[1]][l];
 				}
 				if (bcType==1) { // 2nd Order Neumann BC
-					for (l=0; l<9; l++) v[k][j][id.x[0]][l] = -D1.x[1]/D1.x[0]*v[k][j][id.x[1]][l]-D1.x[2]/D1.x[0]*v[k][j][id.x[2]][l];
+					for (l=0; l<9; l++) vkj[id.x[0]][l] = -D1.x[1]/D1.x[0]*vkj[id.x[1]][l]-D1.x[2]/D1.x[0]*vkj[id.x[2]][l];
 				}
 				if (bcType==2) { // Continuous 2nd derivative BC
-					for (l=0; l<9; l++) v[k][j][id.x[0]][l] = -D2.x[1]/D2.x[0]*v[k][j][id.x[1]][l]-D2.x[2]/D2.x[0]*v[k][j][id.x[2]][l];
+					for (l=0; l<9; l++) vkj[id.x[0]][l] = -D2.x[1]/D2.x[0]*vkj[id.x[1]][l]-D2.x[2]/D2.x[0]*vkj[id.x[2]][l];
 				}
 				if (bcType==10) { // Combination of zero'ed 1st and 2nd derivatives
 					for (m=0; m<3; m++) {
-						v[k][j][id.x[0]][s.ve[m]] = -D2.x[1]/D2.x[0]*v[k][j][id.x[1]][s.ve[m]]-D2.x[2]/D2.x[0]*v[k][j][id.x[2]][s.ve[m]];
-						v[k][j][id.x[0]][s.E[m]]  = -D1.x[1]/D1.x[0]*v[k][j][id.x[1]][s.E[m]] -D1.x[2]/D1.x[0]*v[k][j][id.x[2]][s.E[m]];
-						v[k][j][id.x[0]][s.J[m]]  = -D1.x[1]/D1.x[0]*v[k][j][id.x[1]][s.J[m]] -D1.x[2]/D1.x[0]*v[k][j][id.x[2]][s.J[m]];
+						vkj[id.x[0]][s.ve[m]] = -D2.x[1]/D2.x[0]*vkj[id.x[1]][s.ve[m]]-D2.x[2]/D2.x[0]*vkj[id.x[2]][s.ve[m]];
+						vkj[id.x[0]][s.E[m]]  = -D1.x[1]/D1.x[0]*vkj[id.x[1]][s.E[m]] -D1.x[2]/D1.x[0]*vkj[id.x[2]][s.E[m]];
+						vkj[id.x[0]][s.J[m]]  = -D1.x[1]/D1.x[0]*vkj[id.x[1]][s.J[m]] -D1.x[2]/D1.x[0]*vkj[id.x[2]][s.J[m]];
 					}
 				}
 			}
@@ -637,19 +643,19 @@ PetscErrorCode FormBCv(PetscReal ****v, void *ctx)
 				D2.x[2] =   2.0/(dh.x[1] * (dh.x[1]-dh.x[0]));
 				
 				if (bcType==0 || bcType==11) { // 1st order Neumann BC
-					for (l=0; l<9; l++) v[k][j][id.x[0]][l] = v[k][j][id.x[1]][l];
+					for (l=0; l<9; l++) vkj[id.x[0]][l] = vkj[id.x[1]][l];
 				}
 				if (bcType==1) { // 2nd Order Neumann BC
-					for (l=0; l<9; l++) v[k][j][id.x[0]][l] = -D1.x[1]/D1.x[0]*v[k][j][id.x[1]][l]-D1.x[2]/D1.x[0]*v[k][j][id.x[2]][l];
+					for (l=0; l<9; l++) vkj[id.x[0]][l] = -D1.x[1]/D1.x[0]*vkj[id.x[1]][l]-D1.x[2]/D1.x[0]*vkj[id.x[2]][l];
 				}
 				if (bcType==2) { // Continuous 2nd derivative BC
-					for (l=0; l<9; l++) v[k][j][id.x[0]][l] = -D2.x[1]/D2.x[0]*v[k][j][id.x[1]][l]-D2.x[2]/D2.x[0]*v[k][j][id.x[2]][l];
+					for (l=0; l<9; l++) vkj[id.x[0]][l] = -D2.x[1]/D2.x[0]*vkj[id.x[1]][l]-D2.x[2]/D2.x[0]*vkj[id.x[2]][l];
 				}
 				if (bcType==10) { // Combination of zero'ed 1st and 2nd derivatives
 					for (m=0; m<3; m++) {
-						v[k][j][id.x[0]][s.ve[m]] = -D2.x[1]/D2.x[0]*v[k][j][id.x[1]][s.ve[m]]-D2.x[2]/D2.x[0]*v[k][j][id.x[2]][s.ve[m]];
-						v[k][j][id.x[0]][s.E[m]]  = -D1.x[1]/D1.x[0]*v[k][j][id.x[1]][s.E[m]] -D1.x[2]/D1.x[0]*v[k][j][id.x[2]][s.E[m]];
-						v[k][j][id.x[0]][s.J[m]]  = -D1.x[1]/D1.x[0]*v[k][j][id.x[1]][s.J[m]] -D1.x[2]/D1.x[0]*v[k][j][id.x[2]][s.J[m]];
+						vkj[id.x[0]][s.ve[m]] = -D2.x[1]/D2.x[0]*vkj[id.x[1]][s.ve[m]]-D2.x[2]/D2.x[0]*vkj[id.x[2]][s.ve[m]];
+						vkj[id.x[0]][s.E[m]]  = -D1.x[1]/D1.x[0]*vkj[id.x[1]][s.E[m]] -D1.x[2]/D1.x[0]*vkj[id.x[2]][s.E[m]];
+						vkj[id.x[0]][s.J[m]]  = -D1.x[1]/D1.x[0]*vkj[id.x[1]][s.J[m]] -D1.x[2]/D1.x[0]*vkj[id.x[2]][s.J[m]];
 					}
 				}
 			}
@@ -750,10 +756,12 @@ PetscErrorCode CheckValues(PetscReal ****u,PetscReal ****v,void *ctx)
 	PetscReal      n0 = user->n0, v0 = user->v0, p0 = user->p0;
 	PetscInt       rank;
 	PetscReal      *z=user->z;
-	PetscReal      Z;
+	PetscReal      Zkm;
 	PetscReal      Zmin = user->outZmin;
 	PetscReal      L=user->L;
 	PetscInt       i,j,k,l,m,xs,ys,zs,xm,ym,zm;
+	PetscReal      *ukji;
+	PetscReal      *vkji;
 	
 	PetscFunctionBegin;
 	MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
@@ -763,41 +771,43 @@ PetscErrorCode CheckValues(PetscReal ****u,PetscReal ****v,void *ctx)
 	
 	// Check values
 	for (k=zs; k<zs+zm; k++) {
-		Z = Zmin + z[k]*L; 
+		Zkm = (Zmin + z[k]*L)*1e-3; 
 		for (j=ys; j<ys+ym; j++) {
 			for (i=xs; i<xs+xm; i++) {
+				ukji = u[k][j][i];	// stored for faster access
 				if (limiters) {
-					if(!(u[k][j][i][d.pe]>=eps.p)) {
-						u[k][j][i][d.pe]=eps.p;
+					if(!(ukji[d.pe]>=eps.p)) {
+						ukji[d.pe]=eps.p;
 					}
-					assert(u[k][j][i][d.pe]>=eps.p); // check pe>=0
+					assert(ukji[d.pe]>=eps.p); // check pe>=0
 					for (l=0; l<3; l++) {
-						if(!(u[k][j][i][d.ni[l]]>=eps.n)) {
-							u[k][j][i][d.ni[l]]=eps.n;
+						if(!(ukji[d.ni[l]]>=eps.n)) {
+							ukji[d.ni[l]]=eps.n;
 						}
-						assert(u[k][j][i][d.ni[l]]>=eps.n); // check ni>0
-						if(!(u[k][j][i][d.pi[l]]>=eps.p)) {
-							u[k][j][i][d.pi[l]]=eps.p;
-							assert(u[k][j][i][d.pi[l]]>=eps.p); // check pi>=0
+						assert(ukji[d.ni[l]]>=eps.n); // check ni>0
+						if(!(ukji[d.pi[l]]>=eps.p)) {
+							ukji[d.pi[l]]=eps.p;
+							assert(ukji[d.pi[l]]>=eps.p); // check pi>=0
 						}
 					}
 				}
 				if (blockers) {
-					if(!(u[k][j][i][d.pe]>=0)) PetscPrintf(PETSC_COMM_SELF, "pe=%2.3e @ [%d,%d,%d] (Z=%f km)\n",u[k][j][i][d.pe]*p0, i,j,k, Z*1e-3);
-					assert(u[k][j][i][d.pe]>=0); // check pe>=0
+					vkji = v[k][j][i];	// stored for faster access
+					if(!(ukji[d.pe]>=0)) PetscPrintf(PETSC_COMM_SELF, "pe=%2.3e @ [%d,%d,%d] (Z=%f km)\n",ukji[d.pe]*p0, i,j,k, Zkm);
+					assert(ukji[d.pe]>=0); // check pe>=0
 					for (l=0; l<3; l++) {
-						if(!(u[k][j][i][d.ni[l]]>0)) PetscPrintf(PETSC_COMM_SELF, "ni[%d]=%2.3e @ [%d,%d,%d] (Z=%f km)\n",l,u[k][j][i][d.ni[l]]*n0, i,j,k, Z*1e-3);
-						assert(u[k][j][i][d.ni[l]]>0); // check ni>0
-						if(!(u[k][j][i][d.pi[l]]>=0)) PetscPrintf(PETSC_COMM_SELF, "pi[%d]=%2.3e @ [%d,%d,%d] (Z=%f km)\n",l,u[k][j][i][d.pi[l]]*p0, i,j,k, Z*1e-3);
-						assert(u[k][j][i][d.pi[l]]>=0); // check pi>=0
+						if(!(ukji[d.ni[l]]>0)) PetscPrintf(PETSC_COMM_SELF, "ni[%d]=%2.3e @ [%d,%d,%d] (Z=%f km)\n",l,ukji[d.ni[l]]*n0, i,j,k, Zkm);
+						assert(ukji[d.ni[l]]>0); // check ni>0
+						if(!(ukji[d.pi[l]]>=0)) PetscPrintf(PETSC_COMM_SELF, "pi[%d]=%2.3e @ [%d,%d,%d] (Z=%f km)\n",l,ukji[d.pi[l]]*p0, i,j,k, Zkm);
+						assert(ukji[d.pi[l]]>=0); // check pi>=0
 						for (m=0; m<3; m++) {
-							if(!(u[k][j][i][d.vi[l][m]]<=eps.v)) PetscPrintf(PETSC_COMM_SELF, "vi[%d][%d]=%2.3e @ [%d,%d,%d] (Z=%f km)\n",l,m,u[k][j][i][d.vi[l][m]]*v0, i,j,k, Z*1e-3);
-							assert(u[k][j][i][d.vi[l][m]]<=eps.v); // check vi<=eps.v
+							if(!(ukji[d.vi[l][m]]<=eps.v)) PetscPrintf(PETSC_COMM_SELF, "vi[%d][%d]=%2.3e @ [%d,%d,%d] (Z=%f km)\n",l,m,ukji[d.vi[l][m]]*v0, i,j,k, Zkm);
+							assert(ukji[d.vi[l][m]]<=eps.v); // check vi<=eps.v
 						}
 					}
 					for (m=0; m<3; m++) {
-						if(!(v[k][j][i][s.ve[m]]<=eps.v)) PetscPrintf(PETSC_COMM_SELF, "ve[%d]=%2.3e @ [%d,%d,%d] (Z=%f km)\n",m,v[k][j][i][s.ve[m]]*v0, i,j,k, Z*1e-3);
-						assert(v[k][j][i][s.ve[m]]<=eps.v); // check vi<=eps.v
+						if(!(vkji[s.ve[m]]<=eps.v)) PetscPrintf(PETSC_COMM_SELF, "ve[%d]=%2.3e @ [%d,%d,%d] (Z=%f km)\n",m,vkji[s.ve[m]]*v0, i,j,k, Zkm);
+						assert(vkji[s.ve[m]]<=eps.v); // check vi<=eps.v
 					}
 				}
 			}
@@ -1381,6 +1391,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 	PetscReal      pe,pi[3],pn[2];                                                       // pressure of O2+, CO2+, O+, e, O, and CO2 in J/m^3
 	Vec            V;
 	PetscReal      ****u,****v,****f;
+	PetscReal      *fkji;
 	Vec            localU,localV;
 	PetscInt       rank,numranks,step;
 	PetscInt       b,i,j,k,l,m,n,xs,ys,zs,xm,ym,zm;
@@ -1802,12 +1813,13 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				 */
 				dt_CFL = MinAbs(MinAbs(MinAbs(T_cr[O2p],T_cr[CO2p]),T_cr[Op]),T_cr[e]);
 				
+				fkji = f[k][j][i];	// stored for faster access
 				// Equations
 				// Eq 0-2: Continuity equations for ions //
 				for (l=0; l<3; l++){
-					f[k][j][i][d.ni[l]] = -ni[l]*(dvi[l][0].dx + dvi[l][1].dy + dvi[l][2].dz) - (vi[l][0]*dni[l].dx + vi[l][1]*dni[l].dy + vi[l][2]*dni[l].dz);
+					fkji[d.ni[l]] = -ni[l]*(dvi[l][0].dx + dvi[l][1].dy + dvi[l][2].dz) - (vi[l][0]*dni[l].dx + vi[l][1]*dni[l].dy + vi[l][2]*dni[l].dz);
 					if(user->chemswitch==1){
-						f[k][j][i][d.ni[l]] += cont_chem_S[l] - cont_chem_L[l];
+						fkji[d.ni[l]] += cont_chem_S[l] - cont_chem_L[l];
 					}
 				}
         
@@ -1823,55 +1835,55 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
                 
 				// Eq 3-11: Ion momenta //
 				for (l=0; l<3; l++) {
-					f[k][j][i][d.vi[l][0]] = - (vi[l][0]*dvi[l][0].dx +vi[l][1]*dvi[l][0].dy +vi[l][2]*dvi[l][0].dz) + me/mi[l]*(E[0] +CrossP(vi[l],B,0));
-					f[k][j][i][d.vi[l][1]] = - (vi[l][0]*dvi[l][1].dx +vi[l][1]*dvi[l][1].dy +vi[l][2]*dvi[l][1].dz) + me/mi[l]*(E[1] +CrossP(vi[l],B,1));
-					f[k][j][i][d.vi[l][2]] = - (vi[l][0]*dvi[l][2].dx +vi[l][1]*dvi[l][2].dy +vi[l][2]*dvi[l][2].dz) + me/mi[l]*(E[2] +CrossP(vi[l],B,2));
+					fkji[d.vi[l][0]] = - (vi[l][0]*dvi[l][0].dx +vi[l][1]*dvi[l][0].dy +vi[l][2]*dvi[l][0].dz) + me/mi[l]*(E[0] +CrossP(vi[l],B,0));
+					fkji[d.vi[l][1]] = - (vi[l][0]*dvi[l][1].dx +vi[l][1]*dvi[l][1].dy +vi[l][2]*dvi[l][1].dz) + me/mi[l]*(E[1] +CrossP(vi[l],B,1));
+					fkji[d.vi[l][2]] = - (vi[l][0]*dvi[l][2].dx +vi[l][1]*dvi[l][2].dy +vi[l][2]*dvi[l][2].dz) + me/mi[l]*(E[2] +CrossP(vi[l],B,2));
 					if(user->chemswitch==1){
-						f[k][j][i][d.vi[l][0]] += mom_chem_S[l][0];
-						f[k][j][i][d.vi[l][1]] += mom_chem_S[l][1];
-						f[k][j][i][d.vi[l][2]] += mom_chem_S[l][2];
+						fkji[d.vi[l][0]] += mom_chem_S[l][0];
+						fkji[d.vi[l][1]] += mom_chem_S[l][1];
+						fkji[d.vi[l][2]] += mom_chem_S[l][2];
 					}
 					if(user->collswitch==1){
-						f[k][j][i][d.vi[l][0]] += el_coll[l][0];
-						f[k][j][i][d.vi[l][1]] += el_coll[l][1];
-						f[k][j][i][d.vi[l][2]] += el_coll[l][2];
+						fkji[d.vi[l][0]] += el_coll[l][0];
+						fkji[d.vi[l][1]] += el_coll[l][1];
+						fkji[d.vi[l][2]] += el_coll[l][2];
 					}
 					if(user->gradpswitch==1){
-						f[k][j][i][d.vi[l][0]] += -dpi[l].dx/ni[l];
-						f[k][j][i][d.vi[l][1]] += -dpi[l].dy/ni[l];
-						f[k][j][i][d.vi[l][2]] += -dpi[l].dz/ni[l];
+						fkji[d.vi[l][0]] += -dpi[l].dx/ni[l];
+						fkji[d.vi[l][1]] += -dpi[l].dy/ni[l];
+						fkji[d.vi[l][2]] += -dpi[l].dz/ni[l];
 					}
 					if(user->gravswitch==1)
-						f[k][j][i][d.vi[l][2]] += - 1/((1+Z/rM)*(1+Z/rM));
+						fkji[d.vi[l][2]] += - 1/((1+Z/rM)*(1+Z/rM));
 				}
 
 				// Eq 12-14: Equations of state for ions
 				// Read more about heat transfer (Schunk and Nagy Book). Appendix I. page 518
 				for (l=0; l<3; l++){
-					f[k][j][i][d.pi[l]] = - gama[l] * pi[l] * (dvi[l][0].dx + dvi[l][1].dy + dvi[l][2].dz);
+					fkji[d.pi[l]] = - gama[l] * pi[l] * (dvi[l][0].dx + dvi[l][1].dy + dvi[l][2].dz);
 					if(user->chemswitch==1){
-						f[k][j][i][d.pi[l]] += ene_chem_S[l] - ene_chem_L[l];
+						fkji[d.pi[l]] += ene_chem_S[l] - ene_chem_L[l];
 					}
 					if(user->gradpswitch==1){
-						f[k][j][i][d.pi[l]] += -(vi[l][0]*dpi[l].dx + vi[l][1]*dpi[l].dy + vi[l][2]*dpi[l].dz);
+						fkji[d.pi[l]] += -(vi[l][0]*dpi[l].dx + vi[l][1]*dpi[l].dy + vi[l][2]*dpi[l].dz);
 					}
 				}
 				
 				// Eq 15: Equation of state for electrons
-				f[k][j][i][d.pe] = - gama[l] * pe * (dve[0].dx + dve[1].dy + dve[2].dz);
+				fkji[d.pe] = - gama[l] * pe * (dve[0].dx + dve[1].dy + dve[2].dz);
 
 				if(user->chemswitch==1){
-					f[k][j][i][d.pe] += ene_chem_S[e] - ene_chem_L[e];
+					fkji[d.pe] += ene_chem_S[e] - ene_chem_L[e];
 				}
 				if(user->gradpswitch==1){
-					f[k][j][i][d.pe] += -(ve[0]*dpe.dx + ve[1]*dpe.dy + ve[2]*dpe.dz);
+					fkji[d.pe] += -(ve[0]*dpe.dx + ve[1]*dpe.dy + ve[2]*dpe.dz);
 				}
 				
 				// Eq 16-18: Faraday's law
 				// Ensure div B = 0 needs to be modded here
-				f[k][j][i][d.B[0]] = - (dE[2].dy - dE[1].dz); 
-				f[k][j][i][d.B[1]] = - (dE[0].dz - dE[2].dx);
-				f[k][j][i][d.B[2]] = - (dE[1].dx - dE[0].dy);
+				fkji[d.B[0]] = - (dE[2].dy - dE[1].dz); 
+				fkji[d.B[1]] = - (dE[0].dz - dE[2].dx);
+				fkji[d.B[2]] = - (dE[1].dx - dE[0].dy);
 			}
 		}
 	}
