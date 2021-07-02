@@ -53,16 +53,10 @@ PetscReal Interpolate1(PetscReal x, PetscReal xi[], PetscReal yi[], PetscInt Ni,
 		Y[1] = yi[id[2]];
 		
 		y = (x-X[0])/(X[1]-X[0])*Y[1] + (x-X[1])/(X[0]-X[1])*Y[0];
-	} else if (x>xi[Ni-1] || x<xi[0]) {
-		if (x>xi[Ni-1]) {
-			id[0] = Ni-1;
-			id[1] = Ni-2;
-			id[2] = Ni-3;
-		} else {
-			id[0] = 0;
-			id[1] = 1;
-			id[2] = 2;
-		}
+	} else if (x>xi[Ni-1]) {
+		id[0] = Ni-1;
+		id[1] = Ni-2;
+		id[2] = Ni-3;
 		X[0]  = xi[id[0]]; X[1]  = xi[id[1]]; X[2]  = xi[id[2]];
 		Y[0]  = yi[id[0]]; Y[1]  = yi[id[1]]; Y[2]  = yi[id[2]];
 		dl[0] = X[1] - X[0];
@@ -91,6 +85,36 @@ PetscReal Interpolate1(PetscReal x, PetscReal xi[], PetscReal yi[], PetscInt Ni,
 			}
 		}
 		// flat interpolation above max xi
+		if (ItpType==lin_flat) {
+			y = Y[0];
+		}
+	} else if (x<xi[0]) {
+		id[0] = 0;
+		id[1] = 1;
+		id[2] = 2;
+		X[0]  = xi[id[0]]; X[1]  = xi[id[1]]; X[2]  = xi[id[2]];
+		Y[0]  = yi[id[0]]; Y[1]  = yi[id[1]]; Y[2]  = yi[id[2]];
+		dl[0] = X[1] - X[0];
+		dl[1] = X[2] - X[0];
+		Dx[0] = - 1.0/dl[0] - 1.0/dl[1]; 
+		Dx[1] =   1.0/dl[0] - 1.0/(dl[0]-dl[1]); 
+		Dx[2] =   1.0/dl[1] + 1.0/(dl[0]-dl[1]);
+		
+		Dy    = Dx[0]*Y[0] + Dx[1]*Y[1] + Dx[2]*Y[2];
+		// linear interpolation below min xi
+		// RETURNS NEG VALUES
+		if (ItpType==lin_lin) {
+			y = Dy*(x-X[0]) + Y[0];
+		}
+			// exponential decrease below min xi //
+		if (ItpType==lin_exp) {
+			L = Y[0]/Dy;
+			if (fabs((x-X[0])/L)<alpha)
+				y = Y[0]*exp( (x-X[0])/L );
+			else
+				y = Y[0]*exp(-alpha);
+		}
+		// flat interpolation above max reference altitude
 		if (ItpType==lin_flat) {
 			y = Y[0];
 		}
