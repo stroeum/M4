@@ -116,11 +116,6 @@ int main(int argc,char **argv)
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	 Free work space.
 	 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-	/*
-	 ierr = MatDestroy(&J);CHKERRQ(ierr);
-	 if (matfdcoloring){
-	 ierr = MatFDColoringDestroy(&matfdcoloring);CHKERRQ(ierr);
-	 }*/
 	ierr = VecDestroy(&u);CHKERRQ(ierr);
 	ierr = TSDestroy(&ts);CHKERRQ(ierr);
 	ierr = DMDestroy(&user.da);CHKERRQ(ierr);
