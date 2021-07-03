@@ -70,4 +70,4 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 
 clean_data:
 	@echo " Cleaning...";
-	$(RM) -r $(BUILDDIR) $(TARGETDIR) output/*
+	$(RM) -r $(BUILDDIR) $(TARGETDIR) output/* M4*.err M4*.out

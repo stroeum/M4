@@ -1835,9 +1835,9 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
                 
 				// Eq 3-11: Ion momenta //
 				for (l=0; l<3; l++) {
-					fkji[d.vi[l][0]] = - (vi[l][0]*dvi[l][0].dx +vi[l][1]*dvi[l][0].dy +vi[l][2]*dvi[l][0].dz) + me/mi[l]*(E[0] +CrossP(vi[l],B,0));
-					fkji[d.vi[l][1]] = - (vi[l][0]*dvi[l][1].dx +vi[l][1]*dvi[l][1].dy +vi[l][2]*dvi[l][1].dz) + me/mi[l]*(E[1] +CrossP(vi[l],B,1));
-					fkji[d.vi[l][2]] = - (vi[l][0]*dvi[l][2].dx +vi[l][1]*dvi[l][2].dy +vi[l][2]*dvi[l][2].dz) + me/mi[l]*(E[2] +CrossP(vi[l],B,2));
+					fkji[d.vi[l][0]] = -(vi[l][0]*dvi[l][0].dx +vi[l][1]*dvi[l][0].dy +vi[l][2]*dvi[l][0].dz);
+					fkji[d.vi[l][1]] = -(vi[l][0]*dvi[l][1].dx +vi[l][1]*dvi[l][1].dy +vi[l][2]*dvi[l][1].dz);
+					fkji[d.vi[l][2]] = -(vi[l][0]*dvi[l][2].dx +vi[l][1]*dvi[l][2].dy +vi[l][2]*dvi[l][2].dz);
 					if(user->chemswitch==1){
 						fkji[d.vi[l][0]] += mom_chem_S[l][0];
 						fkji[d.vi[l][1]] += mom_chem_S[l][1];
@@ -1849,9 +1849,9 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 						fkji[d.vi[l][2]] += el_coll[l][2];
 					}
 					if(user->gradpswitch==1){
-						fkji[d.vi[l][0]] += -dpi[l].dx/ni[l];
-						fkji[d.vi[l][1]] += -dpi[l].dy/ni[l];
-						fkji[d.vi[l][2]] += -dpi[l].dz/ni[l];
+						fkji[d.vi[l][0]] += me/mi[l]*(E[0] + CrossP(vi[l],B,0) - dpi[l].dx/ni[l]);
+						fkji[d.vi[l][1]] += me/mi[l]*(E[1] + CrossP(vi[l],B,1) - dpi[l].dy/ni[l]);
+						fkji[d.vi[l][2]] += me/mi[l]*(E[2] + CrossP(vi[l],B,2) - dpi[l].dz/ni[l]);
 					}
 					if(user->gravswitch==1)
 						fkji[d.vi[l][2]] += - 1/((1+Z/rM)*(1+Z/rM));
