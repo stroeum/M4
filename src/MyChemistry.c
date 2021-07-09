@@ -15,6 +15,7 @@
 #undef __FUNCT__
 #define __FUNCT__ "v1"
 PetscReal v1(void) {
+	// return 0;
 	return 5.0e-7; //_s-1
 }
 
@@ -25,6 +26,7 @@ PetscReal v1(void) {
 #undef __FUNCT__
 #define __FUNCT__ "v2"
 PetscReal v2(PetscReal N , PetscReal Te) {
+	// return 0;
 	// Ei in direct order //
 	PetscInt  Ni=58;
 	PetscReal me=9.1093e-31; //_kg
@@ -50,6 +52,7 @@ PetscReal v2(PetscReal N , PetscReal Te) {
 #undef __FUNCT__
 #define __FUNCT__ "v3"
 PetscReal v3(void) {
+	// return 0;
 	return 2.0e-7; //_s-1
 }
 
@@ -60,6 +63,7 @@ PetscReal v3(void) {
 #undef __FUNCT__
 #define __FUNCT__ "v4"
 PetscReal v4(PetscReal N , PetscReal Te) {
+	// return 0;
 	PetscReal K,E,v;
 	E = kB*Te/qe;
 	K = 9.0e-9*PetscPowScalar(E,0.7)*PetscExpScalar(-13.6/E); //_cm^3/_s
@@ -74,6 +78,7 @@ PetscReal v4(PetscReal N , PetscReal Te) {
 #undef __FUNCT__
 #define __FUNCT__ "v5"
 PetscReal v5(PetscReal N , PetscReal Te) {
+	// return 0;
 	PetscReal K,v;
 	if (Te<1200) {
 		K = 1.95e-7*PetscPowScalar( 300/Te,0.7 ); //_cm^3/_s
@@ -91,6 +96,7 @@ PetscReal v5(PetscReal N , PetscReal Te) {
 #undef __FUNCT__
 #define __FUNCT__ "v6"
 PetscReal v6(PetscReal N , PetscReal Te) {
+	// return 0;
 	PetscReal K, v;
 	K = 3.1e-7*PetscSqrtScalar(300/Te); //_cm^3/_s
 	v = N*K;
@@ -104,6 +110,7 @@ PetscReal v6(PetscReal N , PetscReal Te) {
 #undef __FUNCT__
 #define __FUNCT__ "v7"
 PetscReal v7(PetscReal N , PetscReal Te) {
+	// return 0;
 	PetscReal K, v;
 	K = 3.71e-12*PetscPowScalar(250/Te,0.7); //_cm^3/_s
 	v = N*K;
@@ -117,6 +124,7 @@ PetscReal v7(PetscReal N , PetscReal Te) {
 #undef __FUNCT__
 #define __FUNCT__ "v8"
 PetscReal v8(PetscReal N) {
+	// return 0;
 	PetscReal K, v;
 	K = 1.64e-10; //_cm^3/_s
 	v = N*K;
@@ -130,6 +138,7 @@ PetscReal v8(PetscReal N) {
 #undef __FUNCT__
 #define __FUNCT__ "v9"
 PetscReal v9(PetscReal N) {
+	// return 0;
 	PetscReal K, v;
 	K = 9.6e-11; //_cm^3/_s
 	v = N*K;
@@ -143,6 +152,7 @@ PetscReal v9(PetscReal N) {
 #undef __FUNCT__
 #define __FUNCT__ "v10"
 PetscReal v10(PetscReal N) {
+	// return 0;
 	PetscReal K, v;
 	K = 1.1e-9; //_cm^3/_s
 	v = N*K;
