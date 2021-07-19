@@ -1207,6 +1207,7 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 
 				// chemistry for Gen Ohms Law
 				chem_nuS[e][0] = v1();                      // CO2 + hv
+				chem_nuS[e][0] = 6e9*exp(1-(Z-130000)/11100-exp(-(Z-130000)/11100))/nn[CO2]; // kellen, temporary implementation of Tascione Eq 7.16
 				chem_nuS[e][1] = 2*v2(nn[CO2], Te);	    // CO2 + e
 				chem_nuS[e][2] = v3();                      // O + hv
 				chem_nuS[e][3] = 2*v4(nn[O]  , Te);         // O + e
@@ -1553,7 +1554,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 					Ti[l] = Interpolate(user->RefProf, 9 ,Z, lin_flat)/T0;
 				Tn[CO2] = Interpolate(user->RefProf,10,Z,lin_flat)/T0;
 				Tn[O]   = Interpolate(user->RefProf,10,Z,lin_flat)/T0;
-				Te = Interpolate(user->RefProf, 8 ,Z, lin_flat)/T0;
+				Te      = Interpolate(user->RefProf, 8,Z,lin_flat)/T0;
                 
 				// projectiles velocities
 				for (m=0;m<3;m++) {
@@ -1604,51 +1605,42 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				}
                 
  				// CHEMISTRY RATE CALCULATIONS
-				chem_nuS[O2p][0] = v8(ni[CO2p]  *n0);               // CO2+ + O
-				chem_nuS[O2p][1] = v10(ni[Op]   *n0);               // O+ + CO2
-				chem_nuL[O2p][0] = v5(ne        *n0 , Te    *T0);   // O2+ + e
+				chem_nuS[O2p][0] = v8(ni[CO2p] *n0);            // CO2+ + O
+				chem_nuS[O2p][1] = v10(ni[Op]  *n0);            // O+ + CO2
+				chem_nuL[O2p][0] = v5(ne       *n0 , Te *T0);   // O2+ + e
                 
-				chem_nuS[CO2p][0] = v1();                           // CO2 + hv
-				chem_nuS[CO2p][1] = v2(ne       *n0 , Te    *T0);   // CO2 + e
-				chem_nuL[CO2p][0] = v6(ne       *n0 , Te    *T0);   // CO2+ + e
-				chem_nuL[CO2p][1] = v8(nn[O]    *n0);               // CO2+ + O
-				chem_nuL[CO2p][2] = v9(nn[O]    *n0);               // CO2+ + O
-                
-				chem_nuS[Op][0] = v3();                             // O + hv
-				chem_nuS[Op][1] = v4(ne         *n0 , Te    *T0);   // O + e
-				chem_nuS[Op][2] = v9(ni[CO2p]   *n0);               // O + CO2+
-				chem_nuL[Op][0] = v7(ne         *n0 , Te    *T0);   // O+ + e
-				chem_nuL[Op][1] = v10(nn[CO2]   *n0);               // O+ + CO2
-                
-				chem_nuS[e][0] = v1();                              // CO2 + hv
-				chem_nuS[e][1] = 2*v2(nn[CO2]   *n0 , Te    *T0);   // CO2 + e
-				chem_nuS[e][2] = v3();                              // O + hv
-				chem_nuS[e][3] = 2*v4(nn[O]     *n0 , Te    *T0);   // O + e
-				chem_nuL[e][0] = v2(nn[CO2]     *n0 , Te    *T0);   // CO2 + e
-				chem_nuL[e][1] = v4(nn[O]       *n0 , Te    *T0);   // O + e
-				chem_nuL[e][2] = v5(ni[O2p]     *n0 , Te    *T0);   // O2+ + e
-				chem_nuL[e][3] = v6(ni[CO2p]    *n0 , Te    *T0);   // CO2+ + e
-				chem_nuL[e][4] = v7(ni[Op]      *n0 , Te    *T0);   // O+ + e
+				//chem_nuS[CO2p][0] = v1();                       // CO2 + hv
+				chem_nuS[CO2p][0] = 6e3*exp(1-(Z-130000)/11100-exp(-(Z-130000)/11100))/nn[CO2]; // kellen, temporary implementation of Tascione Eq 7.16
 
-				/*
-				for (m=0;m<5;m++) {
-					chem_nuS[e][m] = 0;
-					chem_nuL[e][m] = 0;
-					for (l=0;l<3;l++) {
-						chem_nuS[e][m] += chem_nuS[l][m];
-						chem_nuL[e][m] += chem_nuL[l][m];
-					}
-				}
-				*/
-            
+				chem_nuS[CO2p][1] = v2(ne      *n0 , Te *T0);   // CO2 + e
+				chem_nuL[CO2p][0] = v6(ne      *n0 , Te *T0);   // CO2+ + e
+				chem_nuL[CO2p][1] = v8(nn[O]   *n0);            // CO2+ + O
+				chem_nuL[CO2p][2] = v9(nn[O]   *n0);            // CO2+ + O
+                
+				chem_nuS[Op][0] = v3();                         // O + hv
+				chem_nuS[Op][1] = v4(ne        *n0 , Te *T0);   // O + e
+				chem_nuS[Op][2] = v9(ni[CO2p]  *n0);            // O + CO2+
+				chem_nuL[Op][0] = v7(ne        *n0 , Te *T0);   // O+ + e
+				chem_nuL[Op][1] = v10(nn[CO2]  *n0);            // O+ + CO2
+                
+				chem_nuS[e][0] = v1();                          // CO2 + hv
+				chem_nuS[e][1] = 2*v2(nn[CO2]  *n0 , Te *T0);   // CO2 + e
+				chem_nuS[e][2] = v3();                          // O + hv
+				chem_nuS[e][3] = 2*v4(nn[O]    *n0 , Te *T0);   // O + e
+				chem_nuL[e][0] = v2(nn[CO2]    *n0 , Te *T0);   // CO2 + e
+				chem_nuL[e][1] = v4(nn[O]      *n0 , Te *T0);   // O + e
+				chem_nuL[e][2] = v5(ni[O2p]    *n0 , Te *T0);   // O2+ + e
+				chem_nuL[e][3] = v6(ni[CO2p]   *n0 , Te *T0);   // CO2+ + e
+				chem_nuL[e][4] = v7(ni[Op]     *n0 , Te *T0);   // O+ + e
+
 				// CONSERVATION OF MASS SOURCES AND LOSSES
 				cont_chem_S[O2p]  = tau     *(chem_nuS[O2p][0] *nn[O]    + chem_nuS[O2p][1] *nn[CO2]);
 				cont_chem_S[CO2p] = tau     *(chem_nuS[CO2p][0]*nn[CO2]  + chem_nuS[CO2p][1]*nn[CO2]);
-				cont_chem_S[Op]   = tau     *(chem_nuS[Op][0]  *nn[O]    + chem_nuS[Op][1]  *nn[O]     + chem_nuS[Op][2]  *nn[O]);
+				cont_chem_S[Op]   = tau     *(chem_nuS[Op][0]  *nn[O]    + chem_nuS[Op][1]  *nn[O]    + chem_nuS[Op][2]  *nn[O]);
 				cont_chem_L[O2p]  = tau     *(chem_nuL[O2p][0] *ni[Op]);
-				cont_chem_L[CO2p] = tau     *(chem_nuL[CO2p][0]*ni[CO2p] + chem_nuL[CO2p][1]*ni[CO2p]  + chem_nuL[CO2p][2]*ni[CO2p]);
+				cont_chem_L[CO2p] = tau     *(chem_nuL[CO2p][0]*ni[CO2p] + chem_nuL[CO2p][1]*ni[CO2p] + chem_nuL[CO2p][2]*ni[CO2p]);
 				cont_chem_L[Op]   = tau     *(chem_nuL[Op][0]  *ni[Op]   + chem_nuL[Op][1]  *ni[Op]);
-                
+
 				// CONSERVATION OF MOMENTUM SOURCES
 				for (m=0;m<3;m++) {
 					mom_chem_S[O2p][m]  = tau   *(chem_nuS[O2p][0]  *(nn[O]/ni[O2p])    *(un[m] - vi[O2p][m])
@@ -1673,35 +1665,34 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 					vdiffOp[m]   = un[m] - vi[Op][m];
 					vdiffe[m]    = un[m] - ve[m];
 				}
-				ene_chem_S[O2p]     = tau   *(chem_nuS[O2p][0]      *(mi[O2p]/mn[O])    *(gama[O2p]-1)/(gaman[O]-1)     *pn[O]
-					+ chem_nuS[O2p][1]      *(mi[O2p]/mn[CO2])  *(gama[O2p]-1)/(gaman[CO2]-1)   *pn[CO2]
-					+ (gama[O2p]-1)   *chem_nuS[O2p][0]    *(mi[O2p]*nn[O])/me    *Norm2(vdiffCO2p)/2
-					+ (gama[O2p]-1)   *chem_nuS[O2p][1]    *(mi[O2p]*nn[CO2])/me  *Norm2(vdiffCO2p)/2);
-				ene_chem_S[CO2p]    = tau   *(chem_nuS[CO2p][0]     *(mi[CO2p]/mn[CO2]) *(gama[CO2p]-1)/(gaman[O]-1)    *pn[CO2]
-					+ chem_nuS[CO2p][1]     *(mi[CO2p]/mn[CO2]) *(gama[CO2p]-1)/(gaman[CO2]-1)  *pn[CO2]
-					+ (gama[CO2p]-1)  *chem_nuS[CO2p][0]   *(mi[CO2p]*nn[CO2])/me *Norm2(vdiffCO2p)/2
-					+ (gama[CO2p]-1)  *chem_nuS[CO2p][1]   *(mi[CO2p]*nn[CO2])/me *Norm2(vdiffCO2p)/2);
-				ene_chem_S[Op]      = tau   *(chem_nuS[Op][0]       *(mi[Op]/mn[O])     *(gama[Op]-1)/(gaman[O]-1)      *pn[O]
-					+ chem_nuS[Op][1]       *(mi[Op]/mn[O])     *(gama[Op]-1)/(gaman[O]-1)    *pn[O]
-					+ chem_nuS[Op][2]       *(mi[Op]/mn[O])     *(gama[Op]-1)/(gaman[O]-1)    *pn[O]
-					+ (gama[Op]-1)    *chem_nuS[Op][0]     *(mi[Op]*nn[O])/me     *Norm2(vdiffOp)/2
-					+ (gama[Op]-1)    *chem_nuS[Op][1]     *(mi[Op]*nn[O])/me     *Norm2(vdiffOp)/2
-					+ (gama[Op]-1)    *chem_nuS[Op][2]     *(mi[Op]*nn[O])/me     *Norm2(vdiffOp)/2);
-				ene_chem_S[e]       = tau   *(chem_nuS[e][0]       *(mi[Op]/mn[CO2])   *(gama[e]-1)/(gaman[CO2]-1)    *pn[O]
-					+ chem_nuS[e][1]       *(mi[Op]/mn[CO2])   *(gama[e]-1)/(gaman[CO2]-1)    *pn[O]
-					+ chem_nuS[e][2]       *(mi[Op]/mn[O])     *(gama[e]-1)/(gaman[O]-1)      *pn[O]
-					+ chem_nuS[e][3]       *(mi[Op]/mn[O])     *(gama[e]-1)/(gaman[O]-1)      *pn[O]
-					+ (gama[e]-1)    *chem_nuS[e][0]     *(me*nn[CO2])/me         *Norm2(vdiffe)/2
-					+ (gama[e]-1)    *chem_nuS[e][1]     *(me*nn[CO2])/me         *Norm2(vdiffe)/2
-					+ (gama[e]-1)    *chem_nuS[e][2]     *(me*nn[O])/me           *Norm2(vdiffe)/2
-					+ (gama[e]-1)    *chem_nuS[e][3]     *(me*nn[O])/me           *Norm2(vdiffe)/2);
-				//ene_chem_S[e] = 0;
-				ene_chem_L[O2p]     = tau   *(chem_nuL[O2p][0] *pi[Op]);
-				ene_chem_L[CO2p]    = tau   *(chem_nuL[CO2p][0]*pi[CO2p] + chem_nuL[CO2p][1]*pi[CO2p]  + chem_nuL[CO2p][2]*pi[CO2p]);
-				ene_chem_L[Op]      = tau   *(chem_nuL[Op][0]  *pi[Op]   + chem_nuL[Op][1]  *pi[Op]);
-				ene_chem_L[e]       = tau   *(chem_nuL[e][0]   *pe       + chem_nuL[e][1]   *pe        + chem_nuL[e][2]   *pe
+				ene_chem_S[O2p]  = tau      *(chem_nuS[O2p][0]  *(mi[O2p]/mn[O])        *(gama[O2p]-1)/(gaman[O]-1)  *pn[O]
+					+ chem_nuS[O2p][1]  *(mi[O2p]/mn[CO2])  *(gama[O2p]-1)/(gaman[CO2]-1) *pn[CO2]
+					+ (gama[O2p]-1)     *chem_nuS[O2p][0]   *(mi[O2p]*nn[O])/me     *Norm2(vdiffCO2p)/2
+					+ (gama[O2p]-1)     *chem_nuS[O2p][1]   *(mi[O2p]*nn[CO2])/me   *Norm2(vdiffCO2p)/2);
+				ene_chem_S[CO2p] = tau      *(chem_nuS[CO2p][0] *(mi[CO2p]/mn[CO2])     *(gama[CO2p]-1)/(gaman[O]-1) *pn[CO2]
+					+ chem_nuS[CO2p][1] *(mi[CO2p]/mn[CO2]) *(gama[CO2p]-1)/(gaman[CO2]-1) *pn[CO2]
+					+ (gama[CO2p]-1)    *chem_nuS[CO2p][0]  *(mi[CO2p]*nn[CO2])/me  *Norm2(vdiffCO2p)/2
+					+ (gama[CO2p]-1)    *chem_nuS[CO2p][1]  *(mi[CO2p]*nn[CO2])/me  *Norm2(vdiffCO2p)/2);
+				ene_chem_S[Op]   = tau      *(chem_nuS[Op][0]   *(mi[Op]/mn[O])         *(gama[Op]-1)/(gaman[O]-1)   *pn[O]
+					+ chem_nuS[Op][1]   *(mi[Op]/mn[O])     *(gama[Op]-1)/(gaman[O]-1) *pn[O]
+					+ chem_nuS[Op][2]   *(mi[Op]/mn[O])     *(gama[Op]-1)/(gaman[O]-1) *pn[O]
+					+ (gama[Op]-1)      *chem_nuS[Op][0]    *(mi[Op]*nn[O])/me      *Norm2(vdiffOp)/2
+					+ (gama[Op]-1)      *chem_nuS[Op][1]    *(mi[Op]*nn[O])/me      *Norm2(vdiffOp)/2
+					+ (gama[Op]-1)      *chem_nuS[Op][2]    *(mi[Op]*nn[O])/me      *Norm2(vdiffOp)/2);
+				ene_chem_S[e]    = tau      *(chem_nuS[e][0]    *(mi[Op]/mn[CO2])       *(gama[e]-1)/(gaman[CO2]-1)  *pn[O]
+					+ chem_nuS[e][1]    *(mi[Op]/mn[CO2])   *(gama[e]-1)/(gaman[CO2]-1) *pn[O]
+					+ chem_nuS[e][2]    *(mi[Op]/mn[O])     *(gama[e]-1)/(gaman[O]-1)   *pn[O]
+					+ chem_nuS[e][3]    *(mi[Op]/mn[O])     *(gama[e]-1)/(gaman[O]-1)   *pn[O]
+					+ (gama[e]-1)       *chem_nuS[e][0]     *(me*nn[CO2])/me        *Norm2(vdiffe)/2
+					+ (gama[e]-1)       *chem_nuS[e][1]     *(me*nn[CO2])/me        *Norm2(vdiffe)/2
+					+ (gama[e]-1)       *chem_nuS[e][2]     *(me*nn[O])/me          *Norm2(vdiffe)/2
+					+ (gama[e]-1)       *chem_nuS[e][3]     *(me*nn[O])/me          *Norm2(vdiffe)/2);
+
+				ene_chem_L[O2p]  = tau      *(chem_nuL[O2p][0]  *pi[Op]);
+				ene_chem_L[CO2p] = tau      *(chem_nuL[CO2p][0] *pi[CO2p] + chem_nuL[CO2p][1] *pi[CO2p] + chem_nuL[CO2p][2] *pi[CO2p]);
+				ene_chem_L[Op]   = tau      *(chem_nuL[Op][0]   *pi[Op]   + chem_nuL[Op][1]   *pi[Op]);
+				ene_chem_L[e]    = tau      *(chem_nuL[e][0]    *pe       + chem_nuL[e][1]    *pe       + chem_nuL[e][2]    *pe
 					+ chem_nuL[e][3] *pe       + chem_nuL[e][4]   *pe);
-				//ene_chem_L[e] = 0;
 				
 				// Intermediate calculations
 				for (m=0; m<3; m++) {
