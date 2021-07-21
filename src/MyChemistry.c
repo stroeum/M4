@@ -14,10 +14,18 @@
  */
 #undef __FUNCT__
 #define __FUNCT__ "v1"
+PetscReal v1(PetscReal N, PetscReal Z) {
+	PetscReal Zm = 130000;
+	PetscReal Qm = 4e9;
+	PetscReal H  = 11100;
+	return Qm*exp(1-(Z-Zm)/H-exp(-(Z-Zm)/H))/N; // kellen, temporary implementation of Tascione Eq 7.16
+}
+/*
 PetscReal v1(void) {
 	// return 0;
 	return 5.0e-7; //_s-1
 }
+*/
 
 /*
  * Electron impact ionization of CO2
@@ -26,7 +34,7 @@ PetscReal v1(void) {
 #undef __FUNCT__
 #define __FUNCT__ "v2"
 PetscReal v2(PetscReal N , PetscReal Te) {
-	// return 0;
+	return 0;
 	// Ei in direct order //
 	PetscInt  Ni=58;
 	PetscReal me=9.1093e-31; //_kg

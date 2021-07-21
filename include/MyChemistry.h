@@ -12,7 +12,8 @@
 #include "MyCtx.h"
 #include "MyProfiles.h"
 
-extern PetscReal v1(void);
+extern PetscReal v1(PetscReal N, PetscReal Z);
+//extern PetscReal v1(void);
 extern PetscReal v2(PetscReal N , PetscReal Te);
 extern PetscReal v3(void);
 extern PetscReal v4(PetscReal N , PetscReal Te);

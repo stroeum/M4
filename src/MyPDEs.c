@@ -1206,8 +1206,7 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 				}
 
 				// chemistry for Gen Ohms Law
-				chem_nuS[e][0] = v1();                      // CO2 + hv
-				chem_nuS[e][0] = 6e9*exp(1-(Z-130000)/11100-exp(-(Z-130000)/11100))/nn[CO2]; // kellen, temporary implementation of Tascione Eq 7.16
+				chem_nuS[e][0] = v1(nn[CO2] *n0 ,Z);                      // CO2 + hv
 				chem_nuS[e][1] = 2*v2(nn[CO2], Te);	    // CO2 + e
 				chem_nuS[e][2] = v3();                      // O + hv
 				chem_nuS[e][3] = 2*v4(nn[O]  , Te);         // O + e
@@ -1609,9 +1608,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				chem_nuS[O2p][1] = v10(ni[Op]  *n0);            // O+ + CO2
 				chem_nuL[O2p][0] = v5(ne       *n0 , Te *T0);   // O2+ + e
                 
-				//chem_nuS[CO2p][0] = v1();                       // CO2 + hv
-				chem_nuS[CO2p][0] = 6e3*exp(1-(Z-130000)/11100-exp(-(Z-130000)/11100))/nn[CO2]; // kellen, temporary implementation of Tascione Eq 7.16
-
+				chem_nuS[CO2p][0] = v1(nn[CO2] *n0 ,Z); // *L0 for Z                      // CO2 + hv
 				chem_nuS[CO2p][1] = v2(ne      *n0 , Te *T0);   // CO2 + e
 				chem_nuL[CO2p][0] = v6(ne      *n0 , Te *T0);   // CO2+ + e
 				chem_nuL[CO2p][1] = v8(nn[O]   *n0);            // CO2+ + O
@@ -1623,7 +1620,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				chem_nuL[Op][0] = v7(ne        *n0 , Te *T0);   // O+ + e
 				chem_nuL[Op][1] = v10(nn[CO2]  *n0);            // O+ + CO2
                 
-				chem_nuS[e][0] = v1();                          // CO2 + hv
+				chem_nuS[e][0] = v1(nn[CO2]    *n0 ,Z);                          // CO2 + hv
 				chem_nuS[e][1] = 2*v2(nn[CO2]  *n0 , Te *T0);   // CO2 + e
 				chem_nuS[e][2] = v3();                          // O + hv
 				chem_nuS[e][3] = 2*v4(nn[O]    *n0 , Te *T0);   // O + e
