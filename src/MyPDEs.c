@@ -1047,8 +1047,8 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 	PetscInt       bcType = user->bcType;
 	coeff3         D1,D2;
 	coeff2         dh;
-    PetscReal      chem_nuS[7][5];
-    PetscReal      E_chem_S[3];
+    	PetscReal      chem_nuS[7][5];
+    	PetscReal      E_chem_S[3];
 
 	
 	PetscFunctionBegin;
@@ -1211,7 +1211,8 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 				chem_nuS[e][2] = v3();                      // O + hv
 				chem_nuS[e][3] = 2*v4(nn[O]  , Te);         // O + e
 				for (m=0;m<3;m++) {
-					E_chem_S[m]   = tau   *(chem_nuS[e][0]   *(un[m] - vi[e][m])
+					E_chem_S[m] = tau  *(
+					  chem_nuS[e][0]   *(un[m] - vi[e][m])
 					+ chem_nuS[e][1]   *(un[m] - vi[e][m])
 					+ chem_nuS[e][2]   *(un[m] - vi[e][m])
 					+ chem_nuS[e][3]   *(un[m] - vi[e][m]));
