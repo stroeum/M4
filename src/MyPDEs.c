@@ -1206,16 +1206,16 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 				}
 
 				// chemistry for Gen Ohms Law
-				chem_nuS[e][0] = v1(nn[CO2] *n0 ,Z);                      // CO2 + hv
-				chem_nuS[e][1] = 2*v2(nn[CO2], Te);	    // CO2 + e
+				chem_nuS[e][0] = v1(nn[CO2]   *n0, Z);          // CO2 + hv
+				chem_nuS[e][1] = 2*v2(nn[CO2] *n0, Te);	    // CO2 + e
 				chem_nuS[e][2] = v3();                      // O + hv
-				chem_nuS[e][3] = 2*v4(nn[O]  , Te);         // O + e
+				chem_nuS[e][3] = 2*v4(nn[O]   *n0, Te);         // O + e
 				for (m=0;m<3;m++) {
-					E_chem_S[m] = tau  *(
-					  chem_nuS[e][0]   *(un[m] - vi[e][m])
-					+ chem_nuS[e][1]   *(un[m] - vi[e][m])
-					+ chem_nuS[e][2]   *(un[m] - vi[e][m])
-					+ chem_nuS[e][3]   *(un[m] - vi[e][m]));
+					E_chem_S[m] = tau *(nn[m]/ne) *(
+					  chem_nuS[e][0]  *(un[m] - vi[e][m])
+					+ chem_nuS[e][1]  *(un[m] - vi[e][m])
+					+ chem_nuS[e][2]  *(un[m] - vi[e][m])
+					+ chem_nuS[e][3]  *(un[m] - vi[e][m]));
 				}
 				
 				// E-field
