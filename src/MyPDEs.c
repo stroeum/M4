@@ -1047,7 +1047,8 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 	PetscInt       bcType = user->bcType;
 	coeff3         D1,D2;
 	coeff2         dh;
-    	PetscReal      chem_nuS[7][5];
+    	//PetscReal      chem_nuS[7][5];
+    	PetscReal      chem_nuS[4]; // chemical sources of e (4 reactions produce e)
     	PetscReal      E_chem_S[3];
 
 	
@@ -1206,16 +1207,20 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 				}
 
 				// chemistry for Gen Ohms Law
-				chem_nuS[e][0] = v1(nn[CO2]   *n0, Z);          // CO2 + hv
-				chem_nuS[e][1] = 2*v2(nn[CO2] *n0, Te);	    // CO2 + e
-				chem_nuS[e][2] = v3();                      // O + hv
-				chem_nuS[e][3] = 2*v4(nn[O]   *n0, Te);         // O + e
+				chem_nuS[0] = v1(nn[CO2]   *n0, Z);          // CO2 + hv
+				chem_nuS[1] = 2*v2(nn[CO2] *n0, Te);	    // CO2 + e
+				chem_nuS[2] = v3();                      // O + hv
+				chem_nuS[3] = 2*v4(nn[O]   *n0, Te);         // O + e
 				for (m=0;m<3;m++) {
 					E_chem_S[m] = tau *(nn[m]/ne) *(
-					  chem_nuS[e][0]  *(un[m] - vi[e][m])
-					+ chem_nuS[e][1]  *(un[m] - vi[e][m])
-					+ chem_nuS[e][2]  *(un[m] - vi[e][m])
-					+ chem_nuS[e][3]  *(un[m] - vi[e][m]));
+					  chem_nuS[0]  *(un[m] - ve[m])
+					+ chem_nuS[1]  *(un[m] - ve[m])
+					+ chem_nuS[2]  *(un[m] - ve[m])
+					+ chem_nuS[3]  *(un[m] - ve[m]));
+					  //chem_nuS[e][0]  *(un[m] - vi[e][m])
+					//+ chem_nuS[e][1]  *(un[m] - vi[e][m])
+					//+ chem_nuS[e][2]  *(un[m] - vi[e][m])
+					//+ chem_nuS[e][3]  *(un[m] - vi[e][m]));
 				}
 				
 				// E-field
@@ -1382,8 +1387,9 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 	PetscReal      mom_chem_S[3][3];
 	PetscReal      ene_chem_S[4];
 	PetscReal      ene_chem_L[4];
-	PetscReal      chem_nuS[7][5];
-	PetscReal      chem_nuL[7][5];
+	//PetscReal      chem_nuS[7][5];
+	PetscReal      chem_nuS[4][4];                                                 // Chemical sources (4 charged species, at most 4 reactions produce a given species)
+	PetscReal      chem_nuL[4][5];                                                 // Chemical losses  (4 charged species, at most 5 reactions consume a given species)
 	PetscReal      gaman[2];                                                       // Specific heat of neutrals
 	PetscReal      mn[2];                                                          // Mass of neutrals, kg
 	PetscReal      E[3],B[3];                                                      // E-field, B-field

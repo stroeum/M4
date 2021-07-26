@@ -50,7 +50,7 @@ PetscReal v2(PetscReal N , PetscReal Te) {
 	v = PetscSqrtScalar(2*kB*Te/me); //_m/_s
 	K = Xsec*v; //_m3/_s
 	V = N*K;
-	return V; //_m3/_s
+	return V; //1/_s
 }
 
 /*
@@ -74,9 +74,9 @@ PetscReal v4(PetscReal N , PetscReal Te) {
 	// return 0;
 	PetscReal K,E,v;
 	E = kB*Te/qe;
-	K = 9.0e-9*PetscPowScalar(E,0.7)*PetscExpScalar(-13.6/E); //_cm^3/_s
+	K = 1e-6*9.0e-9*PetscPowScalar(E,0.7)*PetscExpScalar(-13.6/E); //_m3/_s
 	v = N*K;
-	return v*1e-6; //_m3/_s
+	return v; //1/_s
 }
 
 /*
@@ -89,12 +89,12 @@ PetscReal v5(PetscReal N , PetscReal Te) {
 	// return 0;
 	PetscReal K,v;
 	if (Te<1200) {
-		K = 1.95e-7*PetscPowScalar( 300/Te,0.7 ); //_cm^3/_s
+		K = 1e-6*1.95e-7*PetscPowScalar( 300/Te,0.7 ); //_m3/_s
 	} else {
-		K = 7.38e-8*PetscPowScalar(1200/Te,0.56); //_cm^3/_s
+		K = 1e-6*7.38e-8*PetscPowScalar(1200/Te,0.56); //_m3/_s
 	}
 	v = N*K;
-	return v*1e-6; //_m3/_s
+	return v; //1/_s
 }
 
 /*
@@ -106,9 +106,9 @@ PetscReal v5(PetscReal N , PetscReal Te) {
 PetscReal v6(PetscReal N , PetscReal Te) {
 	// return 0;
 	PetscReal K, v;
-	K = 3.1e-7*PetscSqrtScalar(300/Te); //_cm^3/_s
+	K = 1e-6*3.1e-7*PetscSqrtScalar(300/Te); //_m3/_s
 	v = N*K;
-	return v*1e-6; //_m3/_s
+	return v; //1/_s
 }
 
 /*
@@ -120,9 +120,9 @@ PetscReal v6(PetscReal N , PetscReal Te) {
 PetscReal v7(PetscReal N , PetscReal Te) {
 	// return 0;
 	PetscReal K, v;
-	K = 3.71e-12*PetscPowScalar(250/Te,0.7); //_cm^3/_s
+	K = 1e-6*3.71e-12*PetscPowScalar(250/Te,0.7); //_m3/_s
 	v = N*K;
-	return v*1e-6; //_m3/_s
+	return v; //1/_s
 }
 
 /*
@@ -134,9 +134,9 @@ PetscReal v7(PetscReal N , PetscReal Te) {
 PetscReal v8(PetscReal N) {
 	// return 0;
 	PetscReal K, v;
-	K = 1.64e-10; //_cm^3/_s
+	K = 1.64e-16; //_m3/_s
 	v = N*K;
-	return v*1e-6; //_m3/_s
+	return v; //1/_s
 }
 
 /*
@@ -148,9 +148,9 @@ PetscReal v8(PetscReal N) {
 PetscReal v9(PetscReal N) {
 	// return 0;
 	PetscReal K, v;
-	K = 9.6e-11; //_cm^3/_s
+	K = 9.6e-17; //_m3/_s
 	v = N*K;
-	return v*1e-6; //_m3/_s
+	return v; //1/_s
 }
 
 /*
@@ -162,7 +162,7 @@ PetscReal v9(PetscReal N) {
 PetscReal v10(PetscReal N) {
 	// return 0;
 	PetscReal K, v;
-	K = 1.1e-9; //_cm^3/_s
+	K = 1.1e-15; //_m3/_s
 	v = N*K;
-	return v*1e-6; //_m3/_s
+	return v; //1/_s
 }
