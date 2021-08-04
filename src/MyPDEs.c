@@ -10,7 +10,7 @@
  .  ts - the TS context
  .  U - input vector
  .  ctx - optional user-defined context, as set by SNESSetFunction()
- 
+
  Output Parameter:
  .  F - function vector
  */
@@ -79,8 +79,8 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 					ukji = u[k][j][i];	// stored for faster access
 					X = Xmin + x[i]*L;
 					
-					Te = Interpolate(user->RefProf, 8 ,Z, lin_flat);
-					Ti = Interpolate(user->RefProf, 9 ,Z, lin_flat);
+					Te  = Interpolate(user->RefProf, 8 ,Z, lin_flat);
+					Ti  = Interpolate(user->RefProf, 9 ,Z, lin_flat);
 					neo = Interpolate(user->RefProf, 7 ,Z, lin_exp);
 					assert(Te>0);
 					assert(Ti>0);
@@ -139,7 +139,7 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 						} else {
 							ukji[d.B[0]] = 0.0/B0;
 							ukji[d.B[1]] = 0.0/B0;
-							ukji[d.B[2]] = Bo /B0 * pow(inZmax/Z,3);
+							ukji[d.B[2]] = Bo /B0 * IntPow(inZmax/Z,3);
 						}
 					} else if (Btype==7) {
 						ukji[d.B[0]] = Arcades(X,Y,Z,0)/B0;
@@ -150,6 +150,47 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 						ukji[d.B[1]] = MultiArcades(X,Y,Z,1)/B0;
 						ukji[d.B[2]] = MultiArcades(X,Y,Z,2)/B0;
 					}
+
+					/*
+					ukji[d.B[0]] = 0;
+					ukji[d.B[1]] = 0;
+					ukji[d.B[2]] = 0;
+					if(Btype==0) {
+						ukji[d.B[0]] = Interpolate(user->RefProf, 0 ,Z, lin_flat)/B0;
+						ukji[d.B[1]] = Interpolate(user->RefProf, 1 ,Z, lin_flat)/B0;
+						ukji[d.B[2]] = Interpolate(user->RefProf, 2 ,Z, lin_flat)/B0;
+					} else if (Btype==1) {
+						ukji[d.B[2]] = Bo /B0;
+					} else if (Btype==2) {
+						ukji[d.B[1]] = Bo /B0;
+					} else if (Btype==3) {
+						ukji[d.B[0]] = V_Dipole(Bo,0,0,a,X,Y,Z,0)/B0;
+						ukji[d.B[1]] = V_Dipole(Bo,0,0,a,X,Y,Z,1)/B0;
+						ukji[d.B[2]] = V_Dipole(Bo,0,0,a,X,Y,Z,2)/B0;
+					} else if (Btype==4) {
+						ukji[d.B[0]] = H_Dipole(Bo,0,0,a,X,Y,Z,0)/B0;
+						ukji[d.B[1]] = H_Dipole(Bo,0,0,a,X,Y,Z,1)/B0;
+						ukji[d.B[2]] = H_Dipole(Bo,0,0,a,X,Y,Z,2)/B0;
+					} else if (Btype==5) {
+						ukji[d.B[2]] = Bo /B0;
+						if (Z>inZmax) {
+							ukji[d.B[2]] *= (1-erf((Z-3*a-inZmax)/a))/2;
+						}
+					} else if (Btype==6) {
+						ukji[d.B[2]] = Bo /B0;
+						if (Z>inZmax) {
+							ukji[d.B[2]] *= IntPow(inZmax/Z,3);
+						}
+					} else if (Btype==7) {
+						ukji[d.B[0]] = Arcades(X,Y,Z,0)/B0;
+						ukji[d.B[1]] = Arcades(X,Y,Z,1)/B0;
+						ukji[d.B[2]] = Arcades(X,Y,Z,2)/B0;
+					} else if (Btype==8) {
+						ukji[d.B[0]] = MultiArcades(X,Y,Z,0)/B0;
+						ukji[d.B[1]] = MultiArcades(X,Y,Z,1)/B0;
+						ukji[d.B[2]] = MultiArcades(X,Y,Z,2)/B0;
+					}
+					*/
 					
 					for (l=0; l<3; l++) {
 						ukji[d.ni[l]] = nio[l]/n0;
@@ -1184,18 +1225,18 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 				}
 				
 				// Temperature
-				Te = Interpolate(user->RefProf, 8 ,Z, lin_flat);
+				Te = Interpolate(user->RefProf, 8 ,Z, lin_flat)/T0;
 				nn[CO2]     = Interpolate(user->RefProf, 5 ,Z, lin_flat)/n0;
 				nn[O]       = Interpolate(user->RefProf, 4 ,Z, lin_flat)/n0;
-				nu[CO2]     = Ven(CO2, nn[CO2] *n0, Te);
-				nu[O]       = Ven(O  , nn[O]   *n0, Te);
+				nu[CO2]     = Ven(CO2, nn[CO2] *n0, Te *T0);
+				nu[O]       = Ven(O  , nn[O]   *n0, Te *T0);
 
-				nu[0]       = v41(nn[CO2] *n0, Te);	// e    CO2
-				nu[1]       = v42(nn[O]   *n0, Te);	// e    O
-				nu[2]       = v43(ni[O2p] *n0, Te);	// e    O2+
-				nu[3]       = v44(ni[CO2p]*n0, Te);	// e    CO2+
-				nu[4]       = v45(ni[Op]  *n0, Te);	// e    O+
-				nu[5]       = v46(ne      *n0, Te);	// e    e
+				nu[0]       = v41(nn[CO2] *n0, Te *T0);	// e    CO2
+				nu[1]       = v42(nn[O]   *n0, Te *T0);	// e    O
+				nu[2]       = v43(ni[O2p] *n0, Te *T0);	// e    O2+
+				nu[3]       = v44(ni[CO2p]*n0, Te *T0);	// e    CO2+
+				nu[4]       = v45(ni[Op]  *n0, Te *T0);	// e    O+
+				nu[5]       = v46(ne      *n0, Te *T0);	// e    e
 				
 				// Elastic collisions term
 				for (m=0;m<3;m++) {
@@ -1207,9 +1248,9 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 
 				// chemistry for Gen Ohms Law
 				chem_nuS[0] = v1(nn[CO2]   *n0, Z);          // CO2 + hv
-				chem_nuS[1] = 2*v2(nn[CO2] *n0, Te);	    // CO2 + e
+				chem_nuS[1] = 2*v2(nn[CO2] *n0, Te *T0);	    // CO2 + e
 				chem_nuS[2] = v3();                      // O + hv
-				chem_nuS[3] = 2*v4(nn[O]   *n0, Te);         // O + e
+				chem_nuS[3] = 2*v4(nn[O]   *n0, Te *T0);         // O + e
 
 				for (m=0;m<3;m++) {
 					E_chem_S[m] = tau *(nn[m]/ne) *(
@@ -1544,6 +1585,13 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				B[0]        = u[k][j][i][d.B[0]];        // Bx
 				B[1]        = u[k][j][i][d.B[1]];        // By
 				B[2]        = u[k][j][i][d.B[2]];        // Bz
+
+				/*
+				if (B[0] != 0 || B[1] != 0) {
+					PetscPrintf(PETSC_COMM_WORLD,"nonzero B %e %e\n", B[0], B[1]);
+					exit(1);
+				}
+				*/
 				
 				ve[0]       = v[k][j][i][s.ve[0]];       // vxe
 				ve[1]       = v[k][j][i][s.ve[1]];       // vye

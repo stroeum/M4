@@ -142,6 +142,7 @@ extern PetscReal      H_Dipole(PetscReal mu, PetscReal xs, PetscReal ys, PetscRe
 extern PetscReal      Arcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m);
 extern PetscReal      MultiArcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m);
 extern PetscReal      Norm2(PetscReal*); // Norm 2 squared!
+extern PetscReal      IntPow(PetscReal, PetscInt);
 
 extern PetscErrorCode TSSSPStep_RK_2_JAR(TS,PetscReal,PetscReal,Vec);
 extern PetscErrorCode TSSSPStep_LAX(TS,PetscReal,PetscReal,Vec);

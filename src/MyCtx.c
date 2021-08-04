@@ -486,7 +486,7 @@ PetscReal Arcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m)
 		for (j=0; j<Ns; j++) {
 			for (k=0; k<Ps; k++) {
 				s = j; 
-				B += pow(-1,s%2) * V_Dipole(mu,xs[i],ys[j],zs[k],x,y,z,m);
+				B += IntPow(-1,s%2) * V_Dipole(mu,xs[i],ys[j],zs[k],x,y,z,m);
 			}
 		}
 	}
@@ -514,7 +514,7 @@ PetscReal MultiArcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m)
 		for (j=0; j<Ns; j++) {
 			for (k=0; k<Ps; k++) {
 				s = j; 
-				B += pow(-1,s%2) * V_Dipole(mu,xs[i],ys[j],zs[k],x,y,z,m);
+				B += IntPow(-1,s%2) * V_Dipole(mu,xs[i],ys[j],zs[k],x,y,z,m);
 			}
 		}
 	}
@@ -538,9 +538,9 @@ PetscReal V_Dipole(PetscReal mu, PetscReal xs, PetscReal ys, PetscReal zs, Petsc
 	Z = z-zs;
 	R = PetscSqrtScalar(X*X+Y*Y+Z*Z);
 	
-	if (m==0) return mu0/(4*M_PI) * mu * pow(1/R,3) * 3.0*X*Z/(R*R) ;
-	if (m==1) return mu0/(4*M_PI) * mu * pow(1/R,3) * 3.0*Y*Z/(R*R) ;
-	if (m==2) return mu0/(4*M_PI) * mu * pow(1/R,3) *(3.0*Z*Z/(R*R) - 1.0);
+	if (m==0) return mu0/(4*M_PI) * mu * IntPow(1/R,3) * 3.0*X*Z/(R*R) ;
+	if (m==1) return mu0/(4*M_PI) * mu * IntPow(1/R,3) * 3.0*Y*Z/(R*R) ;
+	if (m==2) return mu0/(4*M_PI) * mu * IntPow(1/R,3) *(3.0*Z*Z/(R*R) - 1.0);
 	return 0;
 }
 
@@ -560,9 +560,9 @@ PetscReal H_Dipole(PetscReal mu, PetscReal xs, PetscReal ys, PetscReal zs, Petsc
 	Y = y-ys;
 	Z = z-zs;
 	R = PetscSqrtScalar(X*X+Y*Y+Z*Z);
-	if (m==0) return  mu0/(4*M_PI) * mu * pow(1/R,3) *(3.0*Z*Z/(R*R) - 1.0);
-	if (m==1) return  mu0/(4*M_PI) * mu * pow(1/R,3) * 3.0*Y*Z/(R*R) ;
-	if (m==2) return -mu0/(4*M_PI) * mu * pow(1/R,3) * 3.0*X*Z/(R*R) ;
+	if (m==0) return  mu0/(4*M_PI) * mu * IntPow(1/R,3) *(3.0*Z*Z/(R*R) - 1.0);
+	if (m==1) return  mu0/(4*M_PI) * mu * IntPow(1/R,3) * 3.0*Y*Z/(R*R) ;
+	if (m==2) return -mu0/(4*M_PI) * mu * IntPow(1/R,3) * 3.0*X*Z/(R*R) ;
 	return 0;
 }
 
@@ -619,6 +619,22 @@ PetscReal MinAbs(PetscReal a,PetscReal b)
 PetscReal Norm2(PetscReal M[3])
 {
 	return (M[0]*M[0]+M[1]*M[1]+M[2]*M[2]);
+}
+
+/* ------------------------------------------------------------------- */
+/* Calculate the integer power of a double: double^int                 */
+/* ------------------------------------------------------------------- */
+#undef __FUNCT__
+#define __FUNCT__ "IntPow"
+PetscReal IntPow(PetscReal A, PetscInt B)
+{
+	PetscInt i,exp;
+	PetscReal sol = 1;
+	exp = PetscAbsScalar(B);
+	for (i=0; i<exp ; i++)
+		sol *= A;
+	if (B>=0) return sol;
+	else      return 1.0/sol;
 }
 
 #undef __FUNCT__
@@ -695,4 +711,3 @@ PetscErrorCode WeightedAverage(Vec U,void* ctx)
 	
 	PetscFunctionReturn(0);
 }
-
