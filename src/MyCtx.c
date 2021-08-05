@@ -475,18 +475,16 @@ PetscErrorCode CFL(TS ts)
  */
 PetscReal Arcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m)
 {
-	PetscInt  i,j,k,s;
+	PetscInt  i,j,k;
 	PetscReal B = 0., mu = 1e16;
 	PetscReal xs[3] = {-100e3,0e3,100e3};
 	PetscReal ys[2] = {-50e3,50e3};
 	PetscReal zs[1] = {-20e3};
 	PetscInt Ms=sizeof(xs)/sizeof(xs[0]), Ns=sizeof(ys)/sizeof(ys[0]), Ps=sizeof(zs)/sizeof(zs[0]);
-	B = 0;
 	for (i=0; i<Ms; i++) {
 		for (j=0; j<Ns; j++) {
 			for (k=0; k<Ps; k++) {
-				s = j; 
-				B += IntPow(-1,s%2) * V_Dipole(mu,xs[i],ys[j],zs[k],x,y,z,m);
+				B += (j%2 == 0 ? 1 : -1) * V_Dipole(mu,xs[i],ys[j],zs[k],x,y,z,m);
 			}
 		}
 	}
@@ -503,18 +501,16 @@ PetscReal Arcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m)
  */
 PetscReal MultiArcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m)
 {
-	PetscInt  i,j,k,s;
+	PetscInt  i,j,k;
 	PetscReal B = 0., mu = 1e16;
 	PetscReal xs[3] = {-100e3,0e3,100e3};
 	PetscReal ys[3] = {-250e3,0e3,250e3};
 	PetscReal zs[1] = {-20e3};
 	PetscInt Ms=sizeof(xs)/sizeof(xs[0]), Ns=sizeof(ys)/sizeof(ys[0]), Ps=sizeof(zs)/sizeof(zs[0]);
-	B = 0;
 	for (i=0; i<Ms; i++) {
 		for (j=0; j<Ns; j++) {
 			for (k=0; k<Ps; k++) {
-				s = j; 
-				B += IntPow(-1,s%2) * V_Dipole(mu,xs[i],ys[j],zs[k],x,y,z,m);
+				B += (j%2 == 0 ? 1 : -1) * V_Dipole(mu,xs[i],ys[j],zs[k],x,y,z,m);
 			}
 		}
 	}
