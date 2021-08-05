@@ -31,7 +31,6 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 	PetscReal      ui[3]={user->ui[0],user->ui[1],user->ui[2]}; // ion wind
 	
 	PetscBool      vDamping = user->vDamping;
-	PetscReal      vDampingMult;
 	PetscReal      lambda=user->lambda;
 	PetscReal      XL=user->inXmin,XU=user->inXmax;
 	PetscReal      YL=user->inYmin,YU=user->inYmax;
@@ -65,13 +64,33 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 		ierr = VecLoad(U,fViewer); CHKERRQ(ierr);
 		ierr = PetscViewerDestroy(&fViewer);CHKERRQ(ierr);   
 		PetscPrintf(PETSC_COMM_WORLD,"Init from %s: DONE\n",fName);
+
+		// Most of the following chunk is copied from the "else"
+		// Map U
+		ierr = DMDAVecGetArrayDOF(da,U,&u);CHKERRQ(ierr);
+		
+		// Get local grid boundaries
+		ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
+
+		if (Btype != 9) {
+			for (k=zs; k<zs+zm; k++) {
+				Z = Zmin + z[k]*L;
+				for (j=ys; j<ys+ym; j++) {
+					Y = Ymin + y[j]*L;
+					for (i=xs; i<xs+xm; i++) {
+						X = Xmin + x[i]*L;
+						FormInitialBField(u[k][j][i],ctx,Btype,d.B,X,Y,Z,Bo,B0,inZmax,a);
+					}
+				}
+			}
+		}
 	} else { 
 		// Map U
 		ierr = DMDAVecGetArrayDOF(da,U,&u);CHKERRQ(ierr);
 		
 		// Get local grid boundaries
 		ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
-		
+
 		for (k=zs; k<zs+zm; k++) {
 			Z = Zmin + z[k]*L;
 
@@ -104,139 +123,18 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 					X = Xmin + x[i]*L;
 
 					ukji = u[k][j][i];	// stored for faster access
-					/*
-					Te  = Interpolate(user->RefProf, 8 ,Z, lin_flat);
-					Ti  = Interpolate(user->RefProf, 9 ,Z, lin_flat);
-					neo = Interpolate(user->RefProf, 7 ,Z, lin_exp);
-					assert(Te>0);
-					assert(Ti>0);
-					assert(neo>0);
-
-					nio[O2p]  = Interpolate(user->RefPart, O2p ,Z, lin_flat)*neo;
-					nio[CO2p] = Interpolate(user->RefPart, CO2p,Z, lin_flat)*neo;
-					nio[Op]   = Interpolate(user->RefPart, Op  ,Z, lin_flat)*neo;
-
-					if(nio[Op]<10) nio[Op] = 10;
-
-					for (l=0; l<3; l++) {
-						if (!(nio[l] > 0)) nio[l] = eps.n*n0;
-                        
-						pio[l] = nio[l]*kB*Ti;
-						assert(pio[l]>0);
-					}
-
-					peo = neo*kB*Te;
-					assert(peo>0);
-					*/
-					if(Btype==0) {
-						ukji[d.B[0]] = Interpolate(user->RefProf, 0 ,Z, lin_flat)/B0;
-						ukji[d.B[1]] = Interpolate(user->RefProf, 1 ,Z, lin_flat)/B0;
-						ukji[d.B[2]] = Interpolate(user->RefProf, 2 ,Z, lin_flat)/B0;
-					} else if (Btype==1) {
-						ukji[d.B[0]] = 0.0/B0;
-						ukji[d.B[1]] = 0.0/B0;
-						ukji[d.B[2]] = Bo /B0;
-					} else if (Btype==2) {
-						ukji[d.B[0]] = 0.0/B0;
-						ukji[d.B[1]] = Bo /B0;
-						ukji[d.B[2]] = 0.0/B0;
-					} else if (Btype==3) {
-						ukji[d.B[0]] = V_Dipole(Bo,0,0,a,X,Y,Z,0)/B0;
-						ukji[d.B[1]] = V_Dipole(Bo,0,0,a,X,Y,Z,1)/B0;
-						ukji[d.B[2]] = V_Dipole(Bo,0,0,a,X,Y,Z,2)/B0;
-					} else if (Btype==4) {
-						ukji[d.B[0]] = H_Dipole(Bo,0,0,a,X,Y,Z,0)/B0;
-						ukji[d.B[1]] = H_Dipole(Bo,0,0,a,X,Y,Z,1)/B0;
-						ukji[d.B[2]] = H_Dipole(Bo,0,0,a,X,Y,Z,2)/B0;
-					} else if (Btype==5) {
-						if (Z<=inZmax) {
-							ukji[d.B[0]] = 0.0/B0;
-							ukji[d.B[1]] = 0.0/B0;
-							ukji[d.B[2]] = Bo /B0;
-						} else {
-							ukji[d.B[0]] = 0.0/B0;
-							ukji[d.B[1]] = 0.0/B0;
-							ukji[d.B[2]] = Bo /B0 * (1-erf((Z-3*a-inZmax)/a))/2;
-						}
-					} else if (Btype==6) {
-						if (Z<=inZmax) {
-							ukji[d.B[0]] = 0.0/B0;
-							ukji[d.B[1]] = 0.0/B0;
-							ukji[d.B[2]] = Bo /B0;
-						} else {
-							ukji[d.B[0]] = 0.0/B0;
-							ukji[d.B[1]] = 0.0/B0;
-							ukji[d.B[2]] = Bo /B0 * IntPow(inZmax/Z,3);
-						}
-					} else if (Btype==7) {
-						ukji[d.B[0]] = Arcades(X,Y,Z,0)/B0;
-						ukji[d.B[1]] = Arcades(X,Y,Z,1)/B0;
-						ukji[d.B[2]] = Arcades(X,Y,Z,2)/B0;
-					} else if (Btype==8) {
-						ukji[d.B[0]] = MultiArcades(X,Y,Z,0)/B0;
-						ukji[d.B[1]] = MultiArcades(X,Y,Z,1)/B0;
-						ukji[d.B[2]] = MultiArcades(X,Y,Z,2)/B0;
-					}
-
-					/*
-					ukji[d.B[0]] = 0;
-					ukji[d.B[1]] = 0;
-					ukji[d.B[2]] = 0;
-					if(Btype==0) {
-						ukji[d.B[0]] = Interpolate(user->RefProf, 0 ,Z, lin_flat)/B0;
-						ukji[d.B[1]] = Interpolate(user->RefProf, 1 ,Z, lin_flat)/B0;
-						ukji[d.B[2]] = Interpolate(user->RefProf, 2 ,Z, lin_flat)/B0;
-					} else if (Btype==1) {
-						ukji[d.B[2]] = Bo /B0;
-					} else if (Btype==2) {
-						ukji[d.B[1]] = Bo /B0;
-					} else if (Btype==3) {
-						ukji[d.B[0]] = V_Dipole(Bo,0,0,a,X,Y,Z,0)/B0;
-						ukji[d.B[1]] = V_Dipole(Bo,0,0,a,X,Y,Z,1)/B0;
-						ukji[d.B[2]] = V_Dipole(Bo,0,0,a,X,Y,Z,2)/B0;
-					} else if (Btype==4) {
-						ukji[d.B[0]] = H_Dipole(Bo,0,0,a,X,Y,Z,0)/B0;
-						ukji[d.B[1]] = H_Dipole(Bo,0,0,a,X,Y,Z,1)/B0;
-						ukji[d.B[2]] = H_Dipole(Bo,0,0,a,X,Y,Z,2)/B0;
-					} else if (Btype==5) {
-						ukji[d.B[2]] = Bo /B0;
-						if (Z>inZmax) {
-							ukji[d.B[2]] *= (1-erf((Z-3*a-inZmax)/a))/2;
-						}
-					} else if (Btype==6) {
-						ukji[d.B[2]] = Bo /B0;
-						if (Z>inZmax) {
-							ukji[d.B[2]] *= IntPow(inZmax/Z,3);
-						}
-					} else if (Btype==7) {
-						ukji[d.B[0]] = Arcades(X,Y,Z,0)/B0;
-						ukji[d.B[1]] = Arcades(X,Y,Z,1)/B0;
-						ukji[d.B[2]] = Arcades(X,Y,Z,2)/B0;
-					} else if (Btype==8) {
-						ukji[d.B[0]] = MultiArcades(X,Y,Z,0)/B0;
-						ukji[d.B[1]] = MultiArcades(X,Y,Z,1)/B0;
-						ukji[d.B[2]] = MultiArcades(X,Y,Z,2)/B0;
-					}
-					*/
-					
-					vDampingMult = 
-						.5*(1+erf((X-XL)/lambda)) * .5*(1-erf((X-XU)/lambda)) * 
-						.5*(1+erf((Y-YL)/lambda)) * .5*(1-erf((Y-YU)/lambda)) * 
-						.5*(1+erf((Z-ZL)/lambda)) * .5*(1-erf((Z-ZU)/lambda)) ;
+					if (Btype != 9) FormInitialBField(ukji,ctx,Btype,d.B,X,Y,Z,Bo,B0,inZmax,a);
 
 					for (l=0; l<3; l++) {
 						ukji[d.ni[l]] = nio[l]/n0;
 						for (m=0; m<3; m++) {
 							ukji[d.vi[l][m]] = ui[m]/v0;
 							if (vDamping) { //((1.0-tanh(Z-Lz)/(Lz/12.0))/2.0);
-								ukji[d.vi[l][m]] *= vDampingMult;
-								//ukji[d.vi[l][m]] = ui[m]/v0 * 				// Replaced only to reduce # of redundant calculations
-								//.5*(1+erf((X-XL)/lambda)) * .5*(1-erf((X-XU)/lambda)) * 
-								//.5*(1+erf((Y-YL)/lambda)) * .5*(1-erf((Y-YU)/lambda)) * 
-								//.5*(1+erf((Z-ZL)/lambda)) * .5*(1-erf((Z-ZU)/lambda)) ;
-							}// else {
-							//	ukji[d.vi[l][m]] = ui[m]/v0;
-							//}
+								ukji[d.vi[l][m]] *=
+									.5*(1+erf((X-XL)/lambda)) * .5*(1-erf((X-XU)/lambda)) * 
+									.5*(1+erf((Y-YL)/lambda)) * .5*(1-erf((Y-YU)/lambda)) * 
+									.5*(1+erf((Z-ZL)/lambda)) * .5*(1-erf((Z-ZU)/lambda)) ;
+							}
 						}
 						ukji[d.pi[l]] = pio[l]/p0;
 					}
@@ -251,6 +149,58 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 	PetscPrintf(PETSC_COMM_WORLD,"Form Initial Conditions: DONE\n");
 	PetscFunctionReturn(0); 
 } 
+
+/* ------------------------------------------------------------------- */
+#undef __FUNCT__
+#define __FUNCT__ "FormInitialBField"
+/* 
+ FormInitiatialBField - Evaluates B values depending on input B_field_type.
+ */
+PetscErrorCode FormInitialBField(PetscReal *ukji, void *ctx, PetscInt Btype, PetscInt *Bi, PetscReal X, PetscReal Y, PetscReal Z, PetscReal Bo, PetscReal B0, PetscReal inZmax, PetscReal a)
+{
+	AppCtx         *user = (AppCtx*)ctx;
+	ukji[Bi[0]] = 0;
+	ukji[Bi[1]] = 0;
+	ukji[Bi[2]] = 0;
+	if(Btype==0) {
+		ukji[Bi[0]] = Interpolate(user->RefProf, 0 ,Z, lin_flat)/B0;
+		ukji[Bi[1]] = Interpolate(user->RefProf, 1 ,Z, lin_flat)/B0;
+		ukji[Bi[2]] = Interpolate(user->RefProf, 2 ,Z, lin_flat)/B0;
+	} else if (Btype==1) {
+		ukji[Bi[2]] = Bo/B0;
+	} else if (Btype==2) {
+		ukji[Bi[1]] = Bo/B0;
+	} else if (Btype==3) {
+		ukji[Bi[0]] = V_Dipole(Bo,0,0,a,X,Y,Z,0)/B0;
+		ukji[Bi[1]] = V_Dipole(Bo,0,0,a,X,Y,Z,1)/B0;
+		ukji[Bi[2]] = V_Dipole(Bo,0,0,a,X,Y,Z,2)/B0;
+	} else if (Btype==4) {
+		ukji[Bi[0]] = H_Dipole(Bo,0,0,a,X,Y,Z,0)/B0;
+		ukji[Bi[1]] = H_Dipole(Bo,0,0,a,X,Y,Z,1)/B0;
+		ukji[Bi[2]] = H_Dipole(Bo,0,0,a,X,Y,Z,2)/B0;
+	} else if (Btype==5) {
+		ukji[Bi[2]] = Bo/B0;
+		if (Z>inZmax) {
+			ukji[Bi[2]] *= (1-erf((Z-3*a-inZmax)/a))/2;
+		}
+	} else if (Btype==6) {
+		ukji[Bi[2]] = Bo/B0;
+		if (Z>inZmax) {
+			ukji[Bi[2]] *= IntPow(inZmax/Z,3);
+		}
+	} else if (Btype==7) {
+		ukji[Bi[0]] = Arcades(X,Y,Z,0)/B0;
+		ukji[Bi[1]] = Arcades(X,Y,Z,1)/B0;
+		ukji[Bi[2]] = Arcades(X,Y,Z,2)/B0;
+	} else if (Btype==8) {
+		ukji[Bi[0]] = MultiArcades(X,Y,Z,0)/B0;
+		ukji[Bi[1]] = MultiArcades(X,Y,Z,1)/B0;
+		ukji[Bi[2]] = MultiArcades(X,Y,Z,2)/B0;
+	} else if (Btype==9) {
+		// 9 implies that B is to be read from an input binary file
+	}
+	PetscFunctionReturn(0); 
+}
 
 /* ------------------------------------------------------------------- */
 #undef __FUNCT__
@@ -1370,7 +1320,6 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 	PetscBool      limiters = user->limiters;
 	PetscBool      blockers = user->blockers;
 	PetscBool      vDamping = user->vDamping;
-	PetscReal      vDampingMult;
 	PetscReal      lambda=user->lambda;
 	PetscReal      XL=user->inXmin,XU=user->inXmax;
 	PetscReal      YL=user->inYmin,YU=user->inYmax;
@@ -1901,17 +1850,12 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				}
         
 				// Eq 3-11: Ion momenta // NEGLECT O and e-n collisions FOR NOW (07-29-11)
-				vDampingMult = 
-					.5*(1+erf((X-XL)/lambda)) * .5*(1-erf((X-XU)/lambda)) *
-					.5*(1+erf((Y-YL)/lambda)) * .5*(1-erf((Y-YU)/lambda)) *
-					.5*(1+erf((Z-ZL)/lambda)) * .5*(1-erf((Z-ZU)/lambda)) ;
 				if (vDamping) { //((1.0-tanh(Z-Lz)/(Lz/12.0))/2.0);
 					for (m=0; m<3; m++) { 
-						un[m]*= vDampingMult;
-						//un[m]*=
-						//.5*(1+erf((X-XL)/lambda)) * .5*(1-erf((X-XU)/lambda)) *
-						//.5*(1+erf((Y-YL)/lambda)) * .5*(1-erf((Y-YU)/lambda)) *
-						//.5*(1+erf((Z-ZL)/lambda)) * .5*(1-erf((Z-ZU)/lambda)) ;
+						un[m]*=
+						.5*(1+erf((X-XL)/lambda)) * .5*(1-erf((X-XU)/lambda)) *
+						.5*(1+erf((Y-YL)/lambda)) * .5*(1-erf((Y-YU)/lambda)) *
+						.5*(1+erf((Z-ZL)/lambda)) * .5*(1-erf((Z-ZU)/lambda)) ;
 					}
 				}
                 
