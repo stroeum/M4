@@ -1,6 +1,6 @@
 #Command line options
 -output_folder ./output
-#-input_file X2900000.bin
+#-input_file X780000.bin
 
 -bc_type 0 # 0: 1st order Neumann, 1: 2nd order Neumann, 2: zero'ed 2nd derivatives, 3: Non-symmetric "exact" solution, 10: combination of df/dn=0 amd d2f/dn2=0
 -limiters
@@ -9,22 +9,22 @@
 
 -dt 1.0e-4                # Initial time step
 -ts_max_steps 1000000000  # maximum number of time steps
--viz_dstep 10000          # plot every dstep
+-viz_dstep 20000          # plot every dstep
 -ts_max_time 36000
 
 -mi0 5.3135e-26        #_kg, mass of O2+, only single charged ions allowed!
 -mi1 7.3079e-26        #_kg, mass of CO2+
 -mi2 2.6567e-26        #_kg, mass of O+
 -me 9.1093e-31         #_kg, electron mass
--WindNS 0e2            #_m/_s, x-component of neutral wind
+-WindNS 1e2            #_m/_s, x-component of neutral wind
 -WindEW 0e2            #_m/_s, y-component of neutral wind
 -WindUD 0e2            #_m/_s, z-component of neutral wind
 -iWindNS 0e2           #_m/_s, initial x-component of ion wind
--iWindEW 0e2           #_m/_s, initial y-component of ion wind
+-iWindEW 1e2           #_m/_s, initial y-component of ion wind
 -iWindUD 0e2           #_m/_s, initial z-component of ion wind
 -ExtraDiagnostics
--B_field_type 3        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical, 7: Arcades, 8: Three lines of dipoles giving parallel arcades
--B0 0e16               #_A_m2, magnitude of the magnetic dipole moment
+-B_field_type 3        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical, 7: Arcades, 8: Three lines of dipoles giving parallel arcades, 9: Use existing B (only use when loading an input file!)
+-B0 1e16               #_A_m2, magnitude of the magnetic dipole moment
 -B1 0e3                #_m, geometry parameter a
 -B2 0e3                #_m, geometry parameter b
 -B3 0e3                #_m, geometry parameter c
@@ -66,10 +66,10 @@
 -chem_switch 1
 
 #Collisions
--coll_switch 0
+-coll_switch 1
 
 #Pressure Grad
--gradp_switch 0
+-gradp_switch 1
 
 #Gravity
--grav_switch 0
+-grav_switch 1
