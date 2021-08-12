@@ -15,8 +15,7 @@
 extern PetscReal v1(PetscReal N, PetscReal Z);
 //extern PetscReal v1(void);
 extern PetscReal v2(PetscReal N , PetscReal Te);
-extern PetscReal v3(PetscReal N, PetscReal Z);
-//extern PetscReal v3(void);
+extern PetscReal v3(void);
 extern PetscReal v4(PetscReal N , PetscReal Te);
 extern PetscReal v5(PetscReal N , PetscReal Te);
 extern PetscReal v6(PetscReal N , PetscReal Te);

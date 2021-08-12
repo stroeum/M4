@@ -60,19 +60,10 @@ PetscReal v2(PetscReal N , PetscReal Te) {
  */
 #undef __FUNCT__
 #define __FUNCT__ "v3"
-PetscReal v3(PetscReal N, PetscReal Z) {
-	PetscReal Zm = 130000;
-	PetscReal Qm = 4e9;
-	PetscReal H  = 11100;
-	PetscReal Znorm = (Z-Zm)/H;
-	return Qm*exp(1-Znorm-exp(-Znorm))/N; // kellen, temporary implementation of Tascione Eq 7.16
-}
-/*
 PetscReal v3(void) {
 	// return 0;
 	return 2.0e-7; //_s-1
 }
-*/
 
 /*
  * Electron impact ionization of O

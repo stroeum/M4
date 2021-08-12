@@ -1233,7 +1233,7 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 				// chemistry for Gen Ohms Law
 				chem_nuS[0] = v1(nn[CO2]   *n0, Z);          // CO2 + hv
 				chem_nuS[1] = 2*v2(nn[CO2] *n0, Te *T0);     // CO2 + e
-				chem_nuS[2] = v3(nn[O]     *n0, Z);                          // O + hv
+				chem_nuS[2] = v3();                          // O + hv
 				chem_nuS[3] = 2*v4(nn[O]   *n0, Te *T0);     // O + e
 
 				for (m=0;m<3;m++) {
@@ -1652,7 +1652,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				chem_nuL[CO2p][1] = v8(nn[O]   *n0);            // CO2+ + O
 				chem_nuL[CO2p][2] = v9(nn[O]   *n0);            // CO2+ + O
                 
-				chem_nuS[Op][0] = v3(nn[O]     *n0 , Z);                         // O + hv
+				chem_nuS[Op][0] = v3();                         // O + hv
 				chem_nuS[Op][1] = v4(ne        *n0 , Te *T0);   // O + e
 				chem_nuS[Op][2] = v9(ni[CO2p]  *n0);            // O + CO2+
 				chem_nuL[Op][0] = v7(ne        *n0 , Te *T0);   // O+ + e
@@ -1660,7 +1660,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
                 
 				chem_nuS[e][0] = v1(nn[CO2]    *n0 , Z);                          // CO2 + hv
 				chem_nuS[e][1] = 2*v2(nn[CO2]  *n0 , Te *T0);   // CO2 + e
-				chem_nuS[e][2] = v3(nn[O]      *n0 , Z);                          // O + hv
+				chem_nuS[e][2] = v3();                          // O + hv
 				chem_nuS[e][3] = 2*v4(nn[O]    *n0 , Te *T0);   // O + e
 				chem_nuL[e][0] = v2(nn[CO2]    *n0 , Te *T0);   // CO2 + e
 				chem_nuL[e][1] = v4(nn[O]      *n0 , Te *T0);   // O + e
