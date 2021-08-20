@@ -1172,7 +1172,7 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 				B[0]        = u[k][j][i][d.B[0]];        // Bx
 				B[1]        = u[k][j][i][d.B[1]];        // By
 				B[2]        = u[k][j][i][d.B[2]];        // Bz
-				
+
 				// Intermediate calculations
 				if (user->gradpswitch==1){
 					dpe.dx = D1.x[0]*u[k][j][id.x[0]][d.pe] + D1.x[1]*u[k][j][id.x[1]][d.pe] + D1.x[2]*u[k][j][id.x[2]][d.pe]; //dpe.dx 
@@ -1485,7 +1485,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 	ierr = DMDAVecGetArrayDOF(db,localV,&v);CHKERRQ(ierr);
 	ierr = FormBCv(v,user);CHKERRQ(ierr);
 	
-	// Check values sanity
+	// Check values' sanity
 	ierr = CheckValues(u,v,user);CHKERRQ(ierr);
 	
 	// Form F(u,v) = Udot
@@ -1570,21 +1570,21 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				B[1]        = u[k][j][i][d.B[1]];        // By
 				B[2]        = u[k][j][i][d.B[2]];        // Bz
 
-				/*
-				if (B[0] != 0 || B[1] != 0) {
-					PetscPrintf(PETSC_COMM_WORLD,"nonzero B %e %e\n", B[0], B[1]);
-					exit(1);
+				if (t*tau < 1e-2) {			 // If 5 seconds have not elapsed, slowly introduce B field using erf() curve
+					user->B0 *= erf(t*tau/1e-2);
+					B[0] *= erf(t*tau/1e-2);
+					B[1] *= erf(t*tau/1e-2);
+					B[2] *= erf(t*tau/1e-2);
 				}
-				*/
-				
+
 				ve[0]       = v[k][j][i][s.ve[0]];       // vxe
 				ve[1]       = v[k][j][i][s.ve[1]];       // vye
 				ve[2]       = v[k][j][i][s.ve[2]];       // vze
 				E[0]        = v[k][j][i][s.E[0]];        // Ex
 				E[1]        = v[k][j][i][s.E[1]];        // Ey
 				E[2]        = v[k][j][i][s.E[2]];        // Ez
-				
                 
+
 				nn[CO2] = Interpolate(user->RefProf, 5,Z,lin_exp )/n0;
 				nn[O]   = Interpolate(user->RefProf, 4,Z,lin_exp )/n0;
 				for (l=0; l<3; l++)
@@ -1646,7 +1646,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				chem_nuS[O2p][1] = v10(ni[Op]  *n0);            // O+ + CO2
 				chem_nuL[O2p][0] = v5(ne       *n0 , Te *T0);   // O2+ + e
                 
-				chem_nuS[CO2p][0] = v1(nn[CO2] *n0 , Z); // *L0 for Z                      // CO2 + hv
+				chem_nuS[CO2p][0] = v1(nn[CO2] *n0 , Z);        // CO2 + hv
 				chem_nuS[CO2p][1] = v2(ne      *n0 , Te *T0);   // CO2 + e
 				chem_nuL[CO2p][0] = v6(ne      *n0 , Te *T0);   // CO2+ + e
 				chem_nuL[CO2p][1] = v8(nn[O]   *n0);            // CO2+ + O
@@ -1658,7 +1658,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				chem_nuL[Op][0] = v7(ne        *n0 , Te *T0);   // O+ + e
 				chem_nuL[Op][1] = v10(nn[CO2]  *n0);            // O+ + CO2
                 
-				chem_nuS[e][0] = v1(nn[CO2]    *n0 , Z);                          // CO2 + hv
+				chem_nuS[e][0] = v1(nn[CO2]    *n0 , Z);        // CO2 + hv
 				chem_nuS[e][1] = 2*v2(nn[CO2]  *n0 , Te *T0);   // CO2 + e
 				chem_nuS[e][2] = v3();                          // O + hv
 				chem_nuS[e][3] = 2*v4(nn[O]    *n0 , Te *T0);   // O + e
@@ -1669,12 +1669,12 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				chem_nuL[e][4] = v7(ni[Op]     *n0 , Te *T0);   // O+ + e
 
 				// CONSERVATION OF MASS SOURCES AND LOSSES
-				cont_chem_S[O2p]  = tau     *(chem_nuS[O2p][0] *nn[O]    + chem_nuS[O2p][1] *nn[CO2]);
-				cont_chem_S[CO2p] = tau     *(chem_nuS[CO2p][0]*nn[CO2]  + chem_nuS[CO2p][1]*nn[CO2]);
-				cont_chem_S[Op]   = tau     *(chem_nuS[Op][0]  *nn[O]    + chem_nuS[Op][1]  *nn[O]    + chem_nuS[Op][2]  *nn[O]);
-				cont_chem_L[O2p]  = tau     *(chem_nuL[O2p][0] *ni[Op]);
-				cont_chem_L[CO2p] = tau     *(chem_nuL[CO2p][0]*ni[CO2p] + chem_nuL[CO2p][1]*ni[CO2p] + chem_nuL[CO2p][2]*ni[CO2p]);
-				cont_chem_L[Op]   = tau     *(chem_nuL[Op][0]  *ni[Op]   + chem_nuL[Op][1]  *ni[Op]);
+				cont_chem_S[O2p]  = tau*(chem_nuS[O2p][0] *nn[O]    + chem_nuS[O2p][1] *nn[CO2]);
+				cont_chem_S[CO2p] = tau*(chem_nuS[CO2p][0]*nn[CO2]  + chem_nuS[CO2p][1]*nn[CO2]);
+				cont_chem_S[Op]   = tau*(chem_nuS[Op][0]  *nn[O]    + chem_nuS[Op][1]  *nn[O]    + chem_nuS[Op][2]  *nn[O]);
+				cont_chem_L[O2p]  = tau*(chem_nuL[O2p][0] *ni[Op]);
+				cont_chem_L[CO2p] = tau*(chem_nuL[CO2p][0]*ni[CO2p] + chem_nuL[CO2p][1]*ni[CO2p] + chem_nuL[CO2p][2]*ni[CO2p]);
+				cont_chem_L[Op]   = tau*(chem_nuL[Op][0]  *ni[Op]   + chem_nuL[Op][1]  *ni[Op]);
 
 				// CONSERVATION OF MOMENTUM SOURCES
 				for (m=0;m<3;m++) {
@@ -1880,7 +1880,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 						fkji[d.vi[l][2]] += me/mi[l]*(E[2] + CrossP(vi[l],B,2) - dpi[l].dz/ni[l]);
 					}
 					if(user->gravswitch==1)
-						fkji[d.vi[l][2]] += - 1/((1+Z/rM)*(1+Z/rM));
+						fkji[d.vi[l][2]] += -1/((1+Z/rM)*(1+Z/rM));
 				}
 
 				// Eq 12-14: Equations of state for ions
@@ -1919,19 +1919,25 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 	m = MPI_Allreduce(MPI_IN_PLACE,&vf_max[0]  ,3 ,MPIU_REAL,MPIU_MAX,PETSC_COMM_WORLD);
 	m = MPI_Allreduce(MPI_IN_PLACE,&ve_max[0]  ,3 ,MPIU_REAL,MPIU_MAX,PETSC_COMM_WORLD);
 	m = MPI_Allreduce(MPI_IN_PLACE,&vcr_max[0] ,9 ,MPIU_REAL,MPIU_MAX,PETSC_COMM_WORLD);
-	m = MPI_Allreduce(MPI_IN_PLACE,&dt_CFL ,1 ,MPIU_REAL,MPIU_MIN,PETSC_COMM_WORLD);
+	m = MPI_Allreduce(MPI_IN_PLACE,&dt_CFL     ,1 ,MPIU_REAL,MPIU_MIN,PETSC_COMM_WORLD);
 	
 	// Adapt timestep to satisfy CFL
 	user->dt = c_CFL*dt_CFL;
 	
 	// Restore vectors
+
+	//****
+	//ierr = DMLocalToGlobalBegin(da,localU,INSERT_VALUES,U);CHKERRQ(ierr);
+	//ierr = DMLocalToGlobalEnd(  da,localU,INSERT_VALUES,U);CHKERRQ(ierr);
+	//****
+
 	ierr = DMDAVecRestoreArrayDOF(db,localV,&v);CHKERRQ(ierr);
 	ierr = DMDAVecRestoreArrayDOF(da,localU,&u);CHKERRQ(ierr);
 	ierr = DMDAVecRestoreArrayDOF(da,F,&f);CHKERRQ(ierr);
 	
 	ierr = DMRestoreLocalVector(db,&localV);CHKERRQ(ierr);
 	ierr = DMRestoreLocalVector(da,&localU);CHKERRQ(ierr);
-	
+
 	ierr = DMRestoreGlobalVector(db,&V); CHKERRQ(ierr);
 	PetscFunctionReturn(0); 
 } 
