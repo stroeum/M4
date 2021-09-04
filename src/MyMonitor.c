@@ -14,13 +14,20 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
 	char           fName[50];
 	PetscViewer    fViewer;
 	AppCtx         *user = (AppCtx*)ctx;
-	PetscLogDouble t0 = user->t0 , t1;
-	DM             da = user->da;
-	DM             db = user->db;
+	PetscLogDouble t0    = user->t0,t1;
+	DM             da    = user->da;
+	DM             db    = user->db;
+	PetscReal      L     = user->L;
+	PetscReal      Bt    = user->Bt;
+	PetscReal      B0i   = user->B0i;
+	PetscReal      B0f   = user->B0f;
+	PetscReal      *x= user->x, *y=user->y, *z=user->z;
+	PetscInt       i,j,k,m,xs,ys,zs,xm,ym,zm;
+	PetscReal      X,Y,Z;
 	PetscInt       rank;
-	PetscInt       istep = user->istep, vizdstep = user->viz_dstep;
-	PetscReal      tau = user->tau;
-	PetscBool      xtra_out = user->xtra_out;
+	PetscInt       istep=user->istep, vizdstep=user->viz_dstep;
+	PetscReal      tau=user->tau;
+	PetscBool      xtra_out=user->xtra_out;
 	Vec            V;
 	Vec            localU;
 	PetscReal      ****u;
@@ -30,6 +37,34 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
 	PetscFunctionBegin;
 	
 	MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
+
+	if (ptime*tau < Bt) {
+		ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
+		ierr = DMGetLocalVector(da,&localU );CHKERRQ(ierr);
+		ierr = DMGlobalToLocalBegin(da,U,INSERT_VALUES,localU );CHKERRQ(ierr);
+		ierr = DMGlobalToLocalEnd(da,U,INSERT_VALUES,localU );CHKERRQ(ierr);
+		ierr = DMDAVecGetArrayDOF(da,localU ,&u );CHKERRQ(ierr);
+
+		user->B[0] = (B0i + (B0f-B0i)*erf(4*(ptime*tau - Bt/2)/Bt) + B0f)/2;
+
+		for (k=zs; k<zs+zm; k++) {
+			Z = user->outZmin + z[k]*L;
+			for (j=ys; j<ys+ym; j++) {
+				Y = user->outYmin + y[j]*L;
+				for (i=xs; i<xs+xm; i++) {
+					X = user->outXmin + x[i]*L;
+					for (m=0; m<3; m++) {
+						FormInitialBField(u[k][j][i],ctx,X,Y,Z);
+					}
+				}
+			}
+		}
+	
+		ierr = DMDAVecRestoreArrayDOF(da,localU ,&u );CHKERRQ(ierr);
+		ierr = DMLocalToGlobalBegin(da,localU,INSERT_VALUES,U);CHKERRQ(ierr);
+		ierr = DMLocalToGlobalEnd(da,localU,INSERT_VALUES,U);CHKERRQ(ierr);
+		ierr = DMRestoreLocalVector(da,&localU);CHKERRQ(ierr);
+	}
 	
 	if((istep+step)%vizdstep==0) {
 		ierr = PetscTime(&t1);CHKERRQ(ierr);
