@@ -9,7 +9,7 @@
 
 -dt 1.0e-4                # Initial time step
 -ts_max_steps 1000000000  # maximum number of time steps
--viz_dstep 10          # plot every dstep
+-viz_dstep 20000          # plot every dstep
 -ts_max_time 36000
 
 -mi0 5.3135e-26        #_kg, mass of O2+, only single charged ions allowed!
@@ -24,7 +24,7 @@
 -iWindUD 0e2           #_m/_s, initial z-component of ion wind
 -ExtraDiagnostics
 -B_field_type 3        # 0: Measured, 1: Uniform vertical, 2: Uniform horizontal, 3: Dipole vertical, 4: Dipole horizontal, 5: Uniform then erf decreasing vertical, 6: Uniform then z^-3 decreasing vertical, 7: Arcades, 8: Three lines of dipoles giving parallel arcades, 9: Use existing B (only use when loading an input file!)
--Bt  3e-2		#_s, time to spend smoothly transitioning from B0i to B0
+-Bt  5                  #_s, time to spend smoothly transitioning from B0i to B0
 -B0i 0e5                #_A_m2, initial magnitude of the magnetic dipole moment
 -B0  1e16               #_A_m2, "final" magnitude of the magnetic dipole moment
 -B1  0e3                #_m, geometry parameter a
