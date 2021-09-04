@@ -38,6 +38,7 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
 	
 	MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
 
+	// During the transition period 0->Bt, slowly introduce Bfield
 	if (ptime*tau < Bt) {
 		ierr = DMDAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
 		ierr = DMGetLocalVector(da,&localU );CHKERRQ(ierr);
@@ -45,7 +46,7 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
 		ierr = DMGlobalToLocalEnd(da,U,INSERT_VALUES,localU );CHKERRQ(ierr);
 		ierr = DMDAVecGetArrayDOF(da,localU ,&u );CHKERRQ(ierr);
 
-		user->B[0] = (B0i + (B0f-B0i)*erf(4*(ptime*tau - Bt/2)/Bt) + B0f)/2;
+		user->B[0] = (B0i + (B0f-B0i)*erf(ptime*tau*4/Bt - 2) + B0f)/2; // Arbitrary function which leads to a smooth transition from B0i to B0f over time Bt
 
 		for (k=zs; k<zs+zm; k++) {
 			Z = user->outZmin + z[k]*L;
