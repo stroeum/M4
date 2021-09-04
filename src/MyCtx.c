@@ -210,6 +210,11 @@ PetscErrorCode InitCtx(AppCtx *user, MonitorCtx *usrmnt)
 	ierr = PetscOptionsGetReal(PETSC_NULL,PETSC_NULL,"-B2",&user->B[2],PETSC_NULL);CHKERRQ(ierr);
 	user->B[3] = 0.0;
 	ierr = PetscOptionsGetReal(PETSC_NULL,PETSC_NULL,"-B3",&user->B[3],PETSC_NULL);CHKERRQ(ierr);
+	user->Bt = 0.0;
+	ierr = PetscOptionsGetReal(PETSC_NULL,PETSC_NULL,"-Bt",&user->Bt,PETSC_NULL);CHKERRQ(ierr);
+	user->B0i = 0.0;
+	ierr = PetscOptionsGetReal(PETSC_NULL,PETSC_NULL,"-B0i",&user->B0i,PETSC_NULL);CHKERRQ(ierr);
+	user->B0f = user->B[0];
 	
 	ierr = PetscOptionsGetReal(PETSC_NULL,PETSC_NULL,"-Rmars",&user->rM,PETSC_NULL);CHKERRQ(ierr);
 	ierr = PetscOptionsGetReal(PETSC_NULL,PETSC_NULL,"-Mmars",&user->mM,PETSC_NULL);CHKERRQ(ierr);
