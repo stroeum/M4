@@ -19,7 +19,7 @@ extern PetscErrorCode CalculateFluxes(PetscReal,PetscInt,PetscReal****,PetscReal
 extern PetscErrorCode FormIntermediateFunction(PetscReal****,Vec,void*);
 extern PetscErrorCode FormFunction(TS,PetscReal,Vec,Vec,void*);  
 extern PetscErrorCode FormInitialSolution(Vec,void*);
-extern PetscErrorCode FormInitialBField(PetscReal*,void*,PetscInt,PetscInt*,PetscReal,PetscReal,PetscReal,PetscReal,PetscReal,PetscReal,PetscReal);
+extern PetscErrorCode FormInitialBField(PetscReal*,void*,PetscReal,PetscReal,PetscReal);
 
 #endif
 

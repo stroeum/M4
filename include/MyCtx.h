@@ -100,7 +100,10 @@ typedef struct {
 	PetscBool      limiters;                      // use smoothing Y/N
 	PetscBool      vDamping;                      // use damping to get null velocities at 400 km
 	PetscReal      ZL,ZU,lambda;                  // damping parameters
-	PetscInt       BfieldType;                    // Define the B-field configuration a t=0 
+	PetscInt       BfieldType;                    // Define the B-field configuration at t=0 
+	PetscReal      Bt;                            // Define the length of time to transition from B0i to B[0]
+	PetscReal      B0i;                           // Define the initial magnitude of the B-field
+	PetscReal      B0f;                           // Define the intended magnitude after time 'Bt'
 	PetscReal      B[4];                          // x-, y-, and z-component of the default uniform magnetic field
 	PetscReal      un[3];                         // x-, y-, and z-component of the neutral wind
 	PetscReal      ui[3];                         // Initial x-, y-, and z-component of the ions
