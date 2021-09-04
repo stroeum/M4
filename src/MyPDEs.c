@@ -18,16 +18,14 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 {
 	PetscErrorCode ierr;
 	AppCtx         *user = (AppCtx*)ctx;
-	tolerance      eps = user->eps;
-	DM             da = user->da;
-	dvi            d = user->d;
+	tolerance      eps   = user->eps;
+	DM             da    = user->da;
+	dvi            d     = user->d;
 	PetscInt       Btype = user->BfieldType;
 	PetscReal      *x=user->x, *y=user->y, *z=user->z;
 	PetscReal      L=user->L,Lz;
 	PetscReal      Xmin=user->outXmin, Ymin=user->outYmin, Zmin=user->outZmin;
-	PetscReal      inZmax=user->inZmax;
 	PetscReal      n0=user->n0, v0=user->v0, p0=user->p0, B0=user->B0;
-	PetscReal      Bo=user->B[0], a=user->B[1], b=user->B[2], c=user->B[3];
 	PetscReal      ui[3]={user->ui[0],user->ui[1],user->ui[2]}; // ion wind
 	
 	PetscBool      vDamping = user->vDamping;
@@ -79,7 +77,7 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 					Y = Ymin + y[j]*L;
 					for (i=xs; i<xs+xm; i++) {
 						X = Xmin + x[i]*L;
-						FormInitialBField(u[k][j][i],ctx,Btype,d.B,X,Y,Z,Bo,B0,inZmax,a);
+						FormInitialBField(u[k][j][i],ctx,X,Y,Z);
 					}
 				}
 			}
@@ -123,7 +121,7 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 					X = Xmin + x[i]*L;
 
 					ukji = u[k][j][i];	// stored for faster access
-					if (Btype != 9) FormInitialBField(ukji,ctx,Btype,d.B,X,Y,Z,Bo,B0,inZmax,a);
+					if (Btype != 9) FormInitialBField(ukji,ctx,X,Y,Z);
 
 					for (l=0; l<3; l++) {
 						ukji[d.ni[l]] = nio[l]/n0;
@@ -156,46 +154,55 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 /* 
  FormInitiatialBField - Evaluates B values depending on input B_field_type.
  */
-PetscErrorCode FormInitialBField(PetscReal *ukji, void *ctx, PetscInt Btype, PetscInt *Bi, PetscReal X, PetscReal Y, PetscReal Z, PetscReal Bo, PetscReal B0, PetscReal inZmax, PetscReal a)
+PetscErrorCode FormInitialBField(PetscReal *ukji, void *ctx, PetscReal X, PetscReal Y, PetscReal Z)
 {
 	AppCtx         *user = (AppCtx*)ctx;
-	ukji[Bi[0]] = 0;
-	ukji[Bi[1]] = 0;
-	ukji[Bi[2]] = 0;
+
+	dvi       d = user->d;
+	PetscReal inZmax = user->inZmax;
+	PetscReal Bo=(user->Bt > 0) ? user->B[0] : user->B0f;              // If Bt is 0, we have no transition period, so start at B0f
+	PetscReal B0 = user->B0;
+	PetscReal Btype = user->BfieldType;
+	PetscReal a = user->B[1];
+
+	ukji[d.B[0]] = 0;
+	ukji[d.B[1]] = 0;
+	ukji[d.B[2]] = 0;
+
 	if(Btype==0) {
-		ukji[Bi[0]] = Interpolate(user->RefProf, 0 ,Z, lin_flat)/B0;
-		ukji[Bi[1]] = Interpolate(user->RefProf, 1 ,Z, lin_flat)/B0;
-		ukji[Bi[2]] = Interpolate(user->RefProf, 2 ,Z, lin_flat)/B0;
+		ukji[d.B[0]] = Interpolate(user->RefProf, 0 ,Z, lin_flat)/B0;
+		ukji[d.B[1]] = Interpolate(user->RefProf, 1 ,Z, lin_flat)/B0;
+		ukji[d.B[2]] = Interpolate(user->RefProf, 2 ,Z, lin_flat)/B0;
 	} else if (Btype==1) {
-		ukji[Bi[2]] = Bo/B0;
+		ukji[d.B[2]] = Bo/B0;
 	} else if (Btype==2) {
-		ukji[Bi[1]] = Bo/B0;
+		ukji[d.B[1]] = Bo/B0;
 	} else if (Btype==3) {
-		ukji[Bi[0]] = V_Dipole(Bo,0,0,a,X,Y,Z,0)/B0;
-		ukji[Bi[1]] = V_Dipole(Bo,0,0,a,X,Y,Z,1)/B0;
-		ukji[Bi[2]] = V_Dipole(Bo,0,0,a,X,Y,Z,2)/B0;
+		ukji[d.B[0]] = V_Dipole(Bo,0,0,a,X,Y,Z,0)/B0;
+		ukji[d.B[1]] = V_Dipole(Bo,0,0,a,X,Y,Z,1)/B0;
+		ukji[d.B[2]] = V_Dipole(Bo,0,0,a,X,Y,Z,2)/B0;
 	} else if (Btype==4) {
-		ukji[Bi[0]] = H_Dipole(Bo,0,0,a,X,Y,Z,0)/B0;
-		ukji[Bi[1]] = H_Dipole(Bo,0,0,a,X,Y,Z,1)/B0;
-		ukji[Bi[2]] = H_Dipole(Bo,0,0,a,X,Y,Z,2)/B0;
+		ukji[d.B[0]] = H_Dipole(Bo,0,0,a,X,Y,Z,0)/B0;
+		ukji[d.B[1]] = H_Dipole(Bo,0,0,a,X,Y,Z,1)/B0;
+		ukji[d.B[2]] = H_Dipole(Bo,0,0,a,X,Y,Z,2)/B0;
 	} else if (Btype==5) {
-		ukji[Bi[2]] = Bo/B0;
+		ukji[d.B[2]] = Bo/B0;
 		if (Z>inZmax) {
-			ukji[Bi[2]] *= (1-erf((Z-3*a-inZmax)/a))/2;
+			ukji[d.B[2]] *= (1-erf((Z-3*a-inZmax)/a))/2;
 		}
 	} else if (Btype==6) {
-		ukji[Bi[2]] = Bo/B0;
+		ukji[d.B[2]] = Bo/B0;
 		if (Z>inZmax) {
-			ukji[Bi[2]] *= IntPow(inZmax/Z,3);
+			ukji[d.B[2]] *= IntPow(inZmax/Z,3);
 		}
 	} else if (Btype==7) {
-		ukji[Bi[0]] = Arcades(X,Y,Z,0)/B0;
-		ukji[Bi[1]] = Arcades(X,Y,Z,1)/B0;
-		ukji[Bi[2]] = Arcades(X,Y,Z,2)/B0;
+		ukji[d.B[0]] = Arcades(X,Y,Z,0)/B0;
+		ukji[d.B[1]] = Arcades(X,Y,Z,1)/B0;
+		ukji[d.B[2]] = Arcades(X,Y,Z,2)/B0;
 	} else if (Btype==8) {
-		ukji[Bi[0]] = MultiArcades(X,Y,Z,0)/B0;
-		ukji[Bi[1]] = MultiArcades(X,Y,Z,1)/B0;
-		ukji[Bi[2]] = MultiArcades(X,Y,Z,2)/B0;
+		ukji[d.B[0]] = MultiArcades(X,Y,Z,0)/B0;
+		ukji[d.B[1]] = MultiArcades(X,Y,Z,1)/B0;
+		ukji[d.B[2]] = MultiArcades(X,Y,Z,2)/B0;
 	} else if (Btype==9) {
 		// 9 implies that B is to be read from an input binary file
 	}
@@ -1184,7 +1191,6 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 					dB[m].dx = D1.x[0]*u[k][j][id.x[0]][d.B[m]] + D1.x[1]*u[k][j][id.x[1]][d.B[m]] + D1.x[2]*u[k][j][id.x[2]][d.B[m]]; //dB[m].dx 
 					dB[m].dy = D1.y[0]*u[k][id.y[0]][i][d.B[m]] + D1.y[1]*u[k][id.y[1]][i][d.B[m]] + D1.y[2]*u[k][id.y[2]][i][d.B[m]]; //dB[m].dy 
 					dB[m].dz = D1.z[0]*u[id.z[0]][j][i][d.B[m]] + D1.z[1]*u[id.z[1]][j][i][d.B[m]] + D1.z[2]*u[id.z[2]][j][i][d.B[m]]; //dB[m].dz
-                    
                     			// check the values of these
 				}
 				
@@ -1464,7 +1470,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 	
 	// Create and fill ****u inner cells proc ghosts
 	ierr = DMGetLocalVector(da,&localU);CHKERRQ(ierr);
-	
+
 	ierr = DMGlobalToLocalBegin(da,U,INSERT_VALUES,localU);CHKERRQ(ierr);
 	ierr = DMGlobalToLocalEnd(da,U,INSERT_VALUES,localU);CHKERRQ(ierr);
 	
@@ -1569,13 +1575,6 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				B[0]        = u[k][j][i][d.B[0]];        // Bx
 				B[1]        = u[k][j][i][d.B[1]];        // By
 				B[2]        = u[k][j][i][d.B[2]];        // Bz
-
-				if (t*tau < 1e-2) {			 // If 5 seconds have not elapsed, slowly introduce B field using erf() curve
-					user->B0 *= erf(t*tau/1e-2);
-					B[0] *= erf(t*tau/1e-2);
-					B[1] *= erf(t*tau/1e-2);
-					B[2] *= erf(t*tau/1e-2);
-				}
 
 				ve[0]       = v[k][j][i][s.ve[0]];       // vxe
 				ve[1]       = v[k][j][i][s.ve[1]];       // vye
@@ -1800,7 +1799,10 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 
 				// Critical speed and time for electrons
 				for (m=0; m<3; m++) {
+					//ve_max[m] = MaxAbs(ve_max[m], ve[m]);
 					ve_max[m] = MaxAbs(MaxAbs(ve_max[m], ve[m]),vth);
+					//here
+
 					for (l=0; l<3; l++) {
 						if (ve_max[m] > vcr_max[l][m]) { 
 							//Case when the electron related velocities are the critical velocities
