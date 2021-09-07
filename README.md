@@ -19,10 +19,11 @@ makefile must be tailored to the specific computer being used. (And rankfile if 
 
 	1.  make clean_data
 	2.  make all
-	3.  make in=<input> run
-	where <input> is an optional argument. Defaults to main.in.
+	3.  make run
 	4. Optional: Can save data with
-	    make n=<directory> save
+	    make n=<name> save
+	    
+	    Note: this will create a directory named SaveData which will hold all future saved data (This folder can be used for Matlab when analyzing data)
 
 	Or, if on blueshark
 	1. sbatch start.job
