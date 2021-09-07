@@ -119,8 +119,8 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 				Y = Ymin + y[j]*L;
 				for (i=xs; i<xs+xm; i++) {
 					X = Xmin + x[i]*L;
-
 					ukji = u[k][j][i];	// stored for faster access
+
 					if (Btype != 9) FormInitialBField(ukji,ctx,X,Y,Z);
 
 					for (l=0; l<3; l++) {
@@ -152,7 +152,15 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 #undef __FUNCT__
 #define __FUNCT__ "FormInitialBField"
 /* 
- FormInitiatialBField - Evaluates B values depending on input B_field_type.
+ FormInitiatialBField - Evaluates 3D B values depending on the field type and its magnitude..
+ Input Parameters:
+ .  ukji - input pointer
+ .  X - X coordinate in the domain (m)
+ .  Y - Y coordinate in the domain (m)
+ .  Z - Z coordinate in the domain (m)
+ 
+ Output Parameter:
+ .  ukji - output pointer
  */
 PetscErrorCode FormInitialBField(PetscReal *ukji, void *ctx, PetscReal X, PetscReal Y, PetscReal Z)
 {
