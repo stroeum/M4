@@ -127,7 +127,7 @@ PetscReal Interpolate1(PetscReal x, PetscReal xi[], PetscReal yi[], PetscInt Ni,
 
 #undef __FUNCT__
 #define __FUNCT__ "Interpolate2" // xi is in descending order
-PetscReal Interpolate2(PetscReal x, PetscReal xi[], PetscReal yi[], PetscInt Ni, PetscInt ItpType) {  
+PetscReal Interpolate2(PetscReal x, PetscReal xi[], PetscReal yi[], PetscInt Ni, PetscInt ItpType) {
 	PetscInt id[3];
 	PetscReal y=0.0, L=0.0, dx=0.0, dl[2]={0.0,0.0}, Dx[3]={0.0,0.0,0.0}, Dy=0.0;
 	PetscReal X[3]={0.0,0.0,0.0},Y[3]={0.0,0.0,0.0};

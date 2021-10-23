@@ -15,6 +15,7 @@
 #undef __FUNCT__
 #define __FUNCT__ "v1"
 PetscReal v1(PetscReal N, PetscReal Z) {
+	//return 0;
 	PetscReal Zm = 130000;
 	PetscReal Qm = 4e9;
 	PetscReal H  = 11100;
@@ -60,10 +61,20 @@ PetscReal v2(PetscReal N , PetscReal Te) {
  */
 #undef __FUNCT__
 #define __FUNCT__ "v3"
+PetscReal v3(PetscReal N, PetscReal Z) {
+	//return 0;
+	PetscReal Zm = 142000;
+	PetscReal Qm = 2e7;
+	PetscReal H  = 15100;
+	PetscReal Znorm = (Z-Zm)/H;
+	return Qm*exp(1-Znorm-exp(-Znorm))/N; // kellen, temporary implementation of Tascione Eq 7.16
+}
+/*
 PetscReal v3(void) {
-	// return 0;
+	//return 0;
 	return 2.0e-7; //_s-1
 }
+*/
 
 /*
  * Electron impact ionization of O
@@ -72,7 +83,7 @@ PetscReal v3(void) {
 #undef __FUNCT__
 #define __FUNCT__ "v4"
 PetscReal v4(PetscReal N , PetscReal Te) {
-	// return 0;
+	//return 0;
 	PetscReal K,E,v;
 	E = kB*Te/qe;
 	K = 1e-6*9.0e-9*PetscPowScalar(E,0.7)*PetscExpScalar(-13.6/E); //_m3/_s
@@ -87,7 +98,7 @@ PetscReal v4(PetscReal N , PetscReal Te) {
 #undef __FUNCT__
 #define __FUNCT__ "v5"
 PetscReal v5(PetscReal N , PetscReal Te) {
-	// return 0;
+	//return 0;
 	PetscReal K,v;
 	if (Te<1200) {
 		K = 1e-6*1.95e-7*PetscPowScalar( 300/Te,0.7 ); //_m3/_s
@@ -105,7 +116,7 @@ PetscReal v5(PetscReal N , PetscReal Te) {
 #undef __FUNCT__
 #define __FUNCT__ "v6"
 PetscReal v6(PetscReal N , PetscReal Te) {
-	// return 0;
+	//return 0;
 	PetscReal K, v;
 	K = 1e-6*3.1e-7*PetscSqrtScalar(300/Te); //_m3/_s
 	v = N*K;
@@ -119,7 +130,7 @@ PetscReal v6(PetscReal N , PetscReal Te) {
 #undef __FUNCT__
 #define __FUNCT__ "v7"
 PetscReal v7(PetscReal N , PetscReal Te) {
-	// return 0;
+	//return 0;
 	PetscReal K, v;
 	K = 1e-6*3.71e-12*PetscPowScalar(250/Te,0.7); //_m3/_s
 	v = N*K;
@@ -133,7 +144,7 @@ PetscReal v7(PetscReal N , PetscReal Te) {
 #undef __FUNCT__
 #define __FUNCT__ "v8"
 PetscReal v8(PetscReal N) {
-	// return 0;
+	//return 0;
 	PetscReal K, v;
 	K = 1.64e-16; //_m3/_s
 	v = N*K;
@@ -147,7 +158,7 @@ PetscReal v8(PetscReal N) {
 #undef __FUNCT__
 #define __FUNCT__ "v9"
 PetscReal v9(PetscReal N) {
-	// return 0;
+	//return 0;
 	PetscReal K, v;
 	K = 9.6e-17; //_m3/_s
 	v = N*K;
@@ -161,7 +172,7 @@ PetscReal v9(PetscReal N) {
 #undef __FUNCT__
 #define __FUNCT__ "v10"
 PetscReal v10(PetscReal N) {
-	// return 0;
+	//return 0;
 	PetscReal K, v;
 	K = 1.1e-15; //_m3/_s
 	v = N*K;
