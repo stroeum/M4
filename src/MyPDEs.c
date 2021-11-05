@@ -1680,7 +1680,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				chem_nuS[Op][2] = v9(ni[CO2p]  *n0);            // O + CO2+
 				chem_nuL[Op][0] = v7(ne        *n0 , Te *T0);   // O+ + e
 				chem_nuL[Op][1] = v10(nn[CO2]  *n0);            // O+ + CO2
-                
+
 				chem_nuS[e][0] = v1(nn[CO2]    *n0 , Z);        // CO2 + hv
 				chem_nuS[e][1] = 2*v2(nn[CO2]  *n0 , Te *T0);   // CO2 + e
 				chem_nuS[e][2] = v3(nn[CO2]   *n0, Z);          // O + hv
@@ -1698,6 +1698,11 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				cont_chem_L[O2p]  = tau*(chem_nuL[O2p][0] *ni[Op]);
 				cont_chem_L[CO2p] = tau*(chem_nuL[CO2p][0]*ni[CO2p] + chem_nuL[CO2p][1]*ni[CO2p] + chem_nuL[CO2p][2]*ni[CO2p]);
 				cont_chem_L[Op]   = tau*(chem_nuL[Op][0]  *ni[Op]   + chem_nuL[Op][1]  *ni[Op]);
+
+				//if (i==10 && j==10) {
+					//PetscPrintf(PETSC_COMM_WORLD,"1 source %e loss %e\n",cont_chem_S[Op], cont_chem_L[Op]);
+					//PetscPrintf(PETSC_COMM_WORLD,"2 source %e loss %e\n",cont_chem_S[CO2p], cont_chem_L[CO2p]);
+				//}
 
 
 				// CONSERVATION OF MOMENTUM SOURCES

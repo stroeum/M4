@@ -64,8 +64,18 @@ PetscReal v2(PetscReal N , PetscReal Te) {
 PetscReal v3(PetscReal N, PetscReal Z) {
 	//return 0;
 	PetscReal Zm = 142000;
-	PetscReal Qm = 2e7;
-	PetscReal H  = 15100;
+	PetscReal Qm;
+	PetscReal H;
+
+	if (Z < 165000) {
+		Qm = 2e1;
+		H  = 15100;
+	}
+	else {
+		Qm = 1.2e1;
+		H  = 30100;
+	}
+
 	PetscReal Znorm = (Z-Zm)/H;
 	return Qm*exp(1-Znorm-exp(-Znorm))/N; // kellen, temporary implementation of Tascione Eq 7.16
 }
