@@ -17,7 +17,7 @@
 PetscReal v1(PetscReal N, PetscReal Z) {
 	//return 0;
 	PetscReal Zm = 130000;
-	PetscReal Qm = 4e9;
+	PetscReal Qm = 1.6e10;
 	PetscReal H  = 11100;
 	PetscReal Znorm = (Z-Zm)/H;
 	return Qm*exp(1-Znorm-exp(-Znorm))/N; // kellen, temporary implementation of Tascione Eq 7.16
@@ -168,7 +168,7 @@ PetscReal v8(PetscReal N) {
 #undef __FUNCT__
 #define __FUNCT__ "v9"
 PetscReal v9(PetscReal N) {
-	//return 0;
+	return 0;
 	PetscReal K, v;
 	K = 9.6e-17; //_m3/_s
 	v = N*K;
