@@ -3,17 +3,30 @@
 Updated M4 by Kellen in 2021.
 
 
+## To Install
+You will need to run the following commands:
+	sudo apt-get update
+	sudo apt-get install make
+	sudo apt-get install build-essential
+	sudo apt-get install petsc-dev
+
+For ssh to blueshark, you must type
+	chmod 600 id_rsa
+
+	id_rsa should be your private key and is likely located at ~/.ssh
+
 ## Before running
 Make sure that in your ~/.bashrc you are exporting the proper PETSC_DIR
 
 	Locally:
-		petsc_dir ~= /usr/lib/petsc-<version>
+		petsc_dir ~= /usr/lib/petsc  or  /usr/lib/petsc-<version>
 
 	Blueshark:
-		petsc_dir ~= export/spack/linux-centos7-x86_64/gcc-9.1.0/petsc-...
+		petsc_dir ~= export/spack/linux-centos7-x86_64/gcc-9.1.0/petsc-<version>
 
 
 makefile must be tailored to the specific computer being used. (And rankfile if hyperthreading)
+rankfile must also be adjusted. Simply adjust the number of lines in rankfile to the number of "logical processors" (see Task Manager->Performance->CPU->Logical processors)
 
 ## Commands to run
 
@@ -48,3 +61,5 @@ btl_tcp error on BlueShark:
 Problem during Linking as part of "make all"
 	May need to link a library using "sudo ln -s <library you do have> <library it's looking for and failing to find>
 	Ex: sudo ln -s /usr/lib/python3 /usr/lib/python
+
+	May also not have install build-essential with "sudo apt-get install build-essential" (See "To Install" section near top)
