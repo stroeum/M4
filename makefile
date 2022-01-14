@@ -32,9 +32,9 @@ all: $(TARGET1)
 run:
 ifeq ($(PETSC_DIR), $(LOCALDIR))
 ifdef in
-	mpiexec -np 12 -H localhost -rf ./rankfile $(TARGET1) -options_file ./input/$(in) | tee ./output/out.txt
+	mpiexec -np 16 -H localhost -rf ./rankfile $(TARGET1) -options_file ./input/$(in) | tee ./output/out.txt
 else
-	mpiexec -np 12 -H localhost -rf ./rankfile $(TARGET1) -options_file ./input/main.in | tee ./output/out.txt
+	mpiexec -np 16 -H localhost -rf ./rankfile $(TARGET1) -options_file ./input/main.in | tee ./output/out.txt
 endif
 else
 ifdef in
