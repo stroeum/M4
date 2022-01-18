@@ -168,7 +168,7 @@ PetscReal v8(PetscReal N) {
 #undef __FUNCT__
 #define __FUNCT__ "v9"
 PetscReal v9(PetscReal N) {
-	return 0;
+	//return 0;
 	PetscReal K, v;
 	K = 9.6e-17; //_m3/_s
 	v = N*K;

@@ -1830,8 +1830,8 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 					vf_max[l]   = MaxAbs( vf_max[l], vf[l] );                                           // Maximum Fast magnetosonic wave speed
 					
 					for (m=0; m<3; m++) {
-						//vcr_max[l][m]   = MaxAbs( vcr_max[l][m], PetscAbsScalar(vi[l][m]) );   // Max critical speed
-						vcr_max[l][m]   = MaxAbs(MaxAbs(MaxAbs(MaxAbs(vcr_max[l][m], vs_max[l]), vA_max[l]), vf_max[l]), PetscAbsScalar(vi[l][m]));   // temp
+						vcr_max[l][m]   = MaxAbs( vcr_max[l][m], PetscAbsScalar(vi[l][m]) );   // Max critical speed
+						//vcr_max[l][m]   = MaxAbs(MaxAbs(MaxAbs(MaxAbs(vcr_max[l][m], vs_max[l]), vA_max[l]), vf_max[l]), PetscAbsScalar(vi[l][m]));   // temp
 					}
 
 					/* T_cr[l]:
@@ -1849,9 +1849,12 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 
 				// Critical speed and time for electrons
 				for (m=0; m<3; m++) {
-					ve_max[m] = MaxAbs(ve_max[m], ve[m]);
+					//ve_max[m] = MaxAbs(ve_max[m], ve[m]);
+					ve_max[m] = MaxAbs(ve_max[m], MaxAbs(ve[m], vth));
+					//here
 					if (ve_max[m] == 0) {
 						ve_max[m] = 1e-308; //temp
+						T_cr[e]   = 1e+308;
 					}
 
 					for (l=0; l<3; l++) {
@@ -1880,9 +1883,6 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 								 */
 								T_cr[e] = 1.0e+308;
 							}
-						}
-						else {
-							T_cr[e] = 1.0e+308; // temp
 						}
 					}
 				}
