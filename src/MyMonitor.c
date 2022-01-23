@@ -54,9 +54,9 @@ PetscErrorCode MyTSMonitor(TS ts,PetscInt step,PetscReal ptime,Vec U,void *ctx)
 				Y = user->outYmin + y[j]*L;
 				for (i=xs; i<xs+xm; i++) {
 					X = user->outXmin + x[i]*L;
-					for (m=0; m<3; m++) {
+					//for (m=0; m<3; m++) { //Why did I have a loop here? Is this just old?
 						FormInitialBField(u[k][j][i],ctx,X,Y,Z);
-					}
+					//}
 				}
 			}
 		}

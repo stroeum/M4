@@ -485,7 +485,8 @@ PetscReal Arcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m)
 	PetscReal xs[3] = {-100e3,0e3,100e3};
 	PetscReal ys[2] = {-50e3,50e3};
 	PetscReal zs[1] = {-20e3};
-	PetscInt Ms=sizeof(xs)/sizeof(xs[0]), Ns=sizeof(ys)/sizeof(ys[0]), Ps=sizeof(zs)/sizeof(zs[0]);
+	//PetscInt Ms=sizeof(xs)/sizeof(xs[0]), Ns=sizeof(ys)/sizeof(ys[0]), Ps=sizeof(zs)/sizeof(zs[0]);
+	PetscInt Ms=ArrSize(xs), Ns=ArrSize(ys), Ps=ArrSize(zs);
 	for (i=0; i<Ms; i++) {
 		for (j=0; j<Ns; j++) {
 			for (k=0; k<Ps; k++) {
@@ -511,7 +512,8 @@ PetscReal MultiArcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m)
 	PetscReal xs[3] = {-100e3,0e3,100e3};
 	PetscReal ys[3] = {-250e3,0e3,250e3};
 	PetscReal zs[1] = {-20e3};
-	PetscInt Ms=sizeof(xs)/sizeof(xs[0]), Ns=sizeof(ys)/sizeof(ys[0]), Ps=sizeof(zs)/sizeof(zs[0]);
+	//PetscInt Ms=sizeof(xs)/sizeof(xs[0]), Ns=sizeof(ys)/sizeof(ys[0]), Ps=sizeof(zs)/sizeof(zs[0]);
+	PetscInt Ms=ArrSize(xs), Ns=ArrSize(ys), Ps=ArrSize(zs);
 	for (i=0; i<Ms; i++) {
 		for (j=0; j<Ns; j++) {
 			for (k=0; k<Ps; k++) {
@@ -637,6 +639,17 @@ PetscReal IntPow(PetscReal A, PetscInt B)
 	if (B>=0) return sol;
 	else      return 1.0/sol;
 }
+
+/* ------------------------------------------------------------------- */
+/* Calculate the size of an array                                      */
+/* ------------------------------------------------------------------- */
+#undef __FUNCT__
+#define __FUNCT__ "ArrSize"
+PetscInt ArrSize(void* arr)
+{
+	return (sizeof arr)/(sizeof *arr);
+}
+
 
 #undef __FUNCT__
 #define __FUNCT__ "Average"

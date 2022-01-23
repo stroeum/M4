@@ -4,15 +4,19 @@
  * User defined functions and structures for use with DAE solvers
  */
 
-#define eps0 8.85418782e-12    //_F/_m, free space permittivity
-#define mu0 1.2566370614e-6    //_N/_A, free space permeability
-#define kB 1.3806503e-23       //_J/_K, Boltzmann constant
-#define qe 1.60217646e-19      //_C, elementary charge
-#define G 6.673e-11            //_m^3/_kg/_s^/\2, gravitational constant
-#define c_CFL 0.5              //_, CFL coefficient 
-#define Nz_REF 301             // number of reference altitude points
-#define Np_REF 18              // number of parameters in Profiles.dat
-#define MAX_LINE_LENGTH 1024   // maximum number of characters in a line
+#define eps0 8.85418782e-12	//_F/_m, free space permittivity
+#define mu0 1.2566370614e-6	//_N/_A, free space permeability
+#define kB 1.3806503e-23	//_J/_K, Boltzmann constant
+#define qe 1.60217646e-19	//_C, elementary charge
+#define G 6.673e-11		//_m^3/_kg/_s^/\2, gravitational constant
+#define c_CFL 0.5		//_, CFL coefficient 
+#define Nz_REF 301		// number of reference altitude points
+#define Np_REF 18		// number of parameters in Profiles.dat
+#define MAX_LINE_LENGTH 1024	// maximum number of characters in a line
+#define N_IONS 3		// number of ion species
+#define N_CSPECIES N_IONS+1	// number of charged species
+#define N_NEUTRAL 2		// number of neutral species
+#define N_SPECIES N_CSPECIES+N_NEUTRAL	// number of total species
 
 #ifndef MYCTX_H
 #define MYCTX_H
@@ -88,7 +92,7 @@ typedef struct {
 	PetscReal      vizbox[6];                     // Visualization box
 	PetscInt       viz_dstep;                     // Steps skipped for vizualization
 	PetscReal      rM,mM,gM;                      // Mars' radius, mass, and gravitational acceleration
-	PetscReal      me,mi[3];                      // me,mi[O2+,CO2+,O+]
+	PetscReal      me,mi[N_IONS];                      // me,mi[O2+,CO2+,O+]
 	PetscReal      Lx,Ly,Lz,L;                    // Domain size in x-,y-, and z-directions, and reference length
 	PetscReal      dt;                            // time-step
 	PetscReal      ti,tf;                         // initial time and final time
@@ -108,7 +112,7 @@ typedef struct {
 	PetscReal      un[3];                         // x-, y-, and z-component of the neutral wind
 	PetscReal      ui[3];                         // Initial x-, y-, and z-component of the ions
 	PetscReal      n0;                            // no[O2+,CO2+,O+,e], reference particule number densities
-	PetscReal      gama[4];                       // Specific heat ratio (O2+,CO2+,O+,e)
+	PetscReal      gama[N_CSPECIES];              // Specific heat ratio (O2+,CO2+,O+,e)
 	PetscReal      v0;                            // Reference velocity (thermal velocity)
 	PetscReal      p0;                            // Reference kinectic pressure
 	PetscReal      T0;                            // Reference temperature
@@ -146,6 +150,7 @@ extern PetscReal      Arcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m)
 extern PetscReal      MultiArcades(PetscReal x, PetscReal y, PetscReal z, PetscInt m);
 extern PetscReal      Norm2(PetscReal*); // Norm 2 squared!
 extern PetscReal      IntPow(PetscReal, PetscInt);
+extern PetscInt       ArrSize(void*);
 
 extern PetscErrorCode TSSSPStep_RK_2_JAR(TS,PetscReal,PetscReal,Vec);
 extern PetscErrorCode TSSSPStep_LAX(TS,PetscReal,PetscReal,Vec);
