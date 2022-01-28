@@ -103,9 +103,6 @@ PetscErrorCode FormInitialSolution(Vec U, void* ctx)
 			nio[CO2p] = Interpolate(user->RefPart, CO2p,Z, lin_flat)*neo;
 			nio[Op]   = Interpolate(user->RefPart, Op  ,Z, lin_flat)*neo;
 
-			// Why is this here? Old?
-			//if(nio[Op]<10) nio[Op] = 10;
-
 			for (l=0; l<N_IONS; l++) {
 				if (!(nio[l] > 0)) nio[l] = eps.n*n0;
 

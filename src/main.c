@@ -60,9 +60,9 @@ int main(int argc,char **argv)
 	 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 	PetscPrintf(PETSC_COMM_WORLD,"mx = %i my = %i mz = %i\n",user.mx,user.my,user.mz);
 	ierr = DMDACreate3d(PETSC_COMM_WORLD,DM_BOUNDARY_GHOSTED,DM_BOUNDARY_GHOSTED,DM_BOUNDARY_GHOSTED,DMDA_STENCIL_STAR,user.mx,user.my,user.mz,PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,19,1,PETSC_NULL,PETSC_NULL,PETSC_NULL,&user.da);CHKERRQ(ierr);
-	ierr =DMSetUp(user.da); CHKERRQ(ierr);
+	ierr = DMSetUp(user.da); CHKERRQ(ierr);
 	ierr = DMDACreate3d(PETSC_COMM_WORLD,DM_BOUNDARY_GHOSTED,DM_BOUNDARY_GHOSTED,DM_BOUNDARY_GHOSTED,DMDA_STENCIL_STAR,user.mx,user.my,user.mz,PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,9,1,PETSC_NULL,PETSC_NULL,PETSC_NULL,&user.db);CHKERRQ(ierr);
-	ierr =DMSetUp(user.db); CHKERRQ(ierr);
+	ierr = DMSetUp(user.db); CHKERRQ(ierr);
 	
 	/*  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	 Extract global vectors from DMDA; then duplicate for remaining
