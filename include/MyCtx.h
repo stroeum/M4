@@ -13,6 +13,7 @@
 #define Nz_REF 301		// number of reference altitude points
 #define Np_REF 18		// number of parameters in Profiles.dat
 #define MAX_LINE_LENGTH 1024	// maximum number of characters in a line
+#define N_DIMS 3		// number of dimensions
 #define N_IONS 3		// number of ion species
 #define N_CSPECIES N_IONS+1	// number of charged species
 #define N_NEUTRAL 2		// number of neutral species
@@ -50,11 +51,11 @@ typedef struct{
 } diff;
 
 typedef struct{
-	PetscInt x[3],y[3],z[3];
+	PetscInt x[N_DIMS],y[N_DIMS],z[N_DIMS];
 } stencil;
 
 typedef struct{
-	PetscReal x[3],y[3],z[3];
+	PetscReal x[N_DIMS],y[N_DIMS],z[N_DIMS];
 } coeff3;
 
 typedef struct{
@@ -62,13 +63,14 @@ typedef struct{
 } coeff2;
 
 typedef struct{
-	PetscInt ni[3],vi[3][3],pi[3],pe,B[3];
+	PetscInt ni[N_IONS],vi[N_IONS][N_DIMS],pi[N_IONS],pe,B[N_DIMS];
 } dvi;
 
 typedef struct{
-	PetscInt ve[3],J[3],E[3];
+	PetscInt ve[N_DIMS],J[N_DIMS],E[N_DIMS];
 } svi;
 
+// Currently Unused
 typedef struct{
 	PetscReal g[3],dp[4][3],E[4][3],B[4][3],col[4][3],adv[4][3];
 } fdv; // variables with force dependent terms
@@ -108,9 +110,9 @@ typedef struct {
 	PetscReal      Bt;                            // Define the length of time to transition from B0i to B[0]
 	PetscReal      B0i;                           // Define the initial magnitude of the B-field
 	PetscReal      B0f;                           // Define the intended magnitude after time 'Bt'
-	PetscReal      B[4];                          // x-, y-, and z-component of the default uniform magnetic field
-	PetscReal      un[3];                         // x-, y-, and z-component of the neutral wind
-	PetscReal      ui[3];                         // Initial x-, y-, and z-component of the ions
+	PetscReal      B[1+N_DIMS];                   // magnitude, x-, y-, and z-component of the default uniform magnetic field
+	PetscReal      un[N_DIMS];                    // x-, y-, and z-component of the neutral wind
+	PetscReal      ui[N_DIMS];                    // Initial x-, y-, and z-component of the ions
 	PetscReal      n0;                            // no[O2+,CO2+,O+,e], reference particule number densities
 	PetscReal      gama[N_CSPECIES];              // Specific heat ratio (O2+,CO2+,O+,e)
 	PetscReal      v0;                            // Reference velocity (thermal velocity)
