@@ -39,6 +39,8 @@
 #-ts_ssp_type lax
 #-ts_ssp_nstages 2
 
+#-ts_ssp_type rks2
+#-ts_ssp_type rks3
 -ts_ssp_type rk104
 -da_grid_x 21
 -da_grid_y 21

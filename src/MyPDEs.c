@@ -1053,14 +1053,14 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 	
 	PetscInt       mx = user->mx, my = user->my, mz = user->mz;
 	PetscReal      n0 = user->n0, v0 = user->v0, p0 = user->p0, T0 = user->T0;
-	PetscReal      un[N_DIMS] = {user->un[0]/v0, user->un[1]/v0, user->un[2]/v0};       // neutral wind
+	PetscReal      un[N_DIMS] = {user->un[0]/v0, user->un[1]/v0, user->un[2]/v0}; // neutral wind
 	PetscInt       rank;
 	PetscInt       b,i,j,k,m,xs,ys,zs,xm,ym,zm;
-	PetscReal      vi[N_IONS][N_DIMS],ve[N_DIMS],vb[N_SPECIES][N_DIMS]; // velocity of i,e
-	PetscReal      E[N_DIMS];  // E-field
-	PetscReal      J[N_DIMS];  // total conduction current
-	PetscReal      el_coll[N_DIMS] = {0.0,0.0,0.0}; // Elastic collision term in the GIVEN direction m  at the CURRENT point (k,j,i)
-	PetscReal      nu[N_SPECIES] = {0.0,0.0,0.0,0.0,0.0,0.0}; // electron-neutral collisions
+	PetscReal      vi[N_IONS][N_DIMS],ve[N_DIMS],vb[N_SPECIES][N_DIMS];           // velocity of i,e
+	PetscReal      E[N_DIMS];                                                     // E-field
+	PetscReal      J[N_DIMS];                                                     // total conduction current
+	PetscReal      el_coll[N_DIMS] = {0.0,0.0,0.0};                               // Elastic collision term in the GIVEN direction m  at the CURRENT point (k,j,i)
+	PetscReal      nu[N_SPECIES] = {0.0,0.0,0.0,0.0,0.0,0.0};                     // electron-neutral collisions
 	dvi            d = user->d;
 	PetscReal      L = user->L;
 	PetscReal      Lz;
@@ -1075,18 +1075,18 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 	
 	PetscReal      *x=user->x,*y=user->y,*z=user->z;
 	PetscReal      tau = user->tau; 
-	PetscReal      ni[N_IONS],ne,nn[N_NEUTRAL]; // density of i,e
-	PetscReal      pe;
-	PetscReal      Te;
-	PetscReal      B[N_DIMS];
+	PetscReal      ni[N_IONS],ne,nn[N_NEUTRAL];                                   // density of i,e
+	PetscReal      pe;                                                            // electron pressure
+	PetscReal      Te;                                                            // electron temperature
+	PetscReal      B[N_DIMS];                                                     // B-field
 	diff           dB[N_DIMS],dpe;
 	stencil        id;
 	PetscReal      ****v;
 	PetscInt       bcType = user->bcType;
 	coeff3         D1,D2;
 	coeff2         dh;
-    	PetscReal      chem_nuS[4]; // chemical sources of e (4 reactions produce e)
-    	PetscReal      E_chem_S[3];
+    	PetscReal      chem_nuS[4];                                                   // chemical sources of e (4 reactions produce e)
+    	PetscReal      E_chem_S[N_DIMS];
 
 	
 	PetscFunctionBegin;
@@ -1249,7 +1249,6 @@ PetscErrorCode FormIntermediateFunction(PetscReal ****u, Vec V, void *ctx)
 				chem_nuS[3] = 2*v4(nn[O]   *n0, Te *T0);     // O + e
 
 				for (m=0;m<N_DIMS;m++) {
-					//E_chem_S[m] = tau *(nn[m]/ne) *(
 					E_chem_S[m] = tau *(
 					  chem_nuS[0]  *(un[m] - ve[m])
 					+ chem_nuS[1]  *(un[m] - ve[m])
@@ -1342,7 +1341,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 	PetscReal      tau = user->tau; 
 	PetscReal      me = user->me;                                                  // me 
 	PetscReal      mi[N_IONS] = {user->mi[0], user->mi[1], user->mi[2]};           // mi[O2+,CO2+,O+]
-	PetscReal      un[N_DIMS] = {user->un[0]/v0, user->un[1]/v0, user->un[2]/v0};       // neutral wind
+	PetscReal      un[N_DIMS] = {user->un[0]/v0, user->un[1]/v0, user->un[2]/v0};  // neutral wind
 	PetscReal      gama[N_CSPECIES] = {user->gama[O2p],user->gama[CO2p],user->gama[Op],user->gama[e]};
 	PetscReal      c=1.0/(PetscSqrtScalar(mu0*eps0)*v0);                           // Normalized speed of light (all points, all directions, all species
 	PetscReal      vA[N_DIMS] = {                                                  // Alfven speed
@@ -1411,25 +1410,25 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 		{0.0, 0.0, 0.0}                                              // * in ANY direction m
 	};
     
-	PetscReal      vth = 0.0;                                                      // Thermal velocity
+	PetscReal      vth = 0.0;                                            // Thermal velocity
 	
 	PetscReal      T_cr[N_CSPECIES] = {0.0,0.0,0.0,0.0};
 	PetscErrorCode ierr;
 	PetscReal      t,dt,dt_CFL,h[N_DIMS];
-	PetscReal      nu[N_CSPECIES][N_SPECIES];                                      // ion-neutral collision frequency
+	PetscReal      nu[N_CSPECIES][N_SPECIES];                            // ion-neutral collision frequency
 	PetscReal      cont_chem_S[N_CSPECIES];
 	PetscReal      cont_chem_L[N_CSPECIES];
 	PetscReal      mom_chem_S[N_IONS][N_DIMS];
 	PetscReal      ene_chem_S[N_CSPECIES];
 	PetscReal      ene_chem_L[N_CSPECIES];
-	PetscReal      chem_nuS[N_CSPECIES][4];                                        // Chemical sources (4 reactions produce a given species)
-	PetscReal      chem_nuL[N_CSPECIES][5];                                        // Chemical losses  (at most 5 reactions consume a given species)
-	PetscReal      gaman[N_NEUTRAL];                                               // Specific heat of neutrals
-	PetscReal      mn[N_NEUTRAL];                                                  // Mass of neutrals, kg
-	PetscReal      E[N_DIMS],B[N_DIMS];                                            // E-field, B-field
-	PetscReal      ne,ni[N_IONS],nn[N_NEUTRAL];                                    // [O2+], [CO2+], [O+], ne in m^-3
-	PetscReal      Te,Ti[N_IONS],Tn[N_NEUTRAL];                                    // Temperature of e, O2+, CO2+, O+, CO2, 0 in K
-	PetscReal      pe,pi[N_IONS],pn[N_NEUTRAL];                                    // pressure of O2+, CO2+, O+, e, O, and CO2 in J/m^3
+	PetscReal      chem_nuS[N_CSPECIES][4];                              // Chemical sources (4 reactions produce a given species)
+	PetscReal      chem_nuL[N_CSPECIES][5];                              // Chemical losses  (at most 5 reactions consume a given species)
+	PetscReal      gaman[N_NEUTRAL];                                     // Specific heat of neutrals
+	PetscReal      mn[N_NEUTRAL];                                        // Mass of neutrals, kg
+	PetscReal      E[N_DIMS],B[N_DIMS];                                  // E-field, B-field
+	PetscReal      ne,ni[N_IONS],nn[N_NEUTRAL];                          // [O2+], [CO2+], [O+], ne in m^-3
+	PetscReal      Te,Ti[N_IONS],Tn[N_NEUTRAL];                          // Temperature of e, O2+, CO2+, O+, CO2, 0 in K
+	PetscReal      pe,pi[N_IONS],pn[N_NEUTRAL];                          // pressure of O2+, CO2+, O+, e, O, and CO2 in J/m^3
 	Vec            V;
 	PetscReal      ****u,****v,****f;
 	PetscReal      *fkji;
@@ -1437,7 +1436,7 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 	PetscInt       rank,numranks,step;
 	PetscInt       b,i,j,k,l,m,n,xs,ys,zs,xm,ym,zm;
 	PetscReal      ve[N_DIMS],vi[N_IONS][N_DIMS],vb[N_SPECIES][N_DIMS];                        // electron and ion velocities
-	PetscReal      vdiffO2p[N_DIMS],vdiffCO2p[N_DIMS],vdiffOp[N_DIMS],vdiffe[N_DIMS];
+	PetscReal      vdiff[N_CSPECIES][N_DIMS];
 	diff           dE[N_DIMS],dpe,dve[N_DIMS],dni[N_IONS],dpi[N_IONS],dvi[N_IONS][N_DIMS];     // Other derivatives 
 	stencil        id;
 	coeff3         D1;
@@ -1706,33 +1705,40 @@ PetscErrorCode FormFunction(TS ts,PetscReal ftime,Vec U,Vec F,void *ctx)
 				gaman[CO2]   = 1.289;
 				gaman[O]     = 1.667;
 				for (m=0;m<N_DIMS;m++) {
-					vdiffO2p[m]  = un[m] - vi[O2p][m];
-					vdiffCO2p[m] = un[m] - vi[CO2p][m];
-					vdiffOp[m]   = un[m] - vi[Op][m];
-					vdiffe[m]    = un[m] - ve[m];
+					for (l=0;l<N_IONS;l++) {
+						vdiff[l][m] = un[m] - vi[l][m];
+					}
+					vdiff[e][m] = un[m] - ve[m];
+					//vdiffO2p[m]  = un[m] - vi[O2p][m];
+					//vdiffCO2p[m] = un[m] - vi[CO2p][m];
+					//vdiffOp[m]   = un[m] - vi[Op][m];
+					//vdiffe[m]    = un[m] - ve[m];
 				}
 				ene_chem_S[O2p]  = tau      *(chem_nuS[O2p][0]  *(mi[O2p]/mn[O])        *(gama[O2p]-1)/(gaman[O]-1)  *pn[O]
 					+ chem_nuS[O2p][1]  *(mi[O2p]/mn[CO2])  *(gama[O2p]-1)/(gaman[CO2]-1) *pn[CO2]
-					+ (gama[O2p]-1)     *chem_nuS[O2p][0]   *(mi[O2p]*nn[O])/me     *Norm2(vdiffCO2p)/2
-					+ (gama[O2p]-1)     *chem_nuS[O2p][1]   *(mi[O2p]*nn[CO2])/me   *Norm2(vdiffCO2p)/2);
+					+ (gama[O2p]-1)     *chem_nuS[O2p][0]   *(mi[O2p]*nn[O])/me     *Norm2(vdiff[CO2p])/2
+					+ (gama[O2p]-1)     *chem_nuS[O2p][1]   *(mi[O2p]*nn[CO2])/me   *Norm2(vdiff[CO2p])/2);
+
 				ene_chem_S[CO2p] = tau      *(chem_nuS[CO2p][0] *(mi[CO2p]/mn[CO2])     *(gama[CO2p]-1)/(gaman[O]-1) *pn[CO2]
 					+ chem_nuS[CO2p][1] *(mi[CO2p]/mn[CO2]) *(gama[CO2p]-1)/(gaman[CO2]-1) *pn[CO2]
-					+ (gama[CO2p]-1)    *chem_nuS[CO2p][0]  *(mi[CO2p]*nn[CO2])/me  *Norm2(vdiffCO2p)/2
-					+ (gama[CO2p]-1)    *chem_nuS[CO2p][1]  *(mi[CO2p]*nn[CO2])/me  *Norm2(vdiffCO2p)/2);
+					+ (gama[CO2p]-1)    *chem_nuS[CO2p][0]  *(mi[CO2p]*nn[CO2])/me  *Norm2(vdiff[CO2p])/2
+					+ (gama[CO2p]-1)    *chem_nuS[CO2p][1]  *(mi[CO2p]*nn[CO2])/me  *Norm2(vdiff[CO2p])/2);
+
 				ene_chem_S[Op]   = tau      *(chem_nuS[Op][0]   *(mi[Op]/mn[O])         *(gama[Op]-1)/(gaman[O]-1)   *pn[O]
 					+ chem_nuS[Op][1]   *(mi[Op]/mn[O])     *(gama[Op]-1)/(gaman[O]-1) *pn[O]
 					+ chem_nuS[Op][2]   *(mi[Op]/mn[O])     *(gama[Op]-1)/(gaman[O]-1) *pn[O]
-					+ (gama[Op]-1)      *chem_nuS[Op][0]    *(mi[Op]*nn[O])/me      *Norm2(vdiffOp)/2
-					+ (gama[Op]-1)      *chem_nuS[Op][1]    *(mi[Op]*nn[O])/me      *Norm2(vdiffOp)/2
-					+ (gama[Op]-1)      *chem_nuS[Op][2]    *(mi[Op]*nn[O])/me      *Norm2(vdiffOp)/2);
+					+ (gama[Op]-1)      *chem_nuS[Op][0]    *(mi[Op]*nn[O])/me      *Norm2(vdiff[Op])/2
+					+ (gama[Op]-1)      *chem_nuS[Op][1]    *(mi[Op]*nn[O])/me      *Norm2(vdiff[Op])/2
+					+ (gama[Op]-1)      *chem_nuS[Op][2]    *(mi[Op]*nn[O])/me      *Norm2(vdiff[Op])/2);
+
 				ene_chem_S[e]    = tau      *(chem_nuS[e][0]    *(mi[Op]/mn[CO2])       *(gama[e]-1)/(gaman[CO2]-1)  *pn[O]
 					+ chem_nuS[e][1]    *(mi[Op]/mn[CO2])   *(gama[e]-1)/(gaman[CO2]-1) *pn[O]
 					+ chem_nuS[e][2]    *(mi[Op]/mn[O])     *(gama[e]-1)/(gaman[O]-1)   *pn[O]
 					+ chem_nuS[e][3]    *(mi[Op]/mn[O])     *(gama[e]-1)/(gaman[O]-1)   *pn[O]
-					+ (gama[e]-1)       *chem_nuS[e][0]     *(me*nn[CO2])/me        *Norm2(vdiffe)/2
-					+ (gama[e]-1)       *chem_nuS[e][1]     *(me*nn[CO2])/me        *Norm2(vdiffe)/2
-					+ (gama[e]-1)       *chem_nuS[e][2]     *(me*nn[O])/me          *Norm2(vdiffe)/2
-					+ (gama[e]-1)       *chem_nuS[e][3]     *(me*nn[O])/me          *Norm2(vdiffe)/2);
+					+ (gama[e]-1)       *chem_nuS[e][0]     *(me*nn[CO2])/me        *Norm2(vdiff[e])/2
+					+ (gama[e]-1)       *chem_nuS[e][1]     *(me*nn[CO2])/me        *Norm2(vdiff[e])/2
+					+ (gama[e]-1)       *chem_nuS[e][2]     *(me*nn[O])/me          *Norm2(vdiff[e])/2
+					+ (gama[e]-1)       *chem_nuS[e][3]     *(me*nn[O])/me          *Norm2(vdiff[e])/2);
 
 				ene_chem_L[O2p]  = tau      *(chem_nuL[O2p][0]  *pi[Op]);
 				ene_chem_L[CO2p] = tau      *(chem_nuL[CO2p][0] *pi[CO2p] + chem_nuL[CO2p][1] *pi[CO2p] + chem_nuL[CO2p][2] *pi[CO2p]);
