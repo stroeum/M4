@@ -30,7 +30,7 @@ all: $(TARGET1)
 	@echo "main objs: $(OBJECTS1)"
 
 run:
-ifeq ($(PETSC_DIR), $(LOCALDIR))
+ifeq ($(PETSC_DIR), $(LOCALDIR)) # If these aren't equal, assume we're running on BlueShark
 ifdef in
 	mpiexec --oversubscribe -np 16 -H localhost $(TARGET1) -options_file ./input/$(in) | tee ./output/out.txt
 else

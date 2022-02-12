@@ -7,8 +7,8 @@
 #SBATCH --mem-per-cpu=250M
 #SBATCH --time=48:00:00
 #SBATCH --partition=long
-#SBATCH --error=errM4_%J.err
-#SBATCH --output=errM4_%J.out
+#SBATCH --error=M4_%J.err
+#SBATCH --output=M4_%J.out
 
 module load petsc/3.11.2
 module load openmpi/3.1.4
