@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# You can either use both --nodes and --ntasks-per-node, OR you just use --ntasks (not both)
+
 #SBATCH --job-name M4
 #SBATCH --nodes 8
 #SBATCH --ntasks-per-node 24
